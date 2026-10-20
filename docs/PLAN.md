@@ -17,7 +17,7 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - [x] **2. Backup semanal cifrado**: workflow de GitHub Actions con `supabase db dump` + `age` (ADR 0004) y sus Secrets.
 - [x] **3. Members y Admin**: gestión de la lista de autorizados, Members, Guests (alta, conversión a Member conservando historial).
 - [x] **4. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
-- [ ] **5. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
+- [x] **5. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
 - [ ] **6. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
 - [ ] **7. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada. Va después de Plays porque varios filtros dependen del historial.
 - [ ] **8. Polls**: Candidates, Suggestions, Approvals, Veto opcional, cierre por fecha o manual, desempate del creador, resultado.
@@ -43,3 +43,4 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - 2026-10-20: hito 2. Secrets `SUPABASE_DB_URL` (pooler en modo sesión) y `AGE_RECIPIENT` en GitHub. Dump probado en local.
 - 2026-10-20: hito 3. Tests de base de datos con pgTAP en `supabase/tests/` (`pnpm test:db`). Solo el Admin ve los emails autorizados.
 - 2026-10-20: hito 4. Migración `strict_default_privileges`: las tablas nuevas no reciben permisos por defecto ni en local ni en producción, así local no oculta GRANTs olvidados (se detectó uno en el upsert de Ratings). CI en `.github/workflows/ci.yml`.
+- 2026-10-20: hito 5. El estado de la Session lo gobierna un trigger (`private.session_lifecycle`), con "hoy" en `Europe/Madrid`. "Pendiente de cerrar" se calcula en `src/lib/domain/session.ts`. El recuento de Plays se completa en el hito 6.

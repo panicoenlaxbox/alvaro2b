@@ -27,6 +27,7 @@ export function errorMessage(error: Pick<PostgrestError, "code" | "message"> | n
 const CHECK_MESSAGES: Record<string, string> = {
   "The group needs at least one Admin": "El grupo necesita al menos un Admin.",
   "That Player is already a Member": "Ese jugador ya es miembro.",
+  "Invalid Session status change": "Una sesión celebrada o cancelada ya no puede cambiar de estado.",
 };
 
 function checkMessage(message: string): string {
