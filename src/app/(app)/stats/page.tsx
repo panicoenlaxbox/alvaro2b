@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireMember } from "@/lib/auth";
+import { Dropdown } from "@/components/dropdown";
 import { loadStatsData } from "@/lib/data/stats";
 import { formatDuration } from "@/lib/domain/play";
 import { formatShortDate } from "@/lib/domain/session";
@@ -107,8 +108,7 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
         <Link href={withRange("")} className={!player && !game ? "btn-primary" : "btn-secondary"}>
           Grupo
         </Link>
-        <details className="relative">
-          <summary className={`${player ? "btn-primary" : "btn-secondary"} cursor-pointer list-none`}>{player ? player.name : "Jugador"} ▾</summary>
+        <Dropdown group="stats-filter" summaryClassName={player ? "btn-primary" : "btn-secondary"} summary={`${player ? player.name : "Jugador"} ▾`}>
           <ul className="card absolute z-10 mt-1 max-h-64 w-48 space-y-1 overflow-auto p-2">
             {data.players.map((p) => (
               <li key={p.id}>
@@ -118,9 +118,8 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
               </li>
             ))}
           </ul>
-        </details>
-        <details className="relative">
-          <summary className={`${game ? "btn-primary" : "btn-secondary"} cursor-pointer list-none`}>{game ? game.name : "Juego"} ▾</summary>
+        </Dropdown>
+        <Dropdown group="stats-filter" summaryClassName={game ? "btn-primary" : "btn-secondary"} summary={`${game ? game.name : "Juego"} ▾`}>
           <ul className="card absolute z-10 mt-1 max-h-64 w-56 space-y-1 overflow-auto p-2">
             {data.games.map((g) => (
               <li key={g.id}>
@@ -130,7 +129,7 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
               </li>
             ))}
           </ul>
-        </details>
+        </Dropdown>
       </nav>
 
       {player ? <PlayerView id={player.id} name={player.name} data={data} range={range} gameName={gameName} playerName={playerName} /> : null}
