@@ -10,7 +10,7 @@ export function SessionCard({
 }) {
   const details = [
     session.place,
-    session.attendeeCount ? `${session.attendeeCount} asistentes` : null,
+    session.attendeeCount ? `${session.attendeeCount} ${session.attendeeCount === 1 ? "asistente" : "asistentes"}` : null,
     session.playCount ? `${session.playCount} ${session.playCount === 1 ? "partida" : "partidas"}` : null,
   ].filter(Boolean);
 
