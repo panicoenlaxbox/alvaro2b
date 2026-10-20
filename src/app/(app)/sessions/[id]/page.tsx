@@ -78,94 +78,109 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
         </p>
       )}
 
-      {(canStart(session.status) || canCancel(session.status)) && <StatusButtons sessionId={session.id} />}
-
-      {session.status === "planned" && (
-        <section className="card space-y-3">
-          <h2>¿Vienes?</h2>
-          <RsvpButtons sessionId={session.id} current={myRsvp} />
-          {session.rsvps.length > 0 && (
-            <ul className="space-y-1 text-sm">
-              {session.rsvps.map((r) => (
-                <li key={r.player_id} className="flex justify-between">
-                  <span>{names.get(r.player_id)}</span>
-                  <span className="text-muted">{RSVP_LABELS[r.response]}</span>
-                </li>
+      {/* One column on the phone (RSVP and the poll first); on wide screens the Plays and Photos sit beside the rest. */}
+      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+        <div className="contents lg:block lg:space-y-6">
+          <div className="order-4 empty:hidden lg:order-none">
+            <section className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-lg">Partidas ({plays.length})</h2>
+                {session.status !== "cancelled" && (
+                  <Link href={`/sessions/${session.id}/plays/new`} className="btn-primary">
+                    Registrar partida
+                  </Link>
+                )}
+              </div>
+              {plays.length === 0 && <p className="text-sm text-muted">Aún no hay partidas.</p>}
+              {plays.map((play) => (
+                <Link key={play.id} href={`/plays/${play.id}`} className="card block space-y-2 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold">{play.game.name}</p>
+                    {play.startedAt && !play.endedAt ? (
+                      <span className="chip border-accent bg-accent font-bold text-ink">En juego</span>
+                    ) : (
+                      <span className="text-xs text-muted">{playSummary(play)}</span>
+                    )}
+                  </div>
+                  <PlayResult play={play} compact />
+                </Link>
               ))}
-            </ul>
-          )}
-        </section>
-      )}
-
-      {session.polls ? (
-        <Link href={`/polls/${session.polls.id}`} className="card flex items-center justify-between gap-2">
-          <span className="font-semibold">Votación: ¿a qué jugamos?</span>
-          <span className="text-sm text-muted">
-            {session.polls.candidates[0]?.count ?? 0} candidatos ·{" "}
-            {isPollOpen({ closesAt: session.polls.closes_at, closedAt: session.polls.closed_at }) ? "abierta" : "cerrada"}
-          </span>
-        </Link>
-      ) : (
-        session.status === "planned" && (
-          <details className="card">
-            <summary className="cursor-pointer font-semibold">Abrir votación para decidir a qué jugar</summary>
-            <div className="mt-3">
-              <OpenPollForm sessionId={session.id} />
-            </div>
-          </details>
-        )
-      )}
-
-      <section className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="text-lg">Partidas ({plays.length})</h2>
-          {session.status !== "cancelled" && (
-            <Link href={`/sessions/${session.id}/plays/new`} className="btn-primary">
-              Registrar partida
-            </Link>
-          )}
+            </section>
+          </div>
+          <div className="order-6 empty:hidden lg:order-none">
+            <section className="space-y-3">
+              <h2 className="text-lg">Fotos ({photos.length})</h2>
+              {session.status !== "cancelled" && <PhotoUploader sessionId={session.id} />}
+              <PhotoGrid photos={photos} />
+            </section>
+          </div>
         </div>
-        {plays.length === 0 && <p className="text-sm text-muted">Aún no hay partidas.</p>}
-        {plays.map((play) => (
-          <Link key={play.id} href={`/plays/${play.id}`} className="card block space-y-2 p-3">
-            <div className="flex items-center justify-between gap-2">
-              <p className="font-semibold">{play.game.name}</p>
-              {play.startedAt && !play.endedAt ? (
-                <span className="chip border-accent bg-accent font-bold text-ink">En juego</span>
-              ) : (
-                <span className="text-xs text-muted">{playSummary(play)}</span>
+        <aside className="contents lg:block lg:space-y-6">
+          <div className="order-1 empty:hidden lg:order-none">
+            {(canStart(session.status) || canCancel(session.status)) && <StatusButtons sessionId={session.id} />}
+          </div>
+          <div className="order-2 empty:hidden lg:order-none">
+            {session.status === "planned" && (
+              <section className="card space-y-3">
+                <h2>¿Vienes?</h2>
+                <RsvpButtons sessionId={session.id} current={myRsvp} />
+                {session.rsvps.length > 0 && (
+                  <ul className="space-y-1 text-sm">
+                    {session.rsvps.map((r) => (
+                      <li key={r.player_id} className="flex justify-between">
+                        <span>{names.get(r.player_id)}</span>
+                        <span className="text-muted">{RSVP_LABELS[r.response]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            )}
+          </div>
+          <div className="order-3 empty:hidden lg:order-none">
+            {session.polls ? (
+              <Link href={`/polls/${session.polls.id}`} className="card flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                <span className="font-semibold">Votación: ¿a qué jugamos?</span>
+                <span className="text-sm text-muted">
+                  {session.polls.candidates[0]?.count ?? 0} candidatos ·{" "}
+                  {isPollOpen({ closesAt: session.polls.closes_at, closedAt: session.polls.closed_at }) ? "abierta" : "cerrada"}
+                </span>
+              </Link>
+            ) : (
+              session.status === "planned" && (
+                <details className="card">
+                  <summary className="cursor-pointer font-semibold">Abrir votación para decidir a qué jugar</summary>
+                  <div className="mt-3">
+                    <OpenPollForm sessionId={session.id} />
+                  </div>
+                </details>
+              )
+            )}
+          </div>
+          <div className="order-5 empty:hidden lg:order-none">
+            <section className="card space-y-3">
+              <h2>Asistentes ({attendeeIds.length})</h2>
+              <AttendeesEditor sessionId={session.id} players={players} selected={attendeeIds} />
+            </section>
+          </div>
+          <div className="order-7 empty:hidden lg:order-none">
+            <section className="flex flex-wrap gap-2">
+              {session.status === "planned" && (
+                <Link href={`/games?session=${session.id}`} className="btn-secondary">
+                  Elegir juego para esta sesión
+                </Link>
               )}
-            </div>
-            <PlayResult play={play} compact />
-          </Link>
-        ))}
-      </section>
-
-      <section className="card space-y-3">
-        <h2>Asistentes ({attendeeIds.length})</h2>
-        <AttendeesEditor sessionId={session.id} players={players} selected={attendeeIds} />
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg">Fotos ({photos.length})</h2>
-        {session.status !== "cancelled" && <PhotoUploader sessionId={session.id} />}
-        <PhotoGrid photos={photos} />
-      </section>
-
-      <section className="flex flex-wrap gap-2">
-        {session.status === "planned" && (
-          <Link href={`/games?session=${session.id}`} className="btn-secondary">
-            Elegir juego para esta sesión
-          </Link>
-        )}
-        <a href={whatsappUrl(shareText)} target="_blank" rel="noreferrer" className="btn-secondary">
-          Compartir por WhatsApp
-        </a>
-        <Link href={`/sessions/${session.id}/edit`} className="btn-secondary">
-          Editar
-        </Link>
-        {(member.isAdmin || session.created_by === member.userId) && <DeleteSessionButton sessionId={session.id} />}
-      </section>
+              <a href={whatsappUrl(shareText)} target="_blank" rel="noreferrer" className="btn-secondary">
+                Compartir por WhatsApp
+              </a>
+              <Link href={`/sessions/${session.id}/edit`} className="btn-secondary">
+                Editar
+              </Link>
+              {(member.isAdmin || session.created_by === member.userId) && <DeleteSessionButton sessionId={session.id} />}
+            </section>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
