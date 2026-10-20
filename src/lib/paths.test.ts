@@ -7,7 +7,7 @@ describe("isPublicPath", () => {
     (path) => expect(isPublicPath(path)).toBe(true),
   );
 
-  it.each(["/", "/sessions", "/games/1", "/loginx", "/privacy-other", "/api/export"])("protects %s", (path) =>
+  it.each(["/", "/sessions", "/games/1", "/loginx", "/privacy-other", "/api/other"])("protects %s", (path) =>
     expect(isPublicPath(path)).toBe(false),
   );
 });

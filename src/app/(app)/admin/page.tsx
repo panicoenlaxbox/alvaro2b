@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { appUrl } from "@/lib/share";
 import { createClient } from "@/lib/supabase/server";
@@ -50,14 +49,6 @@ export default async function AdminPage() {
             />
           ))}
         </ul>
-      </section>
-
-      <section className="card space-y-2">
-        <h2 className="font-semibold">Datos</h2>
-        <p className="text-sm text-muted">Exportación completa en JSON y descarga de las fotos.</p>
-        <Link href="/admin/export" className="btn-secondary">
-          Exportar datos
-        </Link>
       </section>
     </div>
   );

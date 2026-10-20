@@ -33,7 +33,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Inicia sesión solo con Google, y únicamente si su email está en la lista de autorizados que gestiona el Admin (ver [ADR 0005](./adr/0005-google-sign-in-with-allowlist.md)).
   - No hay registro público y la aplicación no envía emails: el Admin pasa el enlace por WhatsApp.
   - El email del primer Admin se configura como variable de entorno, nunca en el repositorio.
-- **Admin**: un Member que gestiona las invitaciones y los Members, y tiene la exportación de datos.
+- **Admin**: un Member que gestiona las invitaciones y los Members.
   - Puede revocar una invitación que aún no se ha usado.
   - Puede desactivar a un Member: deja de poder entrar y de aparecer al elegir jugadores, conserva su historial y se puede reactivar.
   - Puede eliminar a un Member sin historial (no ha jugado, asistido ni creado nada), junto con su cuenta.
@@ -163,10 +163,6 @@ Todas son filtrables por año o rango de fechas.
   - Duración real media frente a la estimada.
   - Quién gana más.
   - Porcentaje de victorias del grupo en cooperativo.
-
-### 9. Exportación
-
-- **Exportación manual**. El Admin descarga los datos en JSON. Las Photos se descargan aparte.
 
 ## Requisitos no funcionales
 
