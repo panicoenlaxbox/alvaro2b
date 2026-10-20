@@ -22,6 +22,8 @@ Solo valores no secretos. Los secretos viven en el gestor de contraseñas del pr
 
 ### Estado del trabajo del agente
 
+Lo que queda por hacer del propietario está en [`TASKS.md`](./TASKS.md).
+
 | Tarea | Estado | Notas |
 |---|---|---|
 | Proveedor de email desactivado en Supabase | ✅ Hecho por el propietario | El token del agente no tiene `project_admin_write`, necesario para cambiar la configuración de Auth por la Management API. Además, un trigger rechaza cualquier alta que no venga de Google |
@@ -184,7 +186,4 @@ $s | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $f
 
 ## Mantenimiento recurrente del propietario
 
-- **Una vez, y luego de vez en cuando:** descargar un artefacto del workflow *Backup* y comprobar que se descifra con la clave privada: `age -d -i $HOMEalvaro2b-backup.agekey backup.tar.age | tar -t` debe listar `roles.sql`, `schema.sql` y `data.sql`. El agente no lo hace porque no usa la clave privada.
-- **Cada 90 días:** renovar `SUPABASE_ACCESS_TOKEN` y `VERCEL_TOKEN` en `.claude/settings.local.json`. Ningún Secret de GitHub depende de ellos; `SUPABASE_DB_URL` solo cambia si cambia la contraseña de la base de datos.
-- **Si llega un email de Supabase avisando de una pausa:** el keep-alive no está funcionando. Avisa al agente.
-- **Si llega un email de GitHub avisando de que va a desactivar el workflow de backup por inactividad:** reactívalo en la pestaña *Actions* del repositorio.
+Las tareas pendientes, opcionales y recurrentes del propietario están en [`TASKS.md`](./TASKS.md).
