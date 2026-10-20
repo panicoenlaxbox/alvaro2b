@@ -87,7 +87,7 @@ export async function deletePlay(_prev: ActionState, formData: FormData): Promis
   const supabase = await createClient();
   const { data: play } = await supabase.from("plays").select("session_id").eq("id", id).maybeSingle();
   const { error, count } = await supabase.from("plays").delete({ count: "exact" }).eq("id", id);
-  if (error) return { error: error.code === "23503" ? "Tiene fotos etiquetadas. Quita la etiqueta antes." : errorMessage(error) };
+  if (error) return { error: errorMessage(error) };
   if (!count || !play) return { error: "Solo quien la registró o el Admin pueden borrarla." };
 
   revalidatePlay(play.session_id);

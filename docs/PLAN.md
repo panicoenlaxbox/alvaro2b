@@ -21,7 +21,7 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - [x] **6. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
 - [x] **7. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada. Va después de Plays porque varios filtros dependen del historial.
 - [x] **8. Polls**: Candidates, Suggestions, Approvals, Veto opcional, cierre por fecha o manual, desempate del creador, resultado.
-- [ ] **9. Photos**: bucket privado, compresión en el navegador y miniatura, Album y Session, etiquetado de Players y Play, URLs firmadas.
+- [x] **9. Photos**: bucket privado, compresión en el navegador y miniatura, Album y Session, etiquetado de Players y Play, URLs firmadas.
 - [ ] **10. Estadísticas**: grupo, Player y Game, filtrables por fechas.
 - [ ] **11. Exportación**: JSON para el Admin y descarga aparte de Photos.
 - [ ] **12. BGG**: búsqueda e importación, bloque BGG info con caché de 7 días, "Powered by BGG"; se activa sola cuando existe `BGG_TOKEN`.
@@ -49,3 +49,4 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - 2026-10-20: hito 6. Cronómetro: "Empezar" guarda la Play con `started_at`; "Terminar" fija `ended_at` y la duración, y lleva a editar el resultado. Las server actions ya no reciben redirecciones del proxy si caduca la sesión. Aviso "Leaked Password Protection" aceptado (ver SETUP).
 - 2026-10-20: hito 7. Sin migración: filtros, ordenación y "sorpréndeme" en `src/lib/domain/explore.ts`, sobre los datos del Catalog con su historial. Con `?session=` los filtros parten de los asistentes.
 - 2026-10-20: hito 8. Un Poll por Session planificada. Votar, vetar y proponer solo mientras está abierto (RLS con `private.poll_is_open`). Resultado y desempate en `src/lib/domain/poll.ts`. La fecha límite se escribe en hora de Madrid.
+- 2026-10-20: hito 9. Photos comprimidas en el navegador a WebP (lado largo 2000 px, objetivo 500 KB) más miniatura de 400 px, en `media/photos/`. Borrar una Photo borra sus ficheros. Borrar una Play solo quita su etiqueta de las Photos.
