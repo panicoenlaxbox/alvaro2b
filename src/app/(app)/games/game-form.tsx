@@ -26,7 +26,7 @@ export function GameForm({
 }: {
   action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
   defaults?: GameFormDefaults;
-  owners: { id: string; display_name: string }[];
+  owners: { id: string; display_name: string; active?: boolean }[];
   submitLabel: string;
 }) {
   const [state, formAction, pending] = useActionState(action, initialActionState);
@@ -71,7 +71,9 @@ export function GameForm({
           </label>
           <select id="owner_id" name="owner_id" defaultValue={defaults.owner_id ?? ""} className="input">
             <option value="">Sin dueño (prestado, de un bar…)</option>
-            {owners.map((o) => (
+            {owners
+              .filter((o) => o.active !== false || o.id === defaults.owner_id)
+              .map((o) => (
               <option key={o.id} value={o.id}>
                 {o.display_name}
               </option>

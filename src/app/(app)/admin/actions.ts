@@ -46,3 +46,28 @@ export async function removeAllowedEmail(_prev: ActionState, formData: FormData)
   revalidatePath("/admin");
   return { ok: true };
 }
+
+export async function setMemberActive(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const playerId = String(formData.get("player_id"));
+  const active = formData.get("active") === "true";
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_member_active", { target: playerId, active });
+  if (error) return { error: errorMessage(error) };
+
+  revalidatePath("/admin");
+  return { ok: true, message: active ? "Reactivado." : "Desactivado: ya no puede entrar y no aparece al elegir jugadores." };
+}
+
+export async function deleteMember(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const playerId = String(formData.get("player_id"));
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("delete_member", { target: playerId });
+  if (error) return { error: error.code === "23503" ? "Tiene historial, así que no se puede eliminar. Desactívalo." : errorMessage(error) };
+
+  revalidatePath("/admin");
+  return { ok: true };
+}

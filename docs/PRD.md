@@ -34,6 +34,10 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - No hay registro público y la aplicación no envía emails: el Admin pasa el enlace por WhatsApp.
   - El email del primer Admin se configura como variable de entorno, nunca en el repositorio.
 - **Admin**: un Member que gestiona las invitaciones y los Members, y tiene la exportación de datos.
+  - Puede revocar una invitación que aún no se ha usado.
+  - Puede desactivar a un Member: deja de poder entrar y de aparecer al elegir jugadores, conserva su historial y se puede reactivar.
+  - Puede eliminar a un Member sin historial (no ha jugado, asistido ni creado nada), junto con su cuenta.
+  - No puede hacerlo consigo mismo ni con otro Admin: antes hay que quitarle el rol.
 - **Guest**: persona sin cuenta que participa en Sessions y Plays.
   - No vota en los Polls ni da Ratings.
   - Puede convertirse en Member enlazando una cuenta, y conserva su historial.

@@ -273,14 +273,14 @@ isOneToOne: false
                   ]
                 },"players": {
                   Row: {
-                    "avatar_url": string | null,"created_at": string,"created_by": string | null,"display_name": string,"id": string,"user_id": string | null
+                    "avatar_url": string | null,"created_at": string,"created_by": string | null,"deactivated_at": string | null,"display_name": string,"id": string,"user_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_url"?: string | null,"created_at"?: string,"created_by"?: string | null,"display_name": string,"id"?: string,"user_id"?: string | null
+                    "avatar_url"?: string | null,"created_at"?: string,"created_by"?: string | null,"deactivated_at"?: string | null,"display_name": string,"id"?: string,"user_id"?: string | null
                   }
                   Update: {
-                    "avatar_url"?: string | null,"created_at"?: string,"created_by"?: string | null,"display_name"?: string,"id"?: string,"user_id"?: string | null
+                    "avatar_url"?: string | null,"created_at"?: string,"created_by"?: string | null,"deactivated_at"?: string | null,"display_name"?: string,"id"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     
@@ -481,8 +481,14 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "save_play":
+            "delete_member":
+{ Args: { "target": string }; Returns: undefined
+                           },
+"save_play":
 { Args: { "play": Json }; Returns: string
+                           },
+"set_member_active":
+{ Args: { "active": boolean,"target": string }; Returns: undefined
                            }
           }
           Enums: {
