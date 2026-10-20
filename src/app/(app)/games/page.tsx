@@ -80,7 +80,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
       </section>
 
       {!showRetired && results.length > 0 && (
-        <SurpriseMe games={results.map((g) => ({ id: g.id, name: g.name }))} autoStart={params.dado === "1"} />
+        <SurpriseMe key={results.map((g) => g.id).join()} games={results.map((g) => ({ id: g.id, name: g.name }))} autoStart={params.dado === "1"} />
       )}
 
       {!showRetired && (

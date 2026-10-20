@@ -64,10 +64,10 @@ export function TopNav() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-[0.9375rem] font-bold ${active ? "bg-accent text-ink" : "text-foreground hover:bg-card"}`}
+                className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[0.9375rem] font-bold lg:px-3 ${active ? "bg-accent text-ink" : "text-foreground hover:bg-card"}`}
                 aria-current={active ? "page" : undefined}
               >
-                <Icon d={item.icon} className="size-5" />
+                <Icon d={item.icon} className="hidden size-5 lg:block" />
                 {item.label}
               </Link>
             </li>
