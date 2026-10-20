@@ -21,10 +21,36 @@ These are deliberate. Do not translate them to English.
 ## Domain
 
 - `GLOSSARY.md` defines the domain vocabulary. Use its terms in code and docs.
-- `docs/PRD.md` describes scope and features. `docs/adr/` records architectural decisions.
+- `docs/PRD.md` describes what the app does today. `docs/adr/` records architectural decisions.
 - `docs/SETUP.md` lists the owner's one-time setup, environments, secret names and the agent's red lines. Respect those red lines.
 - `docs/TASKS.md` is the owner's to-do list. When something can only be done by the owner, add it there instead of blocking.
-- `docs/PLAN.md` is the build plan and log; keep it updated when a milestone changes.
+- `docs/PLAN.md` is the frozen log of the initial build. It is history: read it for context, leave it unchanged.
+
+## Changing the app
+
+Every change, however small, follows this flow:
+
+1. Branch from `main`.
+2. Tests: domain logic in `src/lib/domain/` (Vitest, `pnpm test`) and database rules in `supabase/tests/` (pgTAP, `pnpm test:db`).
+3. Schema changes as a new migration, tested with `pnpm db:reset` locally. Applied migrations are never edited.
+4. Check the change in Chrome against `http://localhost:3000` with the fictional seed data.
+5. Open a PR and review it. CI must be green.
+6. Apply new migrations to production with `pnpm supabase db push` before merging, run the Supabase security advisors and fix every new warning.
+7. Merge, then smoke-test `https://alvaro2b.vercel.app` without leaving data behind.
+
+Update the docs in the same PR as the code, by what the change touches:
+
+| The change… | Update |
+|---|---|
+| alters what the app does (a feature, a rule, a screen's behaviour) | `docs/PRD.md`, so it keeps describing the current app |
+| adds a domain term or changes its meaning | `GLOSSARY.md` |
+| reverses or replaces an architectural decision | a new ADR in `docs/adr/` with the next number, saying which ADR it supersedes; in the old ADR add only a first line `> Sustituido por [NNNN](./NNNN-slug.md).` |
+| needs something only the owner can do | `docs/TASKS.md` |
+| changes environments, secrets or setup | `docs/SETUP.md` |
+| changes how to run or develop the project | `README.md` |
+| fixes a bug or adjusts copy or styling | no docs |
+
+ADRs are append-only records: the superseded note is the only edit an existing ADR ever gets. Before coding a large or ambiguous change, grill the owner with the `grilling` skill until the behaviour is clear.
 
 ## Public repository
 
