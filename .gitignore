@@ -46,3 +46,19 @@
 
 # Local Claude Code settings (contain secrets such as GH_TOKEN)
 /.claude/settings.local.json
+
+# Dependencies and build output
+/node_modules
+/.next/
+/out/
+/build
+/coverage
+*.tsbuildinfo
+next-env.d.ts
+*.pem
+npm-debug.log*
+.pnpm-debug.log*
+
+# Supabase local state
+/supabase/.temp/
+/supabase/.branches/

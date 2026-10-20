@@ -1,0 +1,40 @@
+# Plan de construcción
+
+Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y se marca al quedar en producción. Alcance: todo el [PRD](./PRD.md).
+
+## Flujo de cada hito
+
+1. Rama `feat/<hito>` desde `main`.
+2. Tests de la lógica de dominio (Vitest, `pnpm test`).
+3. Migraciones versionadas en `supabase/migrations/`, con RLS y `GRANT` explícitos, probadas con `pnpm supabase db reset` en local.
+4. Verificación en Chrome contra `http://localhost:3000` con datos ficticios (`supabase/seed.sql`).
+5. PR, revisión propia, `pnpm supabase db push` a producción **antes** de integrar (las migraciones son aditivas), `get_advisors` y corrección de avisos, integración en `main`.
+6. Prueba de humo en `https://alvaro2b.vercel.app` sin dejar datos.
+
+## Hitos
+
+- [ ] **1. Base**: Next.js + pnpm + Supabase CLI, `.gitattributes`, `.env.example`, PWA, login con Google, lista de emails autorizados con el primer Admin desde `ADMIN_EMAIL`, `/privacy`, proyecto Vercel conectado a GitHub sin previews, variables de Production, cron diario de keep-alive, registro por email desactivado en Supabase, comprobación de producción.
+- [ ] **2. Backup semanal cifrado**: workflow de GitHub Actions con `supabase db dump` + `age` (ADR 0004) y sus Secrets.
+- [ ] **3. Members y Admin**: gestión de la lista de autorizados, Members, Guests (alta, conversión a Member conservando historial).
+- [ ] **4. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
+- [ ] **5. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada.
+- [ ] **6. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
+- [ ] **7. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
+- [ ] **8. Polls**: Candidates, Suggestions, Approvals, Veto opcional, cierre por fecha o manual, desempate del creador, resultado.
+- [ ] **9. Photos**: bucket privado, compresión en el navegador y miniatura, Album y Session, etiquetado de Players y Play, URLs firmadas.
+- [ ] **10. Estadísticas**: grupo, Player y Game, filtrables por fechas.
+- [ ] **11. Exportación**: JSON para el Admin y descarga aparte de Photos.
+- [ ] **12. BGG**: búsqueda e importación, bloque BGG info con caché de 7 días, "Powered by BGG"; se activa sola cuando existe `BGG_TOKEN`.
+- [ ] **13. Cierre**: repaso del PRD, advisors limpios, README actualizado, resumen de pendientes del propietario.
+
+## Decisiones de implementación
+
+- **Next.js 16** (App Router, `src/`), Tailwind 4. La protección de rutas está en `src/proxy.ts` (el antiguo `middleware`).
+- **Lista de autorizados en dos capas**: un trigger en `auth.users` rechaza el alta de cualquier email que no esté en `allowed_emails`, y todas las políticas RLS dependen de `is_member()`, no solo de `auth.uid()`.
+- **Primer Admin**: `scripts/bootstrap-admin.mjs` lee `ADMIN_EMAIL` del entorno y lo inserta en `allowed_emails` como Admin. El email nunca está en el repositorio.
+- **Sin `service_role` en Vercel**: todo pasa por RLS con la sesión del Member. El keep-alive actualiza con la clave pública la única fila de `keep_alive`, que no contiene datos del grupo.
+- **Login de desarrollo solo en local**: en local, el proveedor de email sigue activo para entrar como Members ficticios del seed (Chrome automatizado no puede usar varias cuentas de Google). La ruta solo existe si `NODE_ENV !== 'production'` y Supabase apunta a `127.0.0.1`. En producción, el registro por email está desactivado.
+
+## Registro
+
+- 2026-10-20: plan inicial.

@@ -20,6 +20,15 @@ Solo valores no secretos. Los secretos viven en el gestor de contraseñas del pr
 | 8. Secretos locales | ✅ | En `.claude/settings.local.json` (ignorado): `GH_TOKEN`, `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `VERCEL_TOKEN`, `AGE_RECIPIENT`, `ADMIN_EMAIL`. Falta `BGG_TOKEN` |
 | 9. Claude Code | ✅ | MCP `supabase` conectado (solo lectura). Vercel CLI como `panicoenlaxbox-9567`, equipo `sergio-1c62`. `gh` como `panicoenlaxbox` |
 
+### Estado del trabajo del agente
+
+| Tarea | Estado | Notas |
+|---|---|---|
+| Proveedor de email desactivado en Supabase | ✅ Hecho por el propietario | El token del agente no tiene `project_admin_write`, necesario para cambiar la configuración de Auth por la Management API. Además, un trigger rechaza cualquier alta que no venga de Google |
+| Primer Admin | ✅ | Insertado desde `ADMIN_EMAIL` con `scripts/bootstrap-admin.mjs` |
+| Proyecto de Vercel | ✅ | `alvaro2b` en `sergio-1c62`, conectado a GitHub. Solo despliega `main` (`vercel.json`). Variables de Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `CRON_SECRET` |
+| Pooler de Supabase | ℹ️ | `aws-0-eu-west-1.pooler.supabase.com`, modo sesión en el puerto 5432 (lo usan el backup y el script del Admin) |
+
 ## Entornos
 
 | Entorno | Base de datos | Aplicación |
