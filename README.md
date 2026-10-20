@@ -32,11 +32,10 @@ Live at https://alvaro2b.vercel.app (Members only). Product and domain docs are 
 ```bash
 git clone https://github.com/panicoenlaxbox/alvaro2b.git
 cd alvaro2b
-pnpm install
-pnpm supabase start           # starts local Postgres, Auth and Storage in Docker
-cp .env.example .env.local    # fill in the values printed by `pnpm supabase status`
-pnpm dev                      # http://localhost:3000
+pnpm local    # http://localhost:3000
 ```
+
+`pnpm local` (`scripts/local.mjs`) is safe to run again at any time: it checks that Docker is running, runs `pnpm install` if `node_modules` is missing, starts the local Supabase stack (Postgres, Auth and Storage in Docker) if it is stopped, writes `.env.local` from `pnpm supabase status` if it does not exist, and runs `pnpm dev`. It ignores `SUPABASE_DB_PASSWORD`, which belongs to production. To add optional variables such as `BGG_TOKEN`, edit `.env.local` using `.env.example` as reference. Stop the stack with `pnpm supabase stop`.
 
 Local data is fictional seed data (`supabase/seed.sql`). Open http://localhost:3000/dev-login to sign in as one of the fictional Members; this route only exists in development against a local Supabase. Google sign-in works locally only if `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set when you run `pnpm supabase start`.
 
