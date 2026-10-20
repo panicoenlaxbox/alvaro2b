@@ -12,7 +12,7 @@ export default async function EditSessionPage({ params }: PageProps<"/sessions/[
   await requireMember();
   const { id } = await params;
   const supabase = await createClient();
-  const { data: session } = await supabase.from("sessions").select("id, date, place, notes").eq("id", id).maybeSingle();
+  const { data: session } = await supabase.from("sessions").select("id, date, name, place, notes").eq("id", id).maybeSingle();
   if (!session) notFound();
 
   return (

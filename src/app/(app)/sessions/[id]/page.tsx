@@ -25,8 +25,8 @@ import { AttendeesEditor, DeleteSessionButton, OpenPollForm, RsvpButtons, Status
 export async function generateMetadata({ params }: PageProps<"/sessions/[id]">): Promise<Metadata> {
   const { id } = await params;
   const supabase = await createClient();
-  const { data } = await supabase.from("sessions").select("date").eq("id", id).maybeSingle();
-  return { title: data ? `Sesión del ${formatSessionDate(data.date)}` : "Sesión" };
+  const { data } = await supabase.from("sessions").select("date, name").eq("id", id).maybeSingle();
+  return { title: data ? (data.name ?? `Sesión del ${formatSessionDate(data.date)}`) : "Sesión" };
 }
 
 export default async function SessionPage({ params }: PageProps<"/sessions/[id]">) {
@@ -52,7 +52,8 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
   const playCount = plays.length;
   const pending = isPendingClose({ status: session.status, date: session.date, playCount }, todayIso());
   const url = `${appUrl()}/sessions/${session.id}`;
-  const shareText = `Quedada de juegos el ${formatSessionDate(session.date)}${session.place ? ` en ${session.place}` : ""}. ¿Te vienes? ${url}`;
+  const when = `el ${formatSessionDate(session.date)}${session.place ? ` en ${session.place}` : ""}`;
+  const shareText = `${session.name ? `«${session.name}», ${when}` : `Quedada de juegos ${when}`}. ¿Te vienes? ${url}`;
 
   return (
     <div className="space-y-6">
@@ -63,6 +64,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           </span>
         </div>
         <h1 className="text-2xl font-bold first-letter:uppercase">{formatSessionDate(session.date)}</h1>
+        {session.name && <p className="text-lg font-medium text-accent">{session.name}</p>}
         {session.place && <p className="text-muted">{session.place}</p>}
         {session.notes && <p className="whitespace-pre-line">{session.notes}</p>}
       </section>

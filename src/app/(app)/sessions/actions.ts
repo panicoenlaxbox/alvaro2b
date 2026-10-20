@@ -9,14 +9,16 @@ import { createClient } from "@/lib/supabase/server";
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-function sessionFields(formData: FormData): { date: string; place: string | null; notes: string | null } | string {
+function sessionFields(formData: FormData): { date: string; name: string | null; place: string | null; notes: string | null } | string {
   const date = String(formData.get("date") ?? "");
   if (!DATE.test(date) || Number.isNaN(Date.parse(date))) return "Elige una fecha.";
+  const name = String(formData.get("name") ?? "").trim();
   const place = String(formData.get("place") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
+  if (name.length > 60) return "El nombre es demasiado largo.";
   if (place.length > 120) return "El lugar es demasiado largo.";
   if (notes.length > 4000) return "Las notas son demasiado largas.";
-  return { date, place: place || null, notes: notes || null };
+  return { date, name: name || null, place: place || null, notes: notes || null };
 }
 
 function revalidateSession(id: string) {
