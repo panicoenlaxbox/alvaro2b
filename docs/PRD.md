@@ -103,6 +103,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 ### 5. Plays
 
 - **Participants**. Se preseleccionan con los Attendees de la Session y son editables. Si se añade a alguien que no estaba en la Session, también se añade a ella.
+- **¿Quién empieza?** Al registrar una Play con dos o más Participants, un botón sortea quién empieza, con unos segundos de suspense. Es solo una ayuda en la mesa: no se guarda.
 - **Game y Expansions** usadas.
 - **Duración**. Se puede medir con el cronómetro de la aplicación (iniciar y terminar) o introducirla a mano. Siempre se puede corregir.
 - **Notas**.
