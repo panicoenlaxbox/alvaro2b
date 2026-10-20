@@ -43,6 +43,64 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"approvals": {
+                  Row: {
+                    "candidate_id": string,"created_at": string,"player_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "candidate_id": string,"created_at"?: string,"player_id"?: string
+                  }
+                  Update: {
+                    "candidate_id"?: string,"created_at"?: string,"player_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "approvals_candidate_id_fkey"
+      columns: ["candidate_id"]
+isOneToOne: false
+      referencedRelation: "candidates"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approvals_player_id_fkey"
+      columns: ["player_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"candidates": {
+                  Row: {
+                    "added_by": string | null,"chosen": boolean,"created_at": string,"game_id": string,"id": string,"poll_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "added_by"?: string | null,"chosen"?: boolean,"created_at"?: string,"game_id": string,"id"?: string,"poll_id": string
+                  }
+                  Update: {
+                    "added_by"?: string | null,"chosen"?: boolean,"created_at"?: string,"game_id"?: string,"id"?: string,"poll_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "candidates_added_by_fkey"
+      columns: ["added_by"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "candidates_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "candidates_poll_id_fkey"
+      columns: ["poll_id"]
+isOneToOne: false
+      referencedRelation: "polls"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"expansions": {
                   Row: {
                     "bgg_id": number | null,"created_at": string,"created_by": string | null,"game_id": string,"id": string,"name": string,"notes": string | null,"owner_id": string | null,"retired_at": string | null,"updated_at": string,"year": number | null
@@ -201,6 +259,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"polls": {
+                  Row: {
+                    "allow_veto": boolean,"closed_at": string | null,"closes_at": string | null,"created_at": string,"created_by": string | null,"id": string,"session_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "allow_veto"?: boolean,"closed_at"?: string | null,"closes_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"session_id": string
+                  }
+                  Update: {
+                    "allow_veto"?: boolean,"closed_at"?: string | null,"closes_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"session_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "polls_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: true
+      referencedRelation: "sessions"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"ratings": {
                   Row: {
                     "game_id": string,"player_id": string,"stars": number,"updated_at": string
@@ -310,6 +388,38 @@ isOneToOne: false
       columns: ["play_id"]
 isOneToOne: false
       referencedRelation: "plays"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"vetoes": {
+                  Row: {
+                    "candidate_id": string,"created_at": string,"player_id": string,"poll_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "candidate_id": string,"created_at"?: string,"player_id"?: string,"poll_id": string
+                  }
+                  Update: {
+                    "candidate_id"?: string,"created_at"?: string,"player_id"?: string,"poll_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "vetoes_candidate_id_fkey"
+      columns: ["candidate_id"]
+isOneToOne: false
+      referencedRelation: "candidates"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "vetoes_player_id_fkey"
+      columns: ["player_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "vetoes_poll_id_fkey"
+      columns: ["poll_id"]
+isOneToOne: false
+      referencedRelation: "polls"
       referencedColumns: ["id"]
     }
                   ]

@@ -16,7 +16,8 @@ import {
 } from "@/lib/domain/session";
 import { appUrl, whatsappUrl } from "@/lib/share";
 import { createClient } from "@/lib/supabase/server";
-import { AttendeesEditor, DeleteSessionButton, RsvpButtons, StatusButtons } from "./session-detail-forms";
+import { isPollOpen } from "@/lib/domain/poll";
+import { AttendeesEditor, DeleteSessionButton, OpenPollForm, RsvpButtons, StatusButtons } from "./session-detail-forms";
 
 export async function generateMetadata({ params }: PageProps<"/sessions/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -33,7 +34,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
   const [{ data: session }, players, plays] = await Promise.all([
     supabase
       .from("sessions")
-      .select("*, session_attendees(player_id), rsvps(player_id, response)")
+      .select("*, session_attendees(player_id), rsvps(player_id, response), polls(id, closes_at, closed_at, candidates(count))")
       .eq("id", id)
       .maybeSingle(),
     listPlayers(),
@@ -85,6 +86,25 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
             </ul>
           )}
         </section>
+      )}
+
+      {session.polls ? (
+        <Link href={`/polls/${session.polls.id}`} className="card flex items-center justify-between gap-2">
+          <span className="font-semibold">🗳️ Votación: ¿a qué jugamos?</span>
+          <span className="text-sm text-muted">
+            {session.polls.candidates[0]?.count ?? 0} candidatos ·{" "}
+            {isPollOpen({ closesAt: session.polls.closes_at, closedAt: session.polls.closed_at }) ? "abierta" : "cerrada"}
+          </span>
+        </Link>
+      ) : (
+        session.status === "planned" && (
+          <details className="card">
+            <summary className="cursor-pointer font-semibold">🗳️ Abrir votación para decidir a qué jugar</summary>
+            <div className="mt-3">
+              <OpenPollForm sessionId={session.id} />
+            </div>
+          </details>
+        )
       )}
 
       <section className="space-y-2">

@@ -122,3 +122,26 @@ begin
     (play, p_ana, 9, 2), (play, p_bruno, 10, 1), (play, p_carla, 10, 1);
 end;
 $$;
+
+-- A planned Session with an open Poll. It is created after the Plays above, so it stays planned.
+insert into public.sessions (id, date, place, created_by)
+values ('b0000000-0000-4000-8000-000000000005', private.today() + 6, 'Casa de Ana', '11111111-1111-4111-8111-111111111111');
+insert into public.session_attendees (session_id, player_id)
+select 'b0000000-0000-4000-8000-000000000005', id from public.players where display_name in ('Ana', 'Bruno', 'Carla');
+insert into public.polls (id, session_id, allow_veto, created_by)
+values ('d0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000005', true, '11111111-1111-4111-8111-111111111111');
+insert into public.candidates (id, poll_id, game_id, added_by)
+select v.id, 'd0000000-0000-4000-8000-000000000001', v.game_id, p.id
+from (values
+  ('e0000000-0000-4000-8000-000000000001'::uuid, 'a0000000-0000-4000-8000-000000000001'::uuid, 'Ana'),
+  ('e0000000-0000-4000-8000-000000000002'::uuid, 'a0000000-0000-4000-8000-000000000006'::uuid, 'Bruno'),
+  ('e0000000-0000-4000-8000-000000000003'::uuid, 'a0000000-0000-4000-8000-000000000004'::uuid, 'Carla')
+) as v (id, game_id, name)
+join public.players p on p.display_name = v.name;
+insert into public.approvals (candidate_id, player_id)
+select v.candidate_id, p.id
+from (values
+  ('e0000000-0000-4000-8000-000000000001'::uuid, 'Bruno'), ('e0000000-0000-4000-8000-000000000001'::uuid, 'Carla'),
+  ('e0000000-0000-4000-8000-000000000002'::uuid, 'Bruno'), ('e0000000-0000-4000-8000-000000000003'::uuid, 'Carla')
+) as v (candidate_id, name)
+join public.players p on p.display_name = v.name;
