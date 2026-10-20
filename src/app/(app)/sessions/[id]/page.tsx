@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { listPlayers } from "@/lib/data/players";
 import { listSessionPlays } from "@/lib/data/plays";
+import { listPhotos } from "@/lib/data/photos";
+import { PhotoGrid } from "@/components/photo-grid";
+import { PhotoUploader } from "@/components/photo-uploader";
 import { PlayResult, playSummary } from "@/components/play-result";
 import {
   canCancel,
@@ -31,7 +34,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: session }, players, plays] = await Promise.all([
+  const [{ data: session }, players, plays, photos] = await Promise.all([
     supabase
       .from("sessions")
       .select("*, session_attendees(player_id), rsvps(player_id, response), polls(id, closes_at, closed_at, candidates(count))")
@@ -39,6 +42,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
       .maybeSingle(),
     listPlayers(),
     listSessionPlays(id),
+    listPhotos(id),
   ]);
   if (!session) notFound();
 
@@ -135,6 +139,12 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
       <section className="card space-y-3">
         <h2 className="font-semibold">Asistentes ({attendeeIds.length})</h2>
         <AttendeesEditor sessionId={session.id} players={players} selected={attendeeIds} />
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Fotos ({photos.length})</h2>
+        {session.status !== "cancelled" && <PhotoUploader sessionId={session.id} />}
+        <PhotoGrid photos={photos} />
       </section>
 
       <section className="flex flex-wrap gap-2">

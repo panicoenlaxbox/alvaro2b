@@ -193,6 +193,58 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"photo_tags": {
+                  Row: {
+                    "photo_id": string,"player_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "photo_id": string,"player_id": string
+                  }
+                  Update: {
+                    "photo_id"?: string,"player_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "photo_tags_photo_id_fkey"
+      columns: ["photo_id"]
+isOneToOne: false
+      referencedRelation: "photos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "photo_tags_player_id_fkey"
+      columns: ["player_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"photos": {
+                  Row: {
+                    "caption": string | null,"created_at": string,"height": number,"id": string,"path": string,"play_id": string | null,"session_id": string | null,"size_bytes": number,"thumb_path": string,"uploaded_by": string | null,"width": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "caption"?: string | null,"created_at"?: string,"height": number,"id"?: string,"path": string,"play_id"?: string | null,"session_id"?: string | null,"size_bytes": number,"thumb_path": string,"uploaded_by"?: string | null,"width": number
+                  }
+                  Update: {
+                    "caption"?: string | null,"created_at"?: string,"height"?: number,"id"?: string,"path"?: string,"play_id"?: string | null,"session_id"?: string | null,"size_bytes"?: number,"thumb_path"?: string,"uploaded_by"?: string | null,"width"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "photos_play_id_fkey"
+      columns: ["play_id"]
+isOneToOne: false
+      referencedRelation: "plays"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "photos_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "sessions"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"play_expansions": {
                   Row: {
                     "expansion_id": string,"play_id": string
