@@ -27,11 +27,12 @@ Solo valores no secretos. Los secretos viven en el gestor de contraseñas del pr
 | Proveedor de email desactivado en Supabase | ✅ Hecho por el propietario | El token del agente no tiene `project_admin_write`, necesario para cambiar la configuración de Auth por la Management API. Además, un trigger rechaza cualquier alta que no venga de Google |
 | Primer Admin | ✅ | Insertado desde `ADMIN_EMAIL` con `scripts/bootstrap-admin.mjs` |
 | Login con Google en producción | ✅ Confirmado por el propietario | Primer acceso real del Admin con Google |
-| `BGG_TOKEN` | ⏳ Pendiente de BGG | Cuando exista: añadirlo a Vercel (`vercel env add BGG_TOKEN production`, marcado como sensible) y **volver a desplegar** (por ejemplo, *Redeploy* del último despliegue). Las variables nuevas no llegan a un despliegue ya hecho |
+| `BGG_TOKEN` | ⏳ Pendiente de BGG | La integración ya está desplegada y se activa sola con el token (buscador en *Añadir juego* y bloque *BGG info*). Probada contra BGG con un token falso: responde 401 y la app sigue en modo manual. Cuando exista: añadirlo a Vercel (`vercel env add BGG_TOKEN production`, marcado como sensible) y **volver a desplegar** (por ejemplo, *Redeploy* del último despliegue). Las variables nuevas no llegan a un despliegue ya hecho |
 | Proyecto de Vercel | ✅ | `alvaro2b` en `sergio-1c62`, conectado a GitHub. Solo despliega `main` (`vercel.json`). Variables de Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `CRON_SECRET` |
 | Backup semanal | ✅ | `.github/workflows/backup.yml`, domingos a las 03:23 UTC. Secrets `SUPABASE_DB_URL` y `AGE_RECIPIENT`. Al renovar la contraseña de la base de datos hay que actualizar `SUPABASE_DB_URL` |
 | Keep-alive | ✅ | Cron diario de Vercel a las 06:17 UTC. Se puede comprobar en la tabla `keep_alive` |
 | Aviso del advisor "Leaked Password Protection" | ℹ️ Aceptado | No aplica: no hay login con contraseña (solo Google). Es una función del plan Pro y el token del agente no puede cambiar la configuración de Auth. No requiere acción |
+| Logo "Powered by BGG" | ℹ️ Provisional | El agente no puede descargar los logos oficiales (BGG responde 403 a peticiones automáticas). Se muestra una insignia de texto con enlace a BGG. Opcional: descargar el logo oficial de BGG y guardarlo como `public/powered-by-bgg.webp` para que el agente lo use |
 | Pooler de Supabase | ℹ️ | `aws-0-eu-west-1.pooler.supabase.com`, modo sesión en el puerto 5432 (lo usan el backup y el script del Admin) |
 
 ## Entornos
