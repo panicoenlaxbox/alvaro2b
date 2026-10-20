@@ -32,3 +32,30 @@ from auth.users u;
 -- A Guest, without an account.
 insert into public.players (display_name, created_by)
 values ('Dani', '11111111-1111-4111-8111-111111111111');
+
+-- Catalog. Game names are public titles; owners are the fictional Members above.
+insert into public.games (id, name, year, min_players, max_players, min_duration, max_duration, complexity, default_play_mode, lower_score_wins, owner_id, created_by)
+select g.id, g.name, g.year, g.min_p, g.max_p, g.min_d, g.max_d, g.cx, g.mode::public.play_mode, g.lower, p.id, '11111111-1111-4111-8111-111111111111'
+from (values
+  ('a0000000-0000-4000-8000-000000000001'::uuid, 'Azul', 2017, 2, 4, 30, 45, 1.8, 'competitive', false, 'Ana'),
+  ('a0000000-0000-4000-8000-000000000002'::uuid, 'Pandemic', 2008, 2, 4, 45, 45, 2.4, 'cooperative', false, 'Bruno'),
+  ('a0000000-0000-4000-8000-000000000003'::uuid, 'Codenames', 2015, 2, 8, 15, 15, 1.3, 'team', false, 'Carla'),
+  ('a0000000-0000-4000-8000-000000000004'::uuid, 'Catan', 1995, 3, 4, 60, 120, 2.3, 'competitive', false, 'Ana'),
+  ('a0000000-0000-4000-8000-000000000005'::uuid, 'Golf', 2020, 2, 6, 20, 20, 1.1, 'competitive', true, null),
+  ('a0000000-0000-4000-8000-000000000006'::uuid, 'Wingspan', 2019, 1, 5, 40, 70, 2.5, 'competitive', false, 'Bruno'),
+  ('a0000000-0000-4000-8000-000000000007'::uuid, 'The Resistance', 2009, 5, 10, 30, 30, 1.6, 'team', false, 'Carla')
+) as g (id, name, year, min_p, max_p, min_d, max_d, cx, mode, lower, owner)
+left join public.players p on p.display_name = g.owner;
+
+insert into public.expansions (game_id, name, owner_id, created_by)
+select 'a0000000-0000-4000-8000-000000000004', 'Navegantes', id, '11111111-1111-4111-8111-111111111111'
+from public.players where display_name = 'Ana';
+
+insert into public.ratings (game_id, player_id, stars)
+select r.game_id, p.id, r.stars
+from (values
+  ('a0000000-0000-4000-8000-000000000001'::uuid, 'Ana', 5), ('a0000000-0000-4000-8000-000000000001'::uuid, 'Bruno', 4),
+  ('a0000000-0000-4000-8000-000000000002'::uuid, 'Carla', 4), ('a0000000-0000-4000-8000-000000000004'::uuid, 'Bruno', 2),
+  ('a0000000-0000-4000-8000-000000000006'::uuid, 'Ana', 5), ('a0000000-0000-4000-8000-000000000006'::uuid, 'Carla', 3)
+) as r (game_id, name, stars)
+join public.players p on p.display_name = r.name;

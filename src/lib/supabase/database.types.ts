@@ -43,6 +43,52 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"expansions": {
+                  Row: {
+                    "bgg_id": number | null,"created_at": string,"created_by": string | null,"game_id": string,"id": string,"name": string,"notes": string | null,"owner_id": string | null,"retired_at": string | null,"updated_at": string,"year": number | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "bgg_id"?: number | null,"created_at"?: string,"created_by"?: string | null,"game_id": string,"id"?: string,"name": string,"notes"?: string | null,"owner_id"?: string | null,"retired_at"?: string | null,"updated_at"?: string,"year"?: number | null
+                  }
+                  Update: {
+                    "bgg_id"?: number | null,"created_at"?: string,"created_by"?: string | null,"game_id"?: string,"id"?: string,"name"?: string,"notes"?: string | null,"owner_id"?: string | null,"retired_at"?: string | null,"updated_at"?: string,"year"?: number | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "expansions_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "expansions_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"games": {
+                  Row: {
+                    "bgg_id": number | null,"bgg_image_url": string | null,"complexity": number | null,"cover_path": string | null,"created_at": string,"created_by": string | null,"default_play_mode": Database["public"]['Enums']["play_mode"],"id": string,"lower_score_wins": boolean,"max_duration": number | null,"max_players": number | null,"min_duration": number | null,"min_players": number | null,"name": string,"notes": string | null,"owner_id": string | null,"retired_at": string | null,"updated_at": string,"year": number | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "bgg_id"?: number | null,"bgg_image_url"?: string | null,"complexity"?: number | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_play_mode"?: Database["public"]['Enums']["play_mode"],"id"?: string,"lower_score_wins"?: boolean,"max_duration"?: number | null,"max_players"?: number | null,"min_duration"?: number | null,"min_players"?: number | null,"name": string,"notes"?: string | null,"owner_id"?: string | null,"retired_at"?: string | null,"updated_at"?: string,"year"?: number | null
+                  }
+                  Update: {
+                    "bgg_id"?: number | null,"bgg_image_url"?: string | null,"complexity"?: number | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_play_mode"?: Database["public"]['Enums']["play_mode"],"id"?: string,"lower_score_wins"?: boolean,"max_duration"?: number | null,"max_players"?: number | null,"min_duration"?: number | null,"min_players"?: number | null,"name"?: string,"notes"?: string | null,"owner_id"?: string | null,"retired_at"?: string | null,"updated_at"?: string,"year"?: number | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "games_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"keep_alive": {
                   Row: {
                     "id": number,"pinged_at": string
@@ -71,6 +117,32 @@ isOneToOne: true
                   Relationships: [
                     
                   ]
+                },"ratings": {
+                  Row: {
+                    "game_id": string,"player_id": string,"stars": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "game_id": string,"player_id"?: string,"stars": number,"updated_at"?: string
+                  }
+                  Update: {
+                    "game_id"?: string,"player_id"?: string,"stars"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ratings_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "ratings_player_id_fkey"
+      columns: ["player_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -80,7 +152,7 @@ isOneToOne: true
             [_ in never]: never
           }
           Enums: {
-            [_ in never]: never
+            "play_mode": "competitive"|"cooperative"|"team"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -200,7 +272,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            
+            "play_mode": ["competitive", "cooperative", "team"]
           }
         }
 } as const

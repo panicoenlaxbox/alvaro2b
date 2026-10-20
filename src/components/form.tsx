@@ -1,6 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
+
+/**
+ * A form for long inputs: unlike `<form action>`, React does not reset its fields after
+ * submitting, so a validation error never wipes what the Member typed.
+ */
+export function ActionForm({
+  action,
+  children,
+  ...rest
+}: Omit<React.FormHTMLAttributes<HTMLFormElement>, "action" | "onSubmit"> & { action: (formData: FormData) => void }) {
+  return (
+    <form
+      {...rest}
+      onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+        startTransition(() => action(formData));
+      }}
+    >
+      {children}
+    </form>
+  );
+}
 import { useFormStatus } from "react-dom";
 import type { ActionState } from "@/lib/action-state";
 
