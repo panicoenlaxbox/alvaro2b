@@ -24,9 +24,8 @@ Fue la fuente de verdad del trabajo del agente durante la construcción. Cada hi
 - [x] **7. Polls**: Candidates, Suggestions, Approvals, Veto opcional, cierre por fecha o manual, desempate del creador, resultado.
 - [x] **8. Photos**: bucket privado, compresión en el navegador y miniatura, Album y Session, etiquetado de Players y Play, URLs firmadas.
 - [x] **9. Estadísticas**: grupo, Player y Game, filtrables por fechas.
-- [x] **10. Exportación**: JSON para el Admin y descarga aparte de Photos.
-- [x] **11. BGG**: búsqueda e importación, bloque BGG info con caché de 7 días, "Powered by BGG"; se activa sola cuando existe `BGG_TOKEN`.
-- [x] **12. Cierre**: repaso del PRD, advisors limpios, README actualizado, resumen de pendientes del propietario.
+- [x] **10. BGG**: búsqueda e importación, bloque BGG info con caché de 7 días, "Powered by BGG"; se activa sola cuando existe `BGG_TOKEN`.
+- [x] **11. Cierre**: repaso del PRD, advisors limpios, README actualizado, resumen de pendientes del propietario.
 
 ## Decisiones de implementación
 
@@ -51,6 +50,5 @@ Fue la fuente de verdad del trabajo del agente durante la construcción. Cada hi
 - 2026-10-20: hito 7. Un Poll por Session planificada. Votar, vetar y proponer solo mientras está abierto (RLS con `private.poll_is_open`). Resultado y desempate en `src/lib/domain/poll.ts`. La fecha límite se escribe en hora de Madrid.
 - 2026-10-20: hito 8. Photos comprimidas en el navegador a WebP (lado largo 2000 px, objetivo 500 KB) más miniatura de 400 px, en `media/photos/`. Borrar una Photo borra sus ficheros. Borrar una Play solo quita su etiqueta de las Photos.
 - 2026-10-20: hito 9. Sin migración: se carga el historial completo y se calcula en `src/lib/domain/stats.ts`. Las victorias cuentan todos los modos (puesto 1, equipo ganador o el grupo en cooperativo); el porcentaje y la némesis, solo competitivo. "La vergüenza de la estantería" no depende del rango de fechas.
-- 2026-10-20: hito 10. `/api/export` (solo Admin) devuelve todas las tablas en JSON, paginando de 1000 en 1000 y con RLS. Las fotos se descargan en ZIP de 100 en 100, generados en el navegador con `fflate` a partir de URLs firmadas.
-- 2026-10-20: hito 11. `src/lib/bgg/`: parseo del XML con tests y cliente de servidor con `fetch` en caché 7 días (`next.revalidate`). Sin `BGG_TOKEN` no aparece nada de BGG; si BGG falla, aviso y alta manual. Importa solo nuestros campos; el modo se deduce de las mecánicas (cooperativo, por equipos).
-- 2026-10-20: hito 12. Repaso del PRD completo. Producción: 9 migraciones aplicadas y sincronizadas con local, advisors de seguridad limpios salvo el aviso aceptado de contraseñas filtradas, y en rendimiento solo "índice sin usar" (índices de claves foráneas, normal con la base casi vacía). Prueba de humo sin dejar datos: rutas públicas y PWA responden, `/dev-login` da 404, keep-alive y API protegidos. Lo pendiente del propietario está en `SETUP.md`.
+- 2026-10-20: hito 10. `src/lib/bgg/`: parseo del XML con tests y cliente de servidor con `fetch` en caché 7 días (`next.revalidate`). Sin `BGG_TOKEN` no aparece nada de BGG; si BGG falla, aviso y alta manual. Importa solo nuestros campos; el modo se deduce de las mecánicas (cooperativo, por equipos).
+- 2026-10-20: hito 11. Repaso del PRD completo. Producción: 9 migraciones aplicadas y sincronizadas con local, advisors de seguridad limpios salvo el aviso aceptado de contraseñas filtradas, y en rendimiento solo "índice sin usar" (índices de claves foráneas, normal con la base casi vacía). Prueba de humo sin dejar datos: rutas públicas y PWA responden, `/dev-login` da 404, keep-alive y API protegidos. Lo pendiente del propietario está en `SETUP.md`.

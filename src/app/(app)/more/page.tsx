@@ -25,7 +25,7 @@ export default async function MorePage() {
         </Link>
         {member.isAdmin && (
           <Link href="/admin" className="block px-4 py-3">
-            Admin: accesos y datos
+            Admin: accesos
           </Link>
         )}
         <Link href="/privacy" className="block px-4 py-3">

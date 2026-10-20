@@ -10,7 +10,7 @@ Lo que solo puede hacer Sergio. Marca cada casilla al terminarla. El agente aña
   3. Añádelo a Vercel, marcado como sensible: `vercel env add BGG_TOKEN production --sensitive`.
   4. **Vuelve a desplegar** (*Redeploy* del último despliegue de Production). Un despliegue ya hecho no ve las variables nuevas.
   5. Comprueba que en *Juegos → Añadir* aparece "Buscar en BoardGameGeek".
-- [ ] **Invitar a los Members**: *Más → Admin: accesos y datos → Autorizar un email*, y después el botón *WhatsApp* para mandarle el enlace. La aplicación no envía ningún email ([ADR 0005](./adr/0005-google-sign-in-with-allowlist.md)). Si esa persona ya jugaba como invitado, elígelo en "¿Ya jugaba como invitado?" para que conserve su historial.
+- [ ] **Invitar a los Members**: *Más → Admin: accesos → Autorizar un email*, y después el botón *WhatsApp* para mandarle el enlace. La aplicación no envía ningún email ([ADR 0005](./adr/0005-google-sign-in-with-allowlist.md)). Si esa persona ya jugaba como invitado, elígelo en "¿Ya jugaba como invitado?" para que conserve su historial.
 
 ## Opcionales
 
