@@ -1,5 +1,12 @@
 import Link from "next/link";
 import { formatSessionDate, SESSION_STATUS_LABELS, type SessionStatus } from "@/lib/domain/session";
+import { DateTile } from "./date-tile";
+
+export const STATUS_CHIP: Record<SessionStatus, string> = {
+  planned: "border-teal text-teal",
+  held: "border-border text-soft",
+  cancelled: "border-dashed border-border text-muted line-through",
+};
 
 export function SessionCard({
   session,
@@ -15,15 +22,19 @@ export function SessionCard({
   ].filter(Boolean);
 
   return (
-    <Link href={`/sessions/${session.id}`} className={`card block space-y-1 p-3 ${pendingClose ? "border-accent" : ""}`}>
-      <div className="flex items-center justify-between gap-2">
-        <p className="font-semibold first-letter:uppercase">{formatSessionDate(session.date)}</p>
-        <span className={`chip ${pendingClose ? "border-accent text-accent" : session.status === "cancelled" ? "text-muted" : ""}`}>
+    <Link
+      href={`/sessions/${session.id}`}
+      className={`card flex items-center gap-3 p-3 transition-transform hover:-translate-y-0.5 ${pendingClose ? "border-coral" : ""} ${session.status === "cancelled" ? "opacity-70" : ""}`}
+    >
+      <DateTile date={session.date} />
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="font-bold leading-snug first-letter:uppercase">{session.name ?? formatSessionDate(session.date)}</p>
+        {session.name && <p className="text-sm text-soft first-letter:uppercase">{formatSessionDate(session.date)}</p>}
+        {details.length > 0 && <p className="text-sm text-muted">{details.join(" · ")}</p>}
+        <span className={`chip ${pendingClose ? "border-coral text-coral" : STATUS_CHIP[session.status]}`}>
           {pendingClose ? "Pendiente de cerrar" : SESSION_STATUS_LABELS[session.status]}
         </span>
       </div>
-      {session.name && <p className="font-medium text-accent">{session.name}</p>}
-      {details.length > 0 && <p className="text-sm text-muted">{details.join(" · ")}</p>}
     </Link>
   );
 }

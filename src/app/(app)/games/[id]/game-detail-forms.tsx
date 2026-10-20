@@ -115,7 +115,7 @@ export function CoverUploader({ gameId, hasOwnCover }: { gameId: string; hasOwnC
           </button>
         )}
       </div>
-      {error && <p className="text-sm text-red-700 dark:text-red-400">{error}</p>}
+      {error && <p className="text-sm font-medium text-danger">{error}</p>}
     </div>
   );
 }
@@ -142,7 +142,7 @@ function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: Expans
           <form action={deleteAction}>
             <input type="hidden" name="id" value={expansion.id} />
             <input type="hidden" name="game_id" value={gameId} />
-            <ConfirmSubmitButton className="text-sm text-red-700 underline dark:text-red-400" confirmText="¿Borrar?">
+            <ConfirmSubmitButton className="text-sm font-bold text-danger underline" confirmText="¿Borrar?">
               Borrar
             </ConfirmSubmitButton>
           </form>

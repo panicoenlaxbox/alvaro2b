@@ -15,7 +15,7 @@ export function BggSearch() {
   return (
     <section className="card space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="font-semibold">Buscar en BoardGameGeek</h2>
+        <h2>Buscar en BoardGameGeek</h2>
         <PoweredByBgg />
       </div>
       <form
@@ -35,7 +35,7 @@ export function BggSearch() {
           {pending ? "Buscando…" : "Buscar"}
         </button>
       </form>
-      {error && <p className="text-sm text-red-700 dark:text-red-400">{error}</p>}
+      {error && <p className="text-sm font-medium text-danger">{error}</p>}
       {results && results.length === 0 && <p className="text-sm text-muted">Sin resultados.</p>}
       {results && results.length > 0 && (
         <ul className="divide-y divide-border">

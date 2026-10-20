@@ -26,7 +26,7 @@ export default function DevLoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-4 px-4">
-      <h1 className="text-xl font-bold">Entrar como Member ficticio</h1>
+      <h1 className="text-3xl sm:text-4xl">Entrar como Member ficticio</h1>
       <p className="text-sm text-muted">Solo disponible en local, con los datos de ejemplo.</p>
       {SEED_MEMBERS.map((m) => (
         <form key={m.email} action={signIn}>

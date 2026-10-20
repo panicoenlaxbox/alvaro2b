@@ -21,19 +21,19 @@ export default async function AdminPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold">Admin</h1>
+        <h1 className="text-3xl sm:text-4xl">Admin</h1>
         <p className="text-sm text-muted">
           Solo pueden entrar los emails de esta lista, con su cuenta de Google. La aplicación no envía emails: pasa tú el enlace.
         </p>
       </div>
 
       <section className="card space-y-3">
-        <h2 className="font-semibold">Autorizar un email</h2>
+        <h2>Autorizar un email</h2>
         <AddEmailForm guests={(guests ?? []).filter((g) => !linkedGuestIds.has(g.id))} />
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Emails autorizados</h2>
+        <h2 className="text-lg">Emails autorizados</h2>
         <ul className="card divide-y divide-border p-0">
           {(emails ?? []).map((e) => (
             <AllowedEmailRow

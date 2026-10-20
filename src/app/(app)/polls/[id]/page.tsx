@@ -85,7 +85,7 @@ export default async function PollPage({ params, searchParams }: PageProps<"/pol
         <Link href={`/sessions/${p.session_id}`} className="inline-block text-sm text-muted underline first-letter:uppercase">
           {sessionDate}
         </Link>
-        <h1 className="text-2xl font-bold">¿A qué jugamos?</h1>
+        <h1 className="text-4xl">¿A qué jugamos?</h1>
         <p className="text-sm text-muted">
           {open
             ? p.closes_at
@@ -99,21 +99,25 @@ export default async function PollPage({ params, searchParams }: PageProps<"/pol
       <section className="space-y-2">
         {ranked.length === 0 && <p className="text-muted">Aún no hay candidatos. ¡Propón alguno!</p>}
         {needsTieBreak(ranked) && !open && isCreator && (
-          <p className="card border-accent text-sm">Hay empate en cabeza: marca los que vais a jugar.</p>
+          <p className="alert">Hay empate en cabeza: marca los que vais a jugar.</p>
         )}
         {ranked.map((c) => {
           const mine = c.approvals.includes(member.playerId);
+          const share = Math.round((c.approvals.length / Math.max(1, ...ranked.map((r) => r.approvals.length))) * 100);
           return (
             <div key={c.id} className={`card space-y-2 p-3 ${c.leading || c.chosen ? "border-accent" : ""}`}>
               <div className="flex items-center gap-2">
-                <span className="w-8 text-sm text-muted">{c.position}.º</span>
+                <span className="w-9 font-display text-lg text-muted">{c.position}.º</span>
                 <Link href={`/games/${c.gameId}`} className={`flex-1 font-semibold ${c.vetoed ? "text-muted line-through" : ""}`}>
                   {c.chosen ? "✅ " : ""}
                   {c.name}
                 </Link>
                 <span className="text-sm font-medium">
-                  {c.approvals.length} {c.approvals.length === 1 ? "voto" : "votos"}
+                  <span className="font-display text-xl">{c.approvals.length}</span> {c.approvals.length === 1 ? "voto" : "votos"}
                 </span>
+              </div>
+              <div aria-hidden className="h-3.5 overflow-hidden rounded-full border-2 border-ink bg-background">
+                <div className={`h-full ${c.leading || c.chosen ? "bg-accent" : "bg-teal"}`} style={{ width: `${share}%` }} />
               </div>
               {(c.approvals.length > 0 || c.vetoes.length > 0) && (
                 <p className="text-xs text-muted">
@@ -134,12 +138,12 @@ export default async function PollPage({ params, searchParams }: PageProps<"/pol
 
       {open && (
         <section className="card space-y-3">
-          <h2 className="font-semibold">Proponer un juego</h2>
+          <h2>Proponer un juego</h2>
           <ProposeForm pollId={p.id} games={available.map((g) => ({ id: g.id, name: g.name }))} />
           {suggestions.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-muted">
+                <h3 className="text-sm text-muted">
                   Sugerencias{attendees ? ` para ${attendees}` : ""}
                   {maxMinutes ? ` en ${maxMinutes} min` : ""}
                 </h3>

@@ -1,40 +1,48 @@
 @import "tailwindcss";
 
+/* One look, no light/dark switch: a night-time games table with chunky ink borders and hard shadows. */
 :root {
-  --background: #faf7f2;
-  --foreground: #1f1b16;
-  --card: #ffffff;
-  --muted: #6b6259;
-  --border: #e7dfd4;
-  --accent: #b4462b;
-  --accent-foreground: #ffffff;
-  --accent-soft: #f6e3dc;
-}
+  color-scheme: dark;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #16130f;
-    --foreground: #f1ebe3;
-    --card: #211d18;
-    --muted: #a99d90;
-    --border: #3a332b;
-    --accent: #e0714f;
-    --accent-foreground: #16130f;
-    --accent-soft: #3b241c;
-  }
+  --background: #1e1b2e;
+  --foreground: #f6f1e7;
+  --card: #2b2740;
+  --surface: #15121f;
+  --ink: #0f0d18;
+  --muted: #b9b2cf;
+  --soft: #d9d3ea;
+  --border: #4a4466;
+  --accent: #f4b940;
+  --accent-foreground: #0f0d18;
+  --accent-soft: #3a3350;
+  --coral: #ef6f4c;
+  --teal: #3cc4b0;
+  --blue: #5b8def;
+  --danger: #ff9a80;
+  --paper: #f6f1e7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
   --color-muted: var(--muted);
+  --color-soft: var(--soft);
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-coral: var(--coral);
+  --color-teal: var(--teal);
+  --color-blue: var(--blue);
+  --color-danger: var(--danger);
+  --color-paper: var(--paper);
+  --font-sans: var(--font-rubik);
+  --font-display: var(--font-bungee);
+  --shadow-hard: 4px 4px 0 var(--ink);
+  --shadow-hard-lg: 6px 6px 0 var(--ink);
 }
 
 body {
@@ -42,47 +50,119 @@ body {
   color: var(--foreground);
 }
 
+@layer base {
+  /* Bungee has a single weight: never let the browser fake a bold one. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-bungee);
+    font-weight: 400;
+    font-synthesis: none;
+    line-height: 1.1;
+  }
+  h1 {
+    color: var(--accent);
+  }
+  a,
+  button,
+  summary,
+  label {
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--ink);
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-bungee);
+  font-weight: 400;
+  font-synthesis: none;
+}
+
 @utility btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 2.75rem;
+  border: 3px solid var(--ink);
   border-radius: 0.75rem;
-  padding: 0.625rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: opacity 150ms, background-color 150ms;
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: var(--shadow-hard);
+  transition: transform 100ms, box-shadow 100ms, opacity 150ms;
+  &:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 var(--ink);
+  }
   &:disabled {
     opacity: 0.5;
   }
 }
 
 @utility btn-primary {
-  @apply btn bg-accent text-accent-foreground hover:opacity-90;
+  @apply btn bg-accent text-ink;
+}
+
+@utility btn-hot {
+  @apply btn bg-coral font-display text-ink;
 }
 
 @utility btn-secondary {
-  @apply btn border border-border bg-card hover:bg-accent-soft;
+  @apply btn bg-card text-foreground hover:bg-accent-soft;
 }
 
 @utility btn-danger {
-  @apply btn border border-red-300 bg-card text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950;
+  @apply btn bg-card text-danger hover:bg-accent-soft;
 }
 
 @utility card {
-  @apply rounded-2xl border border-border bg-card p-4;
+  @apply rounded-2xl border-[3px] border-ink bg-card p-4 shadow-hard-lg;
 }
 
 @utility input {
-  @apply w-full rounded-xl border border-border bg-card px-3 py-2.5 text-base outline-none focus:border-accent;
+  @apply w-full rounded-xl border-[3px] border-ink bg-paper px-3 py-2.5 text-base text-ink outline-none placeholder:text-[#6b6480] focus:border-accent;
+  min-height: 2.875rem;
+  color-scheme: light;
 }
 
 @utility label {
-  @apply mb-1 block text-sm font-medium text-muted;
+  @apply mb-1.5 block font-display text-[0.8125rem] tracking-wide text-muted;
 }
 
 @utility chip {
-  @apply inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-medium;
+  @apply inline-flex items-center rounded-full border-2 border-border px-2.5 py-0.5 text-xs font-medium text-soft;
+}
+
+/* A selectable pill: plain text on the card, yellow when on (aria-pressed, or a checked peer before it). */
+@utility toggle {
+  @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-border px-3.5 py-2 text-[0.9375rem] font-bold text-foreground transition-colors select-none hover:border-muted;
+  &[aria-pressed="true"] {
+    @apply border-accent bg-accent text-ink;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+}
+
+@utility alert {
+  @apply rounded-xl border-[3px] border-ink bg-coral p-3 text-sm font-medium text-ink;
+}
+
+@layer components {
+  /* Section titles inside a card stand out in yellow, as in the board-game box look. */
+  .card h2 {
+    color: var(--accent);
+  }
 }
 
 /* Native selects draw their arrow against the edge: draw the same ▾ the buttons use, with padding. */
@@ -93,4 +173,9 @@ select.input {
   background-position: calc(100% - 1.25rem) 55%, calc(100% - 1rem) 55%;
   background-size: 0.25rem 0.25rem;
   background-repeat: no-repeat;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent);
 }

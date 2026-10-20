@@ -11,7 +11,7 @@ export type AttachmentItem =
   | { id: string; kind: "link"; url: string; canDelete: boolean }
   | { id: string; kind: "file"; url: string | null; fileName: string; sizeBytes: number; canDelete: boolean };
 
-const DELETE_CLASS = "rounded-lg px-2 py-1 text-sm text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950";
+const DELETE_CLASS = "min-h-11 rounded-lg px-2 py-1 text-sm font-bold text-danger hover:bg-accent-soft";
 
 /** Files and links of a Game: a list to open them, plus forms to add a link or upload a file. */
 export function Attachments({ gameId, items }: { gameId: string; items: AttachmentItem[] }) {
@@ -108,7 +108,7 @@ function FileUploader({ gameId }: { gameId: string }) {
       </button>
       <p className="text-xs text-muted">PDF, imagen, texto o documento, hasta 20 MB.</p>
       {error && (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-400">
+        <p role="alert" className="text-sm font-medium text-danger">
           {error}
         </p>
       )}

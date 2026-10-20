@@ -15,7 +15,7 @@ export default async function PhotosPage({ searchParams }: PageProps<"/photos">)
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Fotos</h1>
+      <h1 className="text-3xl sm:text-4xl">Fotos</h1>
       <nav className="grid grid-cols-2 gap-2" aria-label="Qué fotos ver">
         <Link href="/photos" aria-current={!all ? "page" : undefined} className={!all ? "btn-primary" : "btn-secondary"}>
           Álbum

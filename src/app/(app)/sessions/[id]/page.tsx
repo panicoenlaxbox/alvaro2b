@@ -5,7 +5,9 @@ import { requireMember } from "@/lib/auth";
 import { listPlayers } from "@/lib/data/players";
 import { listSessionPlays } from "@/lib/data/plays";
 import { listPhotos } from "@/lib/data/photos";
+import { DateTile } from "@/components/date-tile";
 import { PhotoGrid } from "@/components/photo-grid";
+import { STATUS_CHIP } from "@/components/session-card";
 import { PhotoUploader } from "@/components/photo-uploader";
 import { PlayResult, playSummary } from "@/components/play-result";
 import {
@@ -57,20 +59,21 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
 
   return (
     <div className="space-y-6">
-      <section className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className={`chip ${pending ? "border-accent text-accent" : ""}`}>
+      <section className="flex items-start gap-4">
+        <DateTile date={session.date} size="lg" />
+        <div className="min-w-0 space-y-2">
+          <span className={`chip ${pending ? "border-coral text-coral" : STATUS_CHIP[session.status]}`}>
             {pending ? "Pendiente de cerrar" : SESSION_STATUS_LABELS[session.status]}
           </span>
+          <h1 className="text-2xl break-words first-letter:uppercase sm:text-4xl">{session.name ?? formatSessionDate(session.date)}</h1>
+          {session.name && <p className="font-medium text-soft first-letter:uppercase">{formatSessionDate(session.date)}</p>}
+          {session.place && <p className="text-soft">{session.place}</p>}
         </div>
-        <h1 className="text-2xl font-bold first-letter:uppercase">{formatSessionDate(session.date)}</h1>
-        {session.name && <p className="text-lg font-medium text-accent">{session.name}</p>}
-        {session.place && <p className="text-muted">{session.place}</p>}
-        {session.notes && <p className="whitespace-pre-line">{session.notes}</p>}
       </section>
+      {session.notes && <p className="whitespace-pre-line text-soft">{session.notes}</p>}
 
       {pending && (
-        <p className="card border-accent text-sm">
+        <p className="alert">
           La fecha ya pasó y no hay partidas. Registra lo que se jugó o cancela la sesión.
         </p>
       )}
@@ -79,7 +82,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
 
       {session.status === "planned" && (
         <section className="card space-y-3">
-          <h2 className="font-semibold">¿Vienes?</h2>
+          <h2>¿Vienes?</h2>
           <RsvpButtons sessionId={session.id} current={myRsvp} />
           {session.rsvps.length > 0 && (
             <ul className="space-y-1 text-sm">
@@ -96,7 +99,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
 
       {session.polls ? (
         <Link href={`/polls/${session.polls.id}`} className="card flex items-center justify-between gap-2">
-          <span className="font-semibold">🗳️ Votación: ¿a qué jugamos?</span>
+          <span className="font-semibold">Votación: ¿a qué jugamos?</span>
           <span className="text-sm text-muted">
             {session.polls.candidates[0]?.count ?? 0} candidatos ·{" "}
             {isPollOpen({ closesAt: session.polls.closes_at, closedAt: session.polls.closed_at }) ? "abierta" : "cerrada"}
@@ -105,7 +108,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
       ) : (
         session.status === "planned" && (
           <details className="card">
-            <summary className="cursor-pointer font-semibold">🗳️ Abrir votación para decidir a qué jugar</summary>
+            <summary className="cursor-pointer font-semibold">Abrir votación para decidir a qué jugar</summary>
             <div className="mt-3">
               <OpenPollForm sessionId={session.id} />
             </div>
@@ -115,7 +118,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
 
       <section className="space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold">Partidas ({plays.length})</h2>
+          <h2 className="text-lg">Partidas ({plays.length})</h2>
           {session.status !== "cancelled" && (
             <Link href={`/sessions/${session.id}/plays/new`} className="btn-primary">
               Registrar partida
@@ -128,7 +131,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
             <div className="flex items-center justify-between gap-2">
               <p className="font-semibold">{play.game.name}</p>
               {play.startedAt && !play.endedAt ? (
-                <span className="chip border-accent text-accent">En juego</span>
+                <span className="chip border-accent bg-accent font-bold text-ink">En juego</span>
               ) : (
                 <span className="text-xs text-muted">{playSummary(play)}</span>
               )}
@@ -139,12 +142,12 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
       </section>
 
       <section className="card space-y-3">
-        <h2 className="font-semibold">Asistentes ({attendeeIds.length})</h2>
+        <h2>Asistentes ({attendeeIds.length})</h2>
         <AttendeesEditor sessionId={session.id} players={players} selected={attendeeIds} />
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Fotos ({photos.length})</h2>
+        <h2 className="text-lg">Fotos ({photos.length})</h2>
         {session.status !== "cancelled" && <PhotoUploader sessionId={session.id} />}
         <PhotoGrid photos={photos} />
       </section>

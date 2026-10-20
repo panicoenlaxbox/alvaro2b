@@ -17,7 +17,7 @@ export default async function EditGamePage({ params }: PageProps<"/games/[id]/ed
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Editar {game.name}</h1>
+      <h1 className="text-3xl sm:text-4xl">Editar {game.name}</h1>
       <GameForm
         action={updateGame}
         owners={owners}

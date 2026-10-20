@@ -19,6 +19,7 @@ export async function GET(_request: Request, { params }: RouteContext<"/icons/[s
   const board = Math.round(size * (maskable ? 0.5 : 0.6));
   const pip = Math.round(board * 0.11);
   const offset = Math.round(board * 0.25);
+  const edge = Math.max(2, Math.round(board * 0.05));
   const pips = [
     [-offset, -offset],
     [offset, -offset],
@@ -36,7 +37,7 @@ export async function GET(_request: Request, { params }: RouteContext<"/icons/[s
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#b4462b",
+          background: "#1e1b2e",
           borderRadius: maskable ? 0 : Math.round(size * 0.22),
         }}
       >
@@ -46,7 +47,9 @@ export async function GET(_request: Request, { params }: RouteContext<"/icons/[s
             height: board,
             position: "relative",
             display: "flex",
-            background: "#faf7f2",
+            background: "#ef6f4c",
+            border: `${edge}px solid #0f0d18`,
+            boxShadow: `${Math.round(board * 0.08)}px ${Math.round(board * 0.08)}px 0 #0f0d18`,
             borderRadius: Math.round(board * 0.22),
           }}
         >
@@ -55,12 +58,12 @@ export async function GET(_request: Request, { params }: RouteContext<"/icons/[s
               key={i}
               style={{
                 position: "absolute",
-                left: board / 2 + x - pip,
-                top: board / 2 + y - pip,
+                left: board / 2 - edge + x - pip,
+                top: board / 2 - edge + y - pip,
                 width: pip * 2,
                 height: pip * 2,
                 borderRadius: pip,
-                background: "#b4462b",
+                background: "#f6f1e7",
               }}
             />
           ))}

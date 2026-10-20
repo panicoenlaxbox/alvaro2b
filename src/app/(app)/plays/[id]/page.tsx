@@ -27,7 +27,7 @@ export default async function PlayPage({ params }: PageProps<"/plays/[id]">) {
         <Link href={`/sessions/${play.sessionId}`} className="inline-block text-sm text-muted underline first-letter:uppercase">
           {formatSessionDate(play.sessionDate)}
         </Link>
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-3xl sm:text-4xl">
           <Link href={`/games/${play.game.id}`}>{play.game.name}</Link>
         </h1>
         <div className="flex flex-wrap gap-2">
