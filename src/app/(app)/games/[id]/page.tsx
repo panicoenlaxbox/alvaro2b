@@ -8,10 +8,11 @@ import { requireMember } from "@/lib/auth";
 import { listMembers } from "@/lib/data/players";
 import { durationText, PLAY_MODE_LABELS, playersText } from "@/lib/domain/game-form";
 import { starsText, summarizeRatings } from "@/lib/domain/ratings";
-import { coverUrl, signedUrls } from "@/lib/storage";
+import { ATTACHMENTS_BUCKET, coverUrl, signedUrls } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import { Cover } from "@/components/cover";
 import { CoverUploader, DeleteGameButton, ExpansionList, RatingPicker, RetireGameButton } from "./game-detail-forms";
+import { Attachments, type AttachmentItem } from "./attachments";
 
 export async function generateMetadata({ params }: PageProps<"/games/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -25,17 +26,27 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: game }, members] = await Promise.all([
+  const [{ data: game }, members, { data: attachments }] = await Promise.all([
     supabase
       .from("games")
       .select("*, owner:players!games_owner_id_fkey(display_name), ratings(player_id, stars), expansions(id, name, retired_at, created_by, owner:players!expansions_owner_id_fkey(display_name))")
       .eq("id", id)
       .maybeSingle(),
     listMembers(),
+    supabase.from("game_attachments").select("id, kind, url, path, file_name, size_bytes, created_by").eq("game_id", id).order("created_at"),
   ]);
   if (!game) notFound();
 
-  const signed = await signedUrls([game.cover_path]);
+  const [signed, attachmentUrls] = await Promise.all([
+    signedUrls([game.cover_path]),
+    signedUrls((attachments ?? []).map((a) => a.path), ATTACHMENTS_BUCKET),
+  ]);
+  const attachmentItems: AttachmentItem[] = (attachments ?? []).map((a) => {
+    const canDelete = member.isAdmin || a.created_by === member.userId;
+    return a.kind === "link"
+      ? { id: a.id, kind: "link", url: a.url!, canDelete }
+      : { id: a.id, kind: "file", url: attachmentUrls.get(a.path!) ?? null, fileName: a.file_name!, sizeBytes: a.size_bytes!, canDelete };
+  });
   const names = new Map(members.map((m) => [m.id, m.display_name]));
   const ratings = summarizeRatings(game.ratings.map((r) => ({ playerId: r.player_id, stars: r.stars })), names);
   const myStars = game.ratings.find((r) => r.player_id === member.playerId)?.stars ?? 0;
@@ -120,6 +131,11 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
             canDelete: member.isAdmin || e.created_by === member.userId,
           }))}
         />
+      </section>
+
+      <section className="card space-y-3">
+        <h2 className="font-semibold">Ficheros y enlaces</h2>
+        <Attachments gameId={game.id} items={attachmentItems} />
       </section>
 
       <section className="card space-y-3">
