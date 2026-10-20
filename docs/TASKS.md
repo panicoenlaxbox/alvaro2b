@@ -14,7 +14,6 @@ Lo que solo puede hacer Sergio. Marca cada casilla al terminarla. El agente aña
 
 ## Opcionales
 
-- [ ] **Logo oficial "Powered by BGG"**: el agente no puede descargarlo (BGG responde 403 a peticiones automáticas). Guarda el logo oficial como `public/powered-by-bgg.webp` y pide al agente que sustituya la insignia de texto.
 - [ ] **Aviso "Leaked Password Protection"** del advisor de Supabase: no aplica, porque no hay login con contraseña. Si quieres silenciarlo, actívalo en *Authentication* si tu plan lo permite.
 
 ## Recurrentes
@@ -27,3 +26,4 @@ Lo que solo puede hacer Sergio. Marca cada casilla al terminarla. El agente aña
 
 - [x] Desactivar el proveedor de email en Supabase (2026-10-20).
 - [x] Confirmar el login con Google en producción (2026-10-20).
+- [x] Descargar el logo oficial "Powered by BGG" (2026-10-20).
