@@ -5,7 +5,7 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 ## Flujo de cada hito
 
 1. Rama `feat/<hito>` desde `main`.
-2. Tests de la lógica de dominio (Vitest, `pnpm test`).
+2. Tests de la lógica de dominio (Vitest, `pnpm test`, en `src/lib/domain/`, sin dependencias de Supabase) y de reglas de base de datos (pgTAP, `pnpm test:db`). CI los ejecuta en cada PR.
 3. Migraciones versionadas en `supabase/migrations/`, con RLS y `GRANT` explícitos, probadas con `pnpm supabase db reset` en local.
 4. Verificación en Chrome contra `http://localhost:3000` con datos ficticios (`supabase/seed.sql`).
 5. PR, revisión propia, `pnpm supabase db push` a producción **antes** de integrar (las migraciones son aditivas), `get_advisors` y corrección de avisos, integración en `main`.
@@ -16,10 +16,10 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - [x] **1. Base**: Next.js + pnpm + Supabase CLI, `.gitattributes`, `.env.example`, PWA, login con Google, lista de emails autorizados con el primer Admin desde `ADMIN_EMAIL`, `/privacy`, proyecto Vercel conectado a GitHub sin previews, variables de Production, cron diario de keep-alive, registro por email desactivado en Supabase, comprobación de producción.
 - [x] **2. Backup semanal cifrado**: workflow de GitHub Actions con `supabase db dump` + `age` (ADR 0004) y sus Secrets.
 - [x] **3. Members y Admin**: gestión de la lista de autorizados, Members, Guests (alta, conversión a Member conservando historial).
-- [ ] **4. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
-- [ ] **5. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada.
-- [ ] **6. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
-- [ ] **7. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
+- [x] **4. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
+- [ ] **5. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
+- [ ] **6. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
+- [ ] **7. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada. Va después de Plays porque varios filtros dependen del historial.
 - [ ] **8. Polls**: Candidates, Suggestions, Approvals, Veto opcional, cierre por fecha o manual, desempate del creador, resultado.
 - [ ] **9. Photos**: bucket privado, compresión en el navegador y miniatura, Album y Session, etiquetado de Players y Play, URLs firmadas.
 - [ ] **10. Estadísticas**: grupo, Player y Game, filtrables por fechas.
@@ -42,3 +42,4 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - 2026-10-20: hito 1 en producción (PR #1). Keep-alive comprobado con `vercel crons run`. El registro por email lo desactivó el propietario: el token del agente no puede cambiar la configuración de Auth.
 - 2026-10-20: hito 2. Secrets `SUPABASE_DB_URL` (pooler en modo sesión) y `AGE_RECIPIENT` en GitHub. Dump probado en local.
 - 2026-10-20: hito 3. Tests de base de datos con pgTAP en `supabase/tests/` (`pnpm test:db`). Solo el Admin ve los emails autorizados.
+- 2026-10-20: hito 4. Migración `strict_default_privileges`: las tablas nuevas no reciben permisos por defecto ni en local ni en producción, así local no oculta GRANTs olvidados (se detectó uno en el upsert de Ratings). CI en `.github/workflows/ci.yml`.
