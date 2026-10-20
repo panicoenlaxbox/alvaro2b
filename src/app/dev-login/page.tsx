@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { isLocalDevelopment } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
-// Development-only sign-in as the fictional Members of supabase/seed.sql. It does not exist in
+// Development-only sign-in as the fictional Members of supabase/seed/01_members.sql. It does not exist in
 // production builds, and it also refuses to run against a remote Supabase project.
 const SEED_MEMBERS = [
   { email: "ana@example.com", name: "Ana (Admin)" },
