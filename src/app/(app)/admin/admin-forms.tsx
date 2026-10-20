@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { ConfirmSubmitButton, FormMessage, SubmitButton } from "@/components/form";
 import { initialActionState } from "@/lib/action-state";
 import { whatsappUrl } from "@/lib/share";
-import { addAllowedEmail, removeAllowedEmail, setAdmin } from "./actions";
+import { addAllowedEmail, deleteMember, removeAllowedEmail, setAdmin, setMemberActive } from "./actions";
 
 function inviteText(appUrl: string, email: string) {
   return `¡Ya puedes entrar en alvaro2b! Abre ${appUrl} y entra con tu cuenta de Google ${email}.`;
@@ -47,27 +47,34 @@ export function AddEmailForm({ guests }: { guests: { id: string; display_name: s
 export function AllowedEmailRow({
   email,
   isAdmin,
+  playerId,
   playerName,
   signedUp,
+  deactivated,
   isSelf,
   appUrl,
 }: {
   email: string;
   isAdmin: boolean;
+  playerId: string | null;
   playerName: string | null;
   signedUp: boolean;
+  deactivated: boolean;
   isSelf: boolean;
   appUrl: string;
 }) {
   const [adminState, adminAction] = useActionState(setAdmin, initialActionState);
   const [removeState, removeAction] = useActionState(removeAllowedEmail, initialActionState);
+  const [activeState, activeAction] = useActionState(setMemberActive, initialActionState);
+  const [deleteState, deleteAction] = useActionState(deleteMember, initialActionState);
+  const status = deactivated ? "Desactivado" : signedUp ? "Ha entrado" : "Pendiente";
 
   return (
-    <li className="space-y-2 px-4 py-3">
+    <li className={`space-y-2 px-4 py-3 ${deactivated ? "opacity-70" : ""}`}>
       <div className="flex flex-wrap items-center gap-2">
         <span className="min-w-0 flex-1 truncate font-medium">{playerName ?? email}</span>
         {isAdmin && <span className="chip border-accent text-accent">Admin</span>}
-        <span className={`chip ${signedUp ? "" : "border-dashed text-muted"}`}>{signedUp ? "Ha entrado" : "Pendiente"}</span>
+        <span className={`chip ${signedUp && !deactivated ? "" : "border-dashed text-muted"}`}>{status}</span>
       </div>
       {playerName && <p className="truncate text-sm text-muted">{email}</p>}
       <div className="flex flex-wrap gap-2">
@@ -76,20 +83,44 @@ export function AllowedEmailRow({
             WhatsApp
           </a>
         )}
-        <form action={adminAction}>
-          <input type="hidden" name="email" value={email} />
-          <input type="hidden" name="is_admin" value={String(!isAdmin)} />
-          <SubmitButton className="btn-secondary">{isAdmin ? "Quitar Admin" : "Hacer Admin"}</SubmitButton>
-        </form>
-        {!isSelf && (
-          <form action={removeAction}>
+        {!deactivated && (
+          <form action={adminAction}>
             <input type="hidden" name="email" value={email} />
-            <ConfirmSubmitButton confirmText="Sí, quitar acceso">Quitar acceso</ConfirmSubmitButton>
+            <input type="hidden" name="is_admin" value={String(!isAdmin)} />
+            <SubmitButton className="btn-secondary">{isAdmin ? "Quitar Admin" : "Hacer Admin"}</SubmitButton>
           </form>
         )}
+        {!isSelf && !signedUp && (
+          <form action={removeAction}>
+            <input type="hidden" name="email" value={email} />
+            <ConfirmSubmitButton confirmText="Sí, revocar">Revocar invitación</ConfirmSubmitButton>
+          </form>
+        )}
+        {!isSelf && signedUp && playerId && !isAdmin && (
+          <>
+            <form action={activeAction}>
+              <input type="hidden" name="player_id" value={playerId} />
+              <input type="hidden" name="active" value={String(deactivated)} />
+              {deactivated ? (
+                <SubmitButton className="btn-secondary">Reactivar</SubmitButton>
+              ) : (
+                <ConfirmSubmitButton confirmText="Sí, desactivar">Desactivar</ConfirmSubmitButton>
+              )}
+            </form>
+            <form action={deleteAction}>
+              <input type="hidden" name="player_id" value={playerId} />
+              <ConfirmSubmitButton confirmText="Sí, eliminar">Eliminar</ConfirmSubmitButton>
+            </form>
+          </>
+        )}
       </div>
+      {signedUp && !isSelf && !isAdmin && (
+        <p className="text-xs text-muted">Desactivar conserva su historial. Eliminar solo es posible si no ha jugado ni creado nada.</p>
+      )}
       <FormMessage state={adminState} />
       <FormMessage state={removeState} />
+      <FormMessage state={activeState} />
+      <FormMessage state={deleteState} />
     </li>
   );
 }

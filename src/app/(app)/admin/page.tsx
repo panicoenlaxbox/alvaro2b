@@ -12,7 +12,7 @@ export default async function AdminPage() {
   const supabase = await createClient();
 
   const [{ data: emails }, { data: guests }] = await Promise.all([
-    supabase.from("allowed_emails").select("email, is_admin, player_id, players(display_name, user_id)").order("created_at"),
+    supabase.from("allowed_emails").select("email, is_admin, player_id, players(display_name, user_id, deactivated_at)").order("created_at"),
     supabase.from("players").select("id, display_name").is("user_id", null).order("display_name"),
   ]);
 
@@ -41,8 +41,10 @@ export default async function AdminPage() {
               key={e.email}
               email={e.email}
               isAdmin={e.is_admin}
+              playerId={e.player_id}
               playerName={e.players?.display_name ?? null}
               signedUp={Boolean(e.players?.user_id)}
+              deactivated={Boolean(e.players?.deactivated_at)}
               isSelf={e.email === admin.email}
               appUrl={url}
             />

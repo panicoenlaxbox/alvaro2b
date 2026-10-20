@@ -1,16 +1,16 @@
 "use client";
 
-/** Checkbox chips to pick Players; Members first, then Guests. */
+/** Checkbox chips to pick Players; Members first, then Guests. Deactivated Members only show if already picked. */
 export function PlayerPicker({
   name,
   players,
   selected = [],
 }: {
   name: string;
-  players: { id: string; display_name: string; is_member: boolean }[];
+  players: { id: string; display_name: string; is_member: boolean; active?: boolean }[];
   selected?: string[];
 }) {
-  const sorted = [...players].sort((a, b) => Number(b.is_member) - Number(a.is_member) || a.display_name.localeCompare(b.display_name, "es"));
+  const sorted = players.filter((p) => p.active !== false || selected.includes(p.id)).sort((a, b) => Number(b.is_member) - Number(a.is_member) || a.display_name.localeCompare(b.display_name, "es"));
   return (
     <div className="flex flex-wrap gap-2">
       {sorted.map((p) => (

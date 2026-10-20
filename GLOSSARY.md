@@ -5,7 +5,7 @@ Vocabulario del dominio de una aplicación para que un grupo de amigos organice 
 ## Personas
 
 **Member**:
-Persona del grupo con cuenta propia en la aplicación.
+Persona del grupo con cuenta propia en la aplicación. Un Member *desactivado* no puede entrar ni aparece al elegir jugadores, pero conserva su historial.
 _Evitar_: usuario, socio, amigo
 
 **Guest**:

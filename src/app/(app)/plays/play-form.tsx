@@ -7,7 +7,7 @@ import type { PlayFormGame } from "@/lib/data/play-form";
 import { savePlay } from "./actions";
 import { FirstPlayerDraw } from "./first-player-draw";
 
-type Player = { id: string; display_name: string; is_member: boolean };
+type Player = { id: string; display_name: string; is_member: boolean; active: boolean };
 
 type Row = { playerId: string; score: string; rank: string; teamKey: string };
 
@@ -175,7 +175,8 @@ export function PlayForm({
       <fieldset>
         <legend className="label">Participantes</legend>
         <div className="flex flex-wrap gap-2">
-          {[...players]
+          {players
+            .filter((p) => p.active || selected.has(p.id))
             .sort((a, b) => Number(b.is_member) - Number(a.is_member) || a.display_name.localeCompare(b.display_name, "es"))
             .map((p) => (
               <button
