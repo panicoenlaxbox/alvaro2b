@@ -118,6 +118,11 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
       </section>
 
       <section className="flex flex-wrap gap-2">
+        {session.status === "planned" && (
+          <Link href={`/games?session=${session.id}`} className="btn-secondary">
+            Elegir juego para esta sesión
+          </Link>
+        )}
         <a href={whatsappUrl(shareText)} target="_blank" rel="noreferrer" className="btn-secondary">
           Compartir por WhatsApp
         </a>

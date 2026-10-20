@@ -69,3 +69,11 @@ export function formatSessionDate(date: string): string {
     new Date(Date.UTC(y!, m! - 1, d!)),
   );
 }
+
+/** "10 oct 2026" */
+export function formatShortDate(date: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+    .format(new Date(Date.UTC(y!, m! - 1, d!)))
+    .replace(".", "");
+}
