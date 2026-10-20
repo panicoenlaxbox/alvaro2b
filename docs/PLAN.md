@@ -19,7 +19,7 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - [x] **4. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
 - [x] **5. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
 - [x] **6. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
-- [ ] **7. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada. Va después de Plays porque varios filtros dependen del historial.
+- [x] **7. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada. Va después de Plays porque varios filtros dependen del historial.
 - [ ] **8. Polls**: Candidates, Suggestions, Approvals, Veto opcional, cierre por fecha o manual, desempate del creador, resultado.
 - [ ] **9. Photos**: bucket privado, compresión en el navegador y miniatura, Album y Session, etiquetado de Players y Play, URLs firmadas.
 - [ ] **10. Estadísticas**: grupo, Player y Game, filtrables por fechas.
@@ -47,3 +47,4 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - 2026-10-20: hito 4. Migración `strict_default_privileges`: las tablas nuevas no reciben permisos por defecto ni en local ni en producción, así local no oculta GRANTs olvidados (se detectó uno en el upsert de Ratings). CI en `.github/workflows/ci.yml`.
 - 2026-10-20: hito 5. El estado de la Session lo gobierna un trigger (`private.session_lifecycle`), con "hoy" en `Europe/Madrid`. "Pendiente de cerrar" se calcula en `src/lib/domain/session.ts`. El recuento de Plays se completa en el hito 6.
 - 2026-10-20: hito 6. Cronómetro: "Empezar" guarda la Play con `started_at`; "Terminar" fija `ended_at` y la duración, y lleva a editar el resultado. Las server actions ya no reciben redirecciones del proxy si caduca la sesión. Aviso "Leaked Password Protection" aceptado (ver SETUP).
+- 2026-10-20: hito 7. Sin migración: filtros, ordenación y "sorpréndeme" en `src/lib/domain/explore.ts`, sobre los datos del Catalog con su historial. Con `?session=` los filtros parten de los asistentes.

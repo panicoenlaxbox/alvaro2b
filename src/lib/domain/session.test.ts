@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canCancel, formatSessionDate, groupSessions, initialStatus, isPendingClose, todayIso } from "./session";
+import { canCancel, formatSessionDate, formatShortDate, groupSessions, initialStatus, isPendingClose, todayIso } from "./session";
 
 describe("todayIso", () => {
   it("uses the group's time zone, not UTC", () => {
@@ -56,4 +56,8 @@ describe("groupSessions", () => {
 
 describe("formatSessionDate", () => {
   it("formats in Spanish", () => expect(formatSessionDate("2026-10-24")).toBe("sábado, 24 de octubre de 2026"));
+});
+
+describe("formatShortDate", () => {
+  it("formats compactly in Spanish", () => expect(formatShortDate("2026-10-10")).toBe("10 oct 2026"));
 });
