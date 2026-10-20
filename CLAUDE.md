@@ -15,7 +15,7 @@ Conversation with the user may happen in another language; only the repository c
 
 These are deliberate. Do not translate them to English.
 
-- Product and domain documents are written in Spanish: `GLOSSARY.md` and everything under `docs/` (PRD, ADRs). Domain entity names stay in English (Session, Play, Game, Poll…), as do file names and ADR slugs.
+- Product and domain documents are written in Spanish: `GLOSSARY.md` and everything under `docs/` (PRD, ADRs, setup, plan and owner tasks). Domain entity names stay in English (Session, Play, Game, Poll…), as do file names and ADR slugs.
 - User-facing UI text is in Spanish. There is no i18n layer. Code, comments, logs and error messages that only developers see stay in English. URL routes are in English too (e.g. `/privacy`, `/sessions`, `/games`), even though the pages they serve are in Spanish.
 
 ## Domain
@@ -23,6 +23,8 @@ These are deliberate. Do not translate them to English.
 - `GLOSSARY.md` defines the domain vocabulary. Use its terms in code and docs.
 - `docs/PRD.md` describes scope and features. `docs/adr/` records architectural decisions.
 - `docs/SETUP.md` lists the owner's one-time setup, environments, secret names and the agent's red lines. Respect those red lines.
+- `docs/TASKS.md` is the owner's to-do list. When something can only be done by the owner, add it there instead of blocking.
+- `docs/PLAN.md` is the build plan and log; keep it updated when a milestone changes.
 
 ## Public repository
 

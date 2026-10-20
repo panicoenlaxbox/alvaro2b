@@ -51,7 +51,7 @@ Local data is fictional seed data (`supabase/seed.sql`). Open http://localhost:3
 
 ## Deployment and environments
 
-Owner-only setup (accounts, tokens, environments) is described in [`docs/SETUP.md`](docs/SETUP.md) (Spanish).
+Owner-only setup (accounts, tokens, environments) is described in [`docs/SETUP.md`](docs/SETUP.md), and the owner's pending tasks are in [`docs/TASKS.md`](docs/TASKS.md) (both in Spanish).
 
 ## License
 
