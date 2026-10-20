@@ -59,3 +59,28 @@ from (values
   ('a0000000-0000-4000-8000-000000000006'::uuid, 'Ana', 5), ('a0000000-0000-4000-8000-000000000006'::uuid, 'Carla', 3)
 ) as r (game_id, name, stars)
 join public.players p on p.display_name = r.name;
+
+-- Sessions relative to the reset date, so the seed always has past, future and pending ones.
+insert into public.sessions (id, date, place, created_by) values
+  ('b0000000-0000-4000-8000-000000000001', private.today() - 30, 'Casa de Ana', '11111111-1111-4111-8111-111111111111'),
+  ('b0000000-0000-4000-8000-000000000002', private.today() - 9, 'Bar La Partida', '22222222-2222-4222-8222-222222222222');
+-- Planned Sessions are created in the future; one is then moved to the past to be pending close.
+insert into public.sessions (id, date, place, created_by) values
+  ('b0000000-0000-4000-8000-000000000003', private.today() + 4, 'Casa de Carla', '33333333-3333-4333-8333-333333333333'),
+  ('b0000000-0000-4000-8000-000000000004', private.today() + 1, null, '11111111-1111-4111-8111-111111111111');
+update public.sessions set date = private.today() - 2 where id = 'b0000000-0000-4000-8000-000000000004';
+
+insert into public.session_attendees (session_id, player_id)
+select s.session_id, p.id
+from (values
+  ('b0000000-0000-4000-8000-000000000001'::uuid, 'Ana'), ('b0000000-0000-4000-8000-000000000001'::uuid, 'Bruno'),
+  ('b0000000-0000-4000-8000-000000000001'::uuid, 'Carla'), ('b0000000-0000-4000-8000-000000000001'::uuid, 'Dani'),
+  ('b0000000-0000-4000-8000-000000000002'::uuid, 'Ana'), ('b0000000-0000-4000-8000-000000000002'::uuid, 'Bruno'),
+  ('b0000000-0000-4000-8000-000000000002'::uuid, 'Carla')
+) as s (session_id, name)
+join public.players p on p.display_name = s.name;
+
+insert into public.rsvps (session_id, player_id, response)
+select 'b0000000-0000-4000-8000-000000000003', p.id, r.response::public.rsvp_response
+from (values ('Carla', 'yes'), ('Bruno', 'maybe')) as r (name, response)
+join public.players p on p.display_name = r.name;

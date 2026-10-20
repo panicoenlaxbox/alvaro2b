@@ -143,6 +143,72 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"rsvps": {
+                  Row: {
+                    "player_id": string,"response": Database["public"]['Enums']["rsvp_response"],"session_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "player_id"?: string,"response": Database["public"]['Enums']["rsvp_response"],"session_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "player_id"?: string,"response"?: Database["public"]['Enums']["rsvp_response"],"session_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "rsvps_player_id_fkey"
+      columns: ["player_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rsvps_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "sessions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"session_attendees": {
+                  Row: {
+                    "created_at": string,"player_id": string,"session_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"player_id": string,"session_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"player_id"?: string,"session_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "session_attendees_player_id_fkey"
+      columns: ["player_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "session_attendees_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "sessions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"sessions": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"date": string,"id": string,"notes": string | null,"place": string | null,"status": Database["public"]['Enums']["session_status"],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"date": string,"id"?: string,"notes"?: string | null,"place"?: string | null,"status"?: Database["public"]['Enums']["session_status"],"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"date"?: string,"id"?: string,"notes"?: string | null,"place"?: string | null,"status"?: Database["public"]['Enums']["session_status"],"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 }
           }
           Views: {
@@ -152,7 +218,7 @@ isOneToOne: false
             [_ in never]: never
           }
           Enums: {
-            "play_mode": "competitive"|"cooperative"|"team"
+            "play_mode": "competitive"|"cooperative"|"team","rsvp_response": "yes"|"maybe"|"no","session_status": "planned"|"held"|"cancelled"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -272,7 +338,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "play_mode": ["competitive", "cooperative", "team"]
+            "play_mode": ["competitive", "cooperative", "team"],"rsvp_response": ["yes", "maybe", "no"],"session_status": ["planned", "held", "cancelled"]
           }
         }
 } as const
