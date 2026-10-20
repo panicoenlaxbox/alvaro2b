@@ -17,7 +17,7 @@ Live at https://alvaro2b.vercel.app (Members only). Product and domain docs are 
 - `src/lib/data/`: server-side data loading through Supabase, always under the signed-in Member's Row Level Security.
 - `src/lib/bgg/`: optional BoardGameGeek client; it turns on when `BGG_TOKEN` is set.
 - `supabase/migrations/`: versioned schema with RLS and explicit grants. `supabase/tests/`: pgTAP tests of the access rules. `supabase/seed/`: fictional local data (`01_members.sql` with the Members, `02_sample.sql` with sample Games, Sessions, Plays and a Poll).
-- `.github/workflows/`: CI (lint, types, tests, build, pgTAP) and the weekly encrypted backup.
+- `.github/workflows/`: CI (lint, types, tests, build, pgTAP).
 
 ## Getting started
 

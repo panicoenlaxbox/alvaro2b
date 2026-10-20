@@ -41,7 +41,6 @@
 # Local environment and secrets (never commit; see docs/SETUP.md)
 .env*
 !.env.example
-*.agekey
 .vercel/
 
 # Local Claude Code settings (contain secrets such as GH_TOKEN)

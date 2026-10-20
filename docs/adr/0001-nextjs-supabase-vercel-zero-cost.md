@@ -14,6 +14,6 @@ No hay staging ni previews de Vercel. Una preview solo podría usar la base de d
 ## Consecuencias
 
 - Vercel Hobby solo admite uso personal no comercial: nada de anuncios ni cobros.
-- Límites del plan gratuito de Supabase que condicionan el diseño: 500 MB de base de datos, 1 GB de almacenamiento, sin transformación de imágenes y sin backups automáticos. Por eso las Photos se comprimen en el navegador antes de subirlas.
-- Supabase pausa el proyecto tras una semana sin actividad (ver [0004](./0004-supabase-keep-alive-and-encrypted-backup.md)).
+- Límites del plan gratuito de Supabase que condicionan el diseño: 500 MB de base de datos, 1 GB de almacenamiento y sin transformación de imágenes. Por eso las Photos se comprimen en el navegador antes de subirlas.
+- Supabase pausa el proyecto tras una semana sin actividad (ver [0004](./0004-supabase-keep-alive.md)).
 - Toda la seguridad de los datos descansa en RLS, porque la clave `anon` es pública.

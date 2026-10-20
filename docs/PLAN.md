@@ -16,18 +16,17 @@ Fue la fuente de verdad del trabajo del agente durante la construcción. Cada hi
 ## Hitos
 
 - [x] **1. Base**: Next.js + pnpm + Supabase CLI, `.gitattributes`, `.env.example`, PWA, login con Google, lista de emails autorizados con el primer Admin desde `ADMIN_EMAIL`, `/privacy`, proyecto Vercel conectado a GitHub sin previews, variables de Production, cron diario de keep-alive, registro por email desactivado en Supabase, comprobación de producción.
-- [x] **2. Backup semanal cifrado**: workflow de GitHub Actions con `supabase db dump` + `age` (ADR 0004) y sus Secrets.
-- [x] **3. Members y Admin**: gestión de la lista de autorizados, Members, Guests (alta, conversión a Member conservando historial).
-- [x] **4. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
-- [x] **5. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
-- [x] **6. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
-- [x] **7. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada. Va después de Plays porque varios filtros dependen del historial.
-- [x] **8. Polls**: Candidates, Suggestions, Approvals, Veto opcional, cierre por fecha o manual, desempate del creador, resultado.
-- [x] **9. Photos**: bucket privado, compresión en el navegador y miniatura, Album y Session, etiquetado de Players y Play, URLs firmadas.
-- [x] **10. Estadísticas**: grupo, Player y Game, filtrables por fechas.
-- [x] **11. Exportación**: JSON para el Admin y descarga aparte de Photos.
-- [x] **12. BGG**: búsqueda e importación, bloque BGG info con caché de 7 días, "Powered by BGG"; se activa sola cuando existe `BGG_TOKEN`.
-- [x] **13. Cierre**: repaso del PRD, advisors limpios, README actualizado, resumen de pendientes del propietario.
+- [x] **2. Members y Admin**: gestión de la lista de autorizados, Members, Guests (alta, conversión a Member conservando historial).
+- [x] **3. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
+- [x] **4. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
+- [x] **5. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
+- [x] **6. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada. Va después de Plays porque varios filtros dependen del historial.
+- [x] **7. Polls**: Candidates, Suggestions, Approvals, Veto opcional, cierre por fecha o manual, desempate del creador, resultado.
+- [x] **8. Photos**: bucket privado, compresión en el navegador y miniatura, Album y Session, etiquetado de Players y Play, URLs firmadas.
+- [x] **9. Estadísticas**: grupo, Player y Game, filtrables por fechas.
+- [x] **10. Exportación**: JSON para el Admin y descarga aparte de Photos.
+- [x] **11. BGG**: búsqueda e importación, bloque BGG info con caché de 7 días, "Powered by BGG"; se activa sola cuando existe `BGG_TOKEN`.
+- [x] **12. Cierre**: repaso del PRD, advisors limpios, README actualizado, resumen de pendientes del propietario.
 
 ## Decisiones de implementación
 
@@ -44,15 +43,14 @@ Fue la fuente de verdad del trabajo del agente durante la construcción. Cada hi
 
 - 2026-10-20: plan inicial.
 - 2026-10-20: hito 1 en producción (PR #1). Keep-alive comprobado con `vercel crons run`. El registro por email lo desactivó el propietario: el token del agente no puede cambiar la configuración de Auth.
-- 2026-10-20: hito 2. Secrets `SUPABASE_DB_URL` (pooler en modo sesión) y `AGE_RECIPIENT` en GitHub. Dump probado en local.
-- 2026-10-20: hito 3. Tests de base de datos con pgTAP en `supabase/tests/` (`pnpm test:db`). Solo el Admin ve los emails autorizados.
-- 2026-10-20: hito 4. Migración `strict_default_privileges`: las tablas nuevas no reciben permisos por defecto ni en local ni en producción, así local no oculta GRANTs olvidados (se detectó uno en el upsert de Ratings). CI en `.github/workflows/ci.yml`.
-- 2026-10-20: hito 5. El estado de la Session lo gobierna un trigger (`private.session_lifecycle`), con "hoy" en `Europe/Madrid`. "Pendiente de cerrar" se calcula en `src/lib/domain/session.ts`. El recuento de Plays se completa en el hito 6.
-- 2026-10-20: hito 6. Cronómetro: "Empezar" guarda la Play con `started_at`; "Terminar" fija `ended_at` y la duración, y lleva a editar el resultado. Las server actions ya no reciben redirecciones del proxy si caduca la sesión. Aviso "Leaked Password Protection" aceptado: no hay contraseñas (ver SETUP).
-- 2026-10-20: hito 7. Sin migración: filtros, ordenación y "sorpréndeme" en `src/lib/domain/explore.ts`, sobre los datos del Catalog con su historial. Con `?session=` los filtros parten de los asistentes.
-- 2026-10-20: hito 8. Un Poll por Session planificada. Votar, vetar y proponer solo mientras está abierto (RLS con `private.poll_is_open`). Resultado y desempate en `src/lib/domain/poll.ts`. La fecha límite se escribe en hora de Madrid.
-- 2026-10-20: hito 9. Photos comprimidas en el navegador a WebP (lado largo 2000 px, objetivo 500 KB) más miniatura de 400 px, en `media/photos/`. Borrar una Photo borra sus ficheros. Borrar una Play solo quita su etiqueta de las Photos.
-- 2026-10-20: hito 10. Sin migración: se carga el historial completo y se calcula en `src/lib/domain/stats.ts`. Las victorias cuentan todos los modos (puesto 1, equipo ganador o el grupo en cooperativo); el porcentaje y la némesis, solo competitivo. "La vergüenza de la estantería" no depende del rango de fechas.
-- 2026-10-20: hito 11. `/api/export` (solo Admin) devuelve todas las tablas en JSON, paginando de 1000 en 1000 y con RLS. Las fotos se descargan en ZIP de 100 en 100, generados en el navegador con `fflate` a partir de URLs firmadas.
-- 2026-10-20: hito 12. `src/lib/bgg/`: parseo del XML con tests y cliente de servidor con `fetch` en caché 7 días (`next.revalidate`). Sin `BGG_TOKEN` no aparece nada de BGG; si BGG falla, aviso y alta manual. Importa solo nuestros campos; el modo se deduce de las mecánicas (cooperativo, por equipos).
-- 2026-10-20: hito 13. Repaso del PRD completo. Producción: 9 migraciones aplicadas y sincronizadas con local, advisors de seguridad limpios salvo el aviso aceptado de contraseñas filtradas, y en rendimiento solo "índice sin usar" (índices de claves foráneas, normal con la base casi vacía). Prueba de humo sin dejar datos: rutas públicas y PWA responden, `/dev-login` da 404, keep-alive y API protegidos. Lo pendiente del propietario está en `SETUP.md`.
+- 2026-10-20: hito 2. Tests de base de datos con pgTAP en `supabase/tests/` (`pnpm test:db`). Solo el Admin ve los emails autorizados.
+- 2026-10-20: hito 3. Migración `strict_default_privileges`: las tablas nuevas no reciben permisos por defecto ni en local ni en producción, así local no oculta GRANTs olvidados (se detectó uno en el upsert de Ratings). CI en `.github/workflows/ci.yml`.
+- 2026-10-20: hito 4. El estado de la Session lo gobierna un trigger (`private.session_lifecycle`), con "hoy" en `Europe/Madrid`. "Pendiente de cerrar" se calcula en `src/lib/domain/session.ts`. El recuento de Plays se completa en el hito 5.
+- 2026-10-20: hito 5. Cronómetro: "Empezar" guarda la Play con `started_at`; "Terminar" fija `ended_at` y la duración, y lleva a editar el resultado. Las server actions ya no reciben redirecciones del proxy si caduca la sesión. Aviso "Leaked Password Protection" aceptado: no hay contraseñas (ver SETUP).
+- 2026-10-20: hito 6. Sin migración: filtros, ordenación y "sorpréndeme" en `src/lib/domain/explore.ts`, sobre los datos del Catalog con su historial. Con `?session=` los filtros parten de los asistentes.
+- 2026-10-20: hito 7. Un Poll por Session planificada. Votar, vetar y proponer solo mientras está abierto (RLS con `private.poll_is_open`). Resultado y desempate en `src/lib/domain/poll.ts`. La fecha límite se escribe en hora de Madrid.
+- 2026-10-20: hito 8. Photos comprimidas en el navegador a WebP (lado largo 2000 px, objetivo 500 KB) más miniatura de 400 px, en `media/photos/`. Borrar una Photo borra sus ficheros. Borrar una Play solo quita su etiqueta de las Photos.
+- 2026-10-20: hito 9. Sin migración: se carga el historial completo y se calcula en `src/lib/domain/stats.ts`. Las victorias cuentan todos los modos (puesto 1, equipo ganador o el grupo en cooperativo); el porcentaje y la némesis, solo competitivo. "La vergüenza de la estantería" no depende del rango de fechas.
+- 2026-10-20: hito 10. `/api/export` (solo Admin) devuelve todas las tablas en JSON, paginando de 1000 en 1000 y con RLS. Las fotos se descargan en ZIP de 100 en 100, generados en el navegador con `fflate` a partir de URLs firmadas.
+- 2026-10-20: hito 11. `src/lib/bgg/`: parseo del XML con tests y cliente de servidor con `fetch` en caché 7 días (`next.revalidate`). Sin `BGG_TOKEN` no aparece nada de BGG; si BGG falla, aviso y alta manual. Importa solo nuestros campos; el modo se deduce de las mecánicas (cooperativo, por equipos).
+- 2026-10-20: hito 12. Repaso del PRD completo. Producción: 9 migraciones aplicadas y sincronizadas con local, advisors de seguridad limpios salvo el aviso aceptado de contraseñas filtradas, y en rendimiento solo "índice sin usar" (índices de claves foráneas, normal con la base casi vacía). Prueba de humo sin dejar datos: rutas públicas y PWA responden, `/dev-login` da 404, keep-alive y API protegidos. Lo pendiente del propietario está en `SETUP.md`.

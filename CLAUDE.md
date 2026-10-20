@@ -56,7 +56,7 @@ ADRs are append-only records: the superseded note is the only edit an existing A
 
 This repository is public (MIT license). Therefore:
 
-- Never commit secrets: BGG token, Supabase `service_role` key, backup encryption key, etc. They live only in Vercel environment variables, GitHub Secrets and, locally, in the `env` block of the git-ignored `.claude/settings.local.json`. Commit a `.env.example` with variable names and no values.
+- Never commit secrets: BGG token, Supabase `service_role` key, etc. They live only in Vercel environment variables, GitHub Secrets and, locally, in the `env` block of the git-ignored `.claude/settings.local.json`. Commit a `.env.example` with variable names and no values.
 - Use only fictional data in seeds, tests, fixtures and docs. Never commit real names, emails or photos of the group.
 - Every Supabase table must have Row Level Security enabled with explicit policies. The `anon` key is public, so RLS is the real protection.
 - The Supabase project does not expose new tables to the Data API automatically. Every migration that creates a table must also grant the needed privileges to the API roles (`authenticated`, and `anon` only if truly required).
