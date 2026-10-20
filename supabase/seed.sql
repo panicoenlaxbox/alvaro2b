@@ -84,3 +84,41 @@ insert into public.rsvps (session_id, player_id, response)
 select 'b0000000-0000-4000-8000-000000000003', p.id, r.response::public.rsvp_response
 from (values ('Carla', 'yes'), ('Bruno', 'maybe')) as r (name, response)
 join public.players p on p.display_name = r.name;
+
+-- Plays in the held Sessions, one per Play mode plus a tie.
+do $$
+declare
+  p_ana uuid := (select id from public.players where display_name = 'Ana');
+  p_bruno uuid := (select id from public.players where display_name = 'Bruno');
+  p_carla uuid := (select id from public.players where display_name = 'Carla');
+  p_dani uuid := (select id from public.players where display_name = 'Dani');
+  play uuid;
+  red uuid;
+  blue uuid;
+begin
+  insert into public.plays (session_id, game_id, play_mode, duration_minutes, notes, created_by)
+  values ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'competitive', 40, 'Ana remontó al final.', '11111111-1111-4111-8111-111111111111')
+  returning id into play;
+  insert into public.participants (play_id, player_id, score, rank) values
+    (play, p_ana, 78, 1), (play, p_bruno, 65, 2), (play, p_carla, 61, 3), (play, p_dani, 40, 4);
+
+  insert into public.plays (session_id, game_id, play_mode, duration_minutes, coop_won, created_by)
+  values ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002', 'cooperative', 55, true, '11111111-1111-4111-8111-111111111111')
+  returning id into play;
+  insert into public.participants (play_id, player_id) values (play, p_ana), (play, p_bruno), (play, p_carla), (play, p_dani);
+
+  insert into public.plays (session_id, game_id, play_mode, duration_minutes, created_by)
+  values ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000003', 'team', 20, '22222222-2222-4222-8222-222222222222')
+  returning id into play;
+  insert into public.teams (play_id, name, won) values (play, 'Rojo', true) returning id into red;
+  insert into public.teams (play_id, name, won) values (play, 'Azul', false) returning id into blue;
+  insert into public.participants (play_id, player_id, team_id) values (play, p_ana, red), (play, p_bruno, blue), (play, p_carla, red);
+
+  insert into public.plays (session_id, game_id, play_mode, duration_minutes, created_by)
+  values ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000004', 'competitive', 95, '22222222-2222-4222-8222-222222222222')
+  returning id into play;
+  insert into public.play_expansions (play_id, expansion_id) select play, id from public.expansions where name = 'Navegantes';
+  insert into public.participants (play_id, player_id, score, rank) values
+    (play, p_ana, 9, 2), (play, p_bruno, 10, 1), (play, p_carla, 10, 1);
+end;
+$$;
