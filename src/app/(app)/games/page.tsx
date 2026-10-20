@@ -84,7 +84,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
       )}
 
       {!showRetired && (
-        <AutoSubmitForm key={JSON.stringify(params)} action="/games" className="card space-y-5 p-4 sm:p-6" aria-label="Filtros">
+        <AutoSubmitForm key={JSON.stringify(params)} action="/games" keepEmpty={session ? ["players"] : []} className="card space-y-5 p-4 sm:p-6" aria-label="Filtros">
           {session && <input type="hidden" name="session" value={session.id} />}
           <div className="flex flex-wrap gap-x-10 gap-y-5">
             <ChoiceGroup legend="¿Cuántos somos?" name="players" current={filters.players?.toString() ?? ""} options={PLAYER_CHOICES} />

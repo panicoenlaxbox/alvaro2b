@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterGames, parseFilters, pickRandom, sortGames, type ExplorableGame } from "./explore";
+import { filterGames, filterQuery, parseFilters, pickRandom, sortGames, type ExplorableGame } from "./explore";
 
 const game = (id: string, change: Partial<ExplorableGame> = {}): ExplorableGame => ({
   id,
@@ -101,4 +101,15 @@ describe("parseFilters", () => {
   });
 
   it("defaults to sorting by name", () => expect(parseFilters({ sort: "nope" }).sort).toBe("name"));
+});
+
+describe("filterQuery", () => {
+  it("leaves out empty fields and the default sort", () => {
+    expect(filterQuery([["players", "4"], ["minutes", ""], ["mode", ""], ["q", ""], ["sort", "name"]])).toBe("players=4");
+    expect(filterQuery([["sort", "rating"], ["owner", "a"], ["owner", "b"]])).toBe("sort=rating&owner=a&owner=b");
+    expect(filterQuery([])).toBe("");
+  });
+  it("keeps the empty fields it is told to", () => {
+    expect(filterQuery([["session", "s1"], ["players", ""], ["minutes", ""]], ["players"])).toBe("session=s1&players=");
+  });
 });
