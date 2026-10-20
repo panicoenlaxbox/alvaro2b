@@ -3,7 +3,6 @@
 /* One look, no light/dark switch: a night-time games table with chunky ink borders and hard shadows. */
 :root {
   color-scheme: dark;
-
   --background: #1e1b2e;
   --foreground: #f6f1e7;
   --card: #2b2740;
