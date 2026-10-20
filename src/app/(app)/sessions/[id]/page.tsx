@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { listPlayers } from "@/lib/data/players";
+import { listSessionPlays } from "@/lib/data/plays";
+import { PlayResult, playSummary } from "@/components/play-result";
 import {
   canCancel,
   canStart,
@@ -28,20 +30,21 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: session }, players] = await Promise.all([
+  const [{ data: session }, players, plays] = await Promise.all([
     supabase
       .from("sessions")
       .select("*, session_attendees(player_id), rsvps(player_id, response)")
       .eq("id", id)
       .maybeSingle(),
     listPlayers(),
+    listSessionPlays(id),
   ]);
   if (!session) notFound();
 
   const names = new Map(players.map((p) => [p.id, p.display_name]));
   const attendeeIds = session.session_attendees.map((a) => a.player_id);
   const myRsvp = session.rsvps.find((r) => r.player_id === member.playerId)?.response ?? null;
-  const playCount = 0;
+  const playCount = plays.length;
   const pending = isPendingClose({ status: session.status, date: session.date, playCount }, todayIso());
   const url = `${appUrl()}/sessions/${session.id}`;
   const shareText = `Quedada de juegos el ${formatSessionDate(session.date)}${session.place ? ` en ${session.place}` : ""}. ¿Te vienes? ${url}`;
@@ -83,6 +86,31 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           )}
         </section>
       )}
+
+      <section className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold">Partidas ({plays.length})</h2>
+          {session.status !== "cancelled" && (
+            <Link href={`/sessions/${session.id}/plays/new`} className="btn-primary">
+              Registrar partida
+            </Link>
+          )}
+        </div>
+        {plays.length === 0 && <p className="text-sm text-muted">Aún no hay partidas.</p>}
+        {plays.map((play) => (
+          <Link key={play.id} href={`/plays/${play.id}`} className="card block space-y-2 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-semibold">{play.game.name}</p>
+              {play.startedAt && !play.endedAt ? (
+                <span className="chip border-accent text-accent">En juego</span>
+              ) : (
+                <span className="text-xs text-muted">{playSummary(play)}</span>
+              )}
+            </div>
+            <PlayResult play={play} compact />
+          </Link>
+        ))}
+      </section>
 
       <section className="card space-y-3">
         <h2 className="font-semibold">Asistentes ({attendeeIds.length})</h2>

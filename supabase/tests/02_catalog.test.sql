@@ -22,10 +22,13 @@ select throws_ok(
 );
 with d as (delete from public.ratings where game_id = 'a0000000-0000-4000-8000-000000000001' and stars = 5 returning 1) select is(count(*)::int, 0, 'a Member cannot delete another Member''s Rating') from d;
 
--- Games created by Ana: Bruno cannot delete them, Ana (Admin and author) can
-with d as (delete from public.games where id = 'a0000000-0000-4000-8000-000000000005' returning 1) select is(count(*)::int, 0, 'only the author or the Admin deletes a Game') from d;
+-- A Game added by Ana: Bruno cannot delete it, Ana (Admin and author) can
 select pg_temp.act_as('11111111-1111-4111-8111-111111111111');
-with d as (delete from public.games where id = 'a0000000-0000-4000-8000-000000000005' returning 1) select is(count(*)::int, 1, 'the author deletes a Game without Plays') from d;
+insert into public.games (name) values ('Test game');
+select pg_temp.act_as('22222222-2222-4222-8222-222222222222');
+with d as (delete from public.games where name = 'Test game' returning 1) select is(count(*)::int, 0, 'only the author or the Admin deletes a Game') from d;
+select pg_temp.act_as('11111111-1111-4111-8111-111111111111');
+with d as (delete from public.games where name = 'Test game' returning 1) select is(count(*)::int, 1, 'the author deletes a Game without Plays') from d;
 
 -- Signed-out visitors see nothing
 reset role;
