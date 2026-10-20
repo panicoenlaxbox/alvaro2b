@@ -64,6 +64,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Un Game que ya no tenemos se retira: desaparece de la exploración y de las Suggestions, pero conserva su historial.
   - Solo se puede borrar un Game que no tenga Plays.
 - **Carátula**. La imagen enlazada de BGG, o una imagen propia subida por nosotros que la sustituye.
+- **Ficheros y enlaces**. Cualquier Member puede adjuntar a un Game ficheros (un FAQ en PDF, una ayuda de juego: PDF, imagen, texto o documento, hasta 20 MB) y enlaces (una herramienta online), sin descripción. Solo el autor o el Admin pueden quitarlos.
 - **Rating**.
   - Cada Member puede dar de 1 a 5 estrellas a cada Game y cambiarlas cuando quiera.
   - Se muestra la media y el desglose por Member ("Juanito ★★★").

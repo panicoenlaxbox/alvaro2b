@@ -2,16 +2,17 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 
 export const MEDIA_BUCKET = "media";
+export const ATTACHMENTS_BUCKET = "attachments";
 const SIGNED_URL_SECONDS = 60 * 60;
 
-/** Signed URLs for private media, created with the Member's own session (RLS applies). */
-export async function signedUrls(paths: (string | null | undefined)[]): Promise<Map<string, string>> {
+/** Signed URLs for private files, created with the Member's own session (RLS applies). */
+export async function signedUrls(paths: (string | null | undefined)[], bucket = MEDIA_BUCKET): Promise<Map<string, string>> {
   const unique = [...new Set(paths.filter((p): p is string => Boolean(p)))];
   const urls = new Map<string, string>();
   if (unique.length === 0) return urls;
 
   const supabase = await createClient();
-  const { data } = await supabase.storage.from(MEDIA_BUCKET).createSignedUrls(unique, SIGNED_URL_SECONDS);
+  const { data } = await supabase.storage.from(bucket).createSignedUrls(unique, SIGNED_URL_SECONDS);
   for (const item of data ?? []) {
     if (item.path && item.signedUrl) urls.set(item.path, item.signedUrl);
   }

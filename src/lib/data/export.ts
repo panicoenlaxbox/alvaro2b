@@ -24,6 +24,7 @@ export const EXPORT_TABLES = [
   "vetoes",
   "photos",
   "photo_tags",
+  "game_attachments",
 ] as const satisfies readonly Table[];
 
 const PAGE = 1000;

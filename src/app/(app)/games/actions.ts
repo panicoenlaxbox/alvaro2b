@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
 import { parseGameForm, type GameFormValues } from "@/lib/domain/game-form";
-import { MEDIA_BUCKET } from "@/lib/storage";
+import { ATTACHMENTS_BUCKET, MEDIA_BUCKET } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 
 function formValues(formData: FormData): GameFormValues {
@@ -76,13 +76,15 @@ export async function deleteGame(_prev: ActionState, formData: FormData): Promis
   const id = String(formData.get("id"));
 
   const supabase = await createClient();
-  const { data: game } = await supabase.from("games").select("cover_path").eq("id", id).single();
+  const { data: game } = await supabase.from("games").select("cover_path, game_attachments(path)").eq("id", id).single();
   const { error, count } = await supabase.from("games").delete({ count: "exact" }).eq("id", id);
   if (error) {
     return { error: error.code === "23503" ? "No se puede borrar un juego con partidas. Retíralo en su lugar." : errorMessage(error) };
   }
   if (!count) return { error: "Solo quien lo añadió o el Admin pueden borrarlo." };
   if (game?.cover_path) await supabase.storage.from(MEDIA_BUCKET).remove([game.cover_path]);
+  const files = (game?.game_attachments ?? []).flatMap((a) => (a.path ? [a.path] : []));
+  if (files.length) await supabase.storage.from(ATTACHMENTS_BUCKET).remove(files);
 
   revalidatePath("/games");
   redirect("/games");

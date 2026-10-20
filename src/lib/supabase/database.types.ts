@@ -127,6 +127,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"game_attachments": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"file_name": string | null,"game_id": string,"id": string,"kind": Database["public"]['Enums']["attachment_kind"],"path": string | null,"size_bytes": number | null,"url": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"file_name"?: string | null,"game_id": string,"id"?: string,"kind": Database["public"]['Enums']["attachment_kind"],"path"?: string | null,"size_bytes"?: number | null,"url"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"file_name"?: string | null,"game_id"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["attachment_kind"],"path"?: string | null,"size_bytes"?: number | null,"url"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "game_attachments_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"games": {
                   Row: {
                     "bgg_id": number | null,"bgg_image_url": string | null,"complexity": number | null,"cover_path": string | null,"created_at": string,"created_by": string | null,"default_play_mode": Database["public"]['Enums']["play_mode"],"id": string,"lower_score_wins": boolean,"max_duration": number | null,"max_players": number | null,"min_duration": number | null,"min_players": number | null,"name": string,"notes": string | null,"owner_id": string | null,"retired_at": string | null,"updated_at": string,"year": number | null
@@ -492,7 +512,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "play_mode": "competitive"|"cooperative"|"team","rsvp_response": "yes"|"maybe"|"no","session_status": "planned"|"held"|"cancelled"
+            "attachment_kind": "file"|"link","play_mode": "competitive"|"cooperative"|"team","rsvp_response": "yes"|"maybe"|"no","session_status": "planned"|"held"|"cancelled"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -612,7 +632,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "play_mode": ["competitive", "cooperative", "team"],"rsvp_response": ["yes", "maybe", "no"],"session_status": ["planned", "held", "cancelled"]
+            "attachment_kind": ["file", "link"],"play_mode": ["competitive", "cooperative", "team"],"rsvp_response": ["yes", "maybe", "no"],"session_status": ["planned", "held", "cancelled"]
           }
         }
 } as const
