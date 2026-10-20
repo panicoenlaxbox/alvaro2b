@@ -14,7 +14,7 @@
     "db:types": "node scripts/gen-types.mjs",
     "bootstrap-admin": "node scripts/bootstrap-admin.mjs",
     "test:db": "node scripts/supabase-local.mjs test db",
-    "db:reset": "node scripts/supabase-local.mjs db reset"
+    "db:reset": "node scripts/db-reset.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
