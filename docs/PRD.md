@@ -164,10 +164,9 @@ Todas son filtrables por año o rango de fechas.
   - Quién gana más.
   - Porcentaje de victorias del grupo en cooperativo.
 
-### 9. Exportación y backup
+### 9. Exportación
 
 - **Exportación manual**. El Admin descarga los datos en JSON. Las Photos se descargan aparte.
-- **Backup automático**. Un dump semanal, cifrado, en GitHub Actions (ver [ADR 0004](./adr/0004-supabase-keep-alive-and-encrypted-backup.md)).
 
 ## Requisitos no funcionales
 
@@ -191,7 +190,6 @@ Todas son filtrables por año o rango de fechas.
   - Obliga a mostrar el logo "Powered by BGG", prohíbe modificar los datos y recomienda llamar desde el servidor con caché.
 - **Supabase gratis**:
   - Pausa el proyecto tras una semana sin actividad y no se reactiva solo.
-  - No hace backups automáticos.
   - El plazo para restaurar un proyecto pausado es de 1 año según la documentación actual, pero hay que contar con 90 días por prudencia.
 - **Vercel Hobby**:
   - Solo para uso no comercial.

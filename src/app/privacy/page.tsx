@@ -67,8 +67,7 @@ export default function PrivacyPage() {
         <p>
           Los datos se alojan en <a className="underline" href="https://supabase.com/privacy">Supabase</a> (base de
           datos, autenticación y almacenamiento de fotos) y la aplicación se sirve desde{" "}
-          <a className="underline" href="https://vercel.com/legal/privacy-policy">Vercel</a>. Se hace una copia de
-          seguridad semanal cifrada de la base de datos. La información pública de juegos se consulta en{" "}
+          <a className="underline" href="https://vercel.com/legal/privacy-policy">Vercel</a>. La información pública de juegos se consulta en{" "}
           <a className="underline" href="https://boardgamegeek.com">BoardGameGeek</a> sin enviarle ningún dato tuyo.
         </p>
       </section>

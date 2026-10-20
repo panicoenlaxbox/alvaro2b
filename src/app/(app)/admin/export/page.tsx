@@ -28,10 +28,6 @@ export default async function ExportPage() {
         </p>
         <PhotoZipDownloader />
       </section>
-
-      <p className="text-xs text-muted">
-        Además, cada semana se guarda una copia cifrada de la base de datos en GitHub Actions. Esa copia no incluye las fotos.
-      </p>
     </div>
   );
 }

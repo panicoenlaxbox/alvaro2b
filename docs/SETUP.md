@@ -6,19 +6,18 @@ Al final de cada paso queda apuntado qué valor produce y dónde se guarda. **Ni
 
 ## Estado
 
-Solo valores no secretos. Los secretos viven en el gestor de contraseñas del propietario y en las variables de entorno del paso 8.
+Solo valores no secretos. Los secretos viven en el gestor de contraseñas del propietario y en las variables de entorno del paso 7.
 
 | Paso | Estado | Datos |
 |---|---|---|
-| 1. Herramientas | ✅ | Vercel CLI 64.7.0, age 1.3.2, Docker 29.8.2 |
+| 1. Herramientas | ✅ | Vercel CLI 64.7.0, Docker 29.8.2 |
 | 2. GitHub | ✅ | Repositorio `panicoenlaxbox/alvaro2b` (público). `gh` usa `GH_TOKEN` desde `.claude/settings.local.json` (ignorado por git) |
 | 3. Supabase | ✅ | Proyecto `alvaro2b`, ref `wrpqbelrdownbdbqplio`. Data API activa, tablas nuevas no expuestas automáticamente, RLS automática, sin integración con GitHub. Token `alvaro2b-agent` (90 días). URL Configuration hecha |
 | 4. Google | ✅ | Proyecto de Google Cloud `alvaro2b`, app publicada (In production), sin logo. Cliente OAuth `alvaro2b-web`. Proveedor Google activado en Supabase |
 | 5. Vercel | ✅ | Cuenta Hobby (email y contraseña) con GitHub `panicoenlaxbox` conectado en Login Connections. Vercel GitHub App con acceso solo a `alvaro2b`. Token `alvaro2b-agent` (90 días), scope "Sergio" |
 | 6. BGG (opcional) | ⏳ Solicitud enviada, pendiente de aprobación | Aplicación `alvaro2b`, no comercial, código público. Cuando la aprueben: crear el token y definir `BGG_TOKEN` |
-| 7. Clave age | ✅ | Clave pública `age1za7r7s2amjq4r4rvfgj7pr99rjfaknq0gmw7x4qpu3ye7vuv544qxszdre`. La clave privada está en el gestor de contraseñas y en `$HOME\alvaro2b-backup.agekey` |
-| 8. Secretos locales | ✅ | En `.claude/settings.local.json` (ignorado): `GH_TOKEN`, `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `VERCEL_TOKEN`, `AGE_RECIPIENT`, `ADMIN_EMAIL`. Falta `BGG_TOKEN` |
-| 9. Claude Code | ✅ | MCP `supabase` conectado (solo lectura). Vercel CLI como `panicoenlaxbox-9567`, equipo `sergio-1c62`. `gh` como `panicoenlaxbox` |
+| 7. Secretos locales | ✅ | En `.claude/settings.local.json` (ignorado): `GH_TOKEN`, `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `VERCEL_TOKEN`, `ADMIN_EMAIL`. Falta `BGG_TOKEN` |
+| 8. Claude Code | ✅ | MCP `supabase` conectado (solo lectura). Vercel CLI como `panicoenlaxbox-9567`, equipo `sergio-1c62`. `gh` como `panicoenlaxbox` |
 
 ### Estado del trabajo del agente
 
@@ -31,11 +30,10 @@ Lo que queda por hacer del propietario está en [`TASKS.md`](./TASKS.md).
 | Login con Google en producción | ✅ Confirmado por el propietario | Primer acceso real del Admin con Google |
 | `BGG_TOKEN` | ⏳ Pendiente de BGG | La integración ya está desplegada y se activa sola con el token (buscador en *Añadir juego* y bloque *BGG info*). Probada contra BGG con un token falso: responde 401 y la app sigue en modo manual. Cuando exista: añadirlo a Vercel (`vercel env add BGG_TOKEN production`, marcado como sensible) y **volver a desplegar** (por ejemplo, *Redeploy* del último despliegue). Las variables nuevas no llegan a un despliegue ya hecho |
 | Proyecto de Vercel | ✅ | `alvaro2b` en `sergio-1c62`, conectado a GitHub. Solo despliega `main` (`vercel.json`). Variables de Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `CRON_SECRET` |
-| Backup semanal | ✅ | `.github/workflows/backup.yml`, domingos a las 03:23 UTC. Secrets `SUPABASE_DB_URL` y `AGE_RECIPIENT`. Primera ejecución manual correcta (artefacto `alvaro2b-backup-1`). Al renovar la contraseña de la base de datos hay que actualizar `SUPABASE_DB_URL` |
 | Keep-alive | ✅ | Cron diario de Vercel a las 06:17 UTC. Se puede comprobar en la tabla `keep_alive` |
 | Aviso del advisor "Leaked Password Protection" | ℹ️ Aceptado | No aplica: no hay login con contraseña (solo Google). El token del agente no puede cambiar la configuración de Auth. Opcional: activarlo en *Authentication* si el plan lo permite; no cambia nada en la práctica |
 | Logo "Powered by BGG" | ℹ️ Provisional | El agente no puede descargar los logos oficiales (BGG responde 403 a peticiones automáticas). Se muestra una insignia de texto con enlace a BGG. Opcional: descargar el logo oficial de BGG y guardarlo como `public/powered-by-bgg.webp` para que el agente lo use |
-| Pooler de Supabase | ℹ️ | `aws-0-eu-west-1.pooler.supabase.com`, modo sesión en el puerto 5432 (lo usan el backup y el script del Admin) |
+| Pooler de Supabase | ℹ️ | `aws-0-eu-west-1.pooler.supabase.com`, modo sesión en el puerto 5432 (lo usa el script del Admin) |
 
 ## Entornos
 
@@ -48,16 +46,15 @@ No hay staging ni previews de Vercel (ver [ADR 0001](./adr/0001-nextjs-supabase-
 
 ## 1. Instalar herramientas
 
-Ya instaladas: Node 24, pnpm, Docker Desktop, Git y GitHub CLI. Faltan estas:
+Ya instaladas: Node 24, pnpm, Docker Desktop, Git y GitHub CLI. Falta esta:
 
 ```powershell
-winget install FiloSottile.age   # cifrado de backups
-npm i -g vercel                  # Vercel CLI
+npm i -g vercel   # Vercel CLI
 ```
 
 La CLI de Supabase **no** se instala globalmente. Va como dependencia de desarrollo del proyecto (`pnpm add -D supabase`, que se ejecuta con `pnpm supabase ...`), así que llega con `pnpm install`. La añade el agente.
 
-Comprobación, en una terminal nueva y con Docker Desktop arrancado: `vercel --version`, `age --version` y `docker info`.
+Comprobación, en una terminal nueva y con Docker Desktop arrancado: `vercel --version` y `docker info`.
 
 ## 2. GitHub
 
@@ -128,20 +125,9 @@ El agente crea el proyecto `alvaro2b` en Vercel, lo conecta al repositorio, desa
 
 **Produce:** `BGG_TOKEN`. Mientras no exista, la aplicación funciona con alta manual de Games.
 
-## 7. Clave de cifrado de backups
+## 7. Secretos locales en `.claude/settings.local.json`
 
-```powershell
-age-keygen -o "$HOME\alvaro2b-backup.agekey"
-```
-
-- La línea `# public key: age1...` es el **destinatario** público.
-- El archivo es la **clave privada**. Guárdalo en tu gestor de contraseñas y fuera de cualquier repositorio. Sin ella, los backups no se pueden descifrar.
-
-**Produce:** `AGE_RECIPIENT`, que es la clave pública.
-
-## 8. Secretos locales en `.claude/settings.local.json`
-
-Los secretos **no** van en variables de entorno de usuario ni de sistema. Van en el bloque `env` de `.claude/settings.local.json`, que está ignorado por git y solo afecta a este proyecto. Claude Code los inyecta en cada sesión de este repositorio: las CLI (`gh`, `supabase`, `vercel`) los reciben y no interfieren con las cuentas del trabajo. Desde ahí, el agente los copia a Vercel y a los Secrets de GitHub.
+Los secretos **no** van en variables de entorno de usuario ni de sistema. Van en el bloque `env` de `.claude/settings.local.json`, que está ignorado por git y solo afecta a este proyecto. Claude Code los inyecta en cada sesión de este repositorio: las CLI (`gh`, `supabase`, `vercel`) los reciben y no interfieren con las cuentas del trabajo. Desde ahí, el agente los copia a Vercel.
 
 Ejecútalo en tu propia PowerShell, en la raíz del repositorio. Conserva el `GH_TOKEN` del paso 2 y pide los secretos con la entrada enmascarada, para que no queden en el historial:
 
@@ -149,7 +135,6 @@ Ejecútalo en tu propia PowerShell, en la raíz del repositorio. Conserva el `GH
 $f = '.claude\settings.local.json'
 $s = Get-Content $f -Raw | ConvertFrom-Json -AsHashtable
 $s.env.SUPABASE_PROJECT_REF = 'wrpqbelrdownbdbqplio'
-$s.env.AGE_RECIPIENT        = 'age1za7r7s2amjq4r4rvfgj7pr99rjfaknq0gmw7x4qpu3ye7vuv544qxszdre'
 $s.env.ADMIN_EMAIL          = 'panicoenlaxbox@gmail.com'  # la cuenta de Google del Admin
 'SUPABASE_ACCESS_TOKEN','SUPABASE_DB_PASSWORD','GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','VERCEL_TOKEN' | ForEach-Object {
   $s.env[$_] = Read-Host -Prompt $_ -MaskInput
@@ -159,7 +144,7 @@ $s | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $f
 
 `BGG_TOKEN` se añade igual cuando BGG apruebe la solicitud. Al renovar un token, basta con editar su valor en ese archivo. Reinicia Claude Code para que cargue los cambios.
 
-## 9. Claude Code
+## 8. Claude Code
 
 1. Aprueba los archivos que deja preparados el agente:
    - `.mcp.json`. Contiene el servidor MCP `supabase`, limitado al proyecto y en **solo lectura**. No tiene secretos, porque usa `${SUPABASE_ACCESS_TOKEN}`. Los cambios de esquema se hacen con migraciones a través de la CLI, nunca por el MCP.
@@ -172,7 +157,6 @@ $s | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $f
 - Añade el remoto (`https://panicoenlaxbox@github.com/panicoenlaxbox/alvaro2b.git`, con el usuario en la URL para que git use la cuenta personal) y sube el historial.
 - Crea el proyecto en Vercel, lo conecta a GitHub, desactiva las previews y define las variables de Production.
 - Configura el cron diario de keep-alive en Vercel.
-- Define los Secrets de GitHub Actions para el backup semanal cifrado.
 - Construye la aplicación con migraciones versionadas: las prueba en local y después las aplica en producción.
 - Trabaja en ramas, con una PR por funcionalidad que prueba en local con Chrome y luego integra en `main`.
 
