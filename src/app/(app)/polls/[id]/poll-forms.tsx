@@ -34,7 +34,7 @@ export function VetoButton({ pollId, candidateId, vetoed }: { pollId: string; ca
     <form action={action}>
       <input type="hidden" name="poll_id" value={pollId} />
       <input type="hidden" name="candidate_id" value={vetoed ? "" : candidateId} />
-      <SubmitButton className={vetoed ? "btn-danger border-red-500" : "btn-secondary"} pendingText="…" aria-pressed={vetoed}>
+      <SubmitButton className={vetoed ? "btn-danger bg-coral text-ink hover:bg-coral" : "btn-secondary"} pendingText="…" aria-pressed={vetoed}>
         {vetoed ? "🚫 Vetado" : "Vetar"}
       </SubmitButton>
       <FormMessage state={state} />

@@ -76,7 +76,7 @@ export function ConfirmSubmitButton({
 export function FormMessage({ state }: { state: ActionState }) {
   if (state.error) {
     return (
-      <p role="alert" className="text-sm text-red-700 dark:text-red-400">
+      <p role="alert" className="text-sm font-medium text-danger">
         {state.error}
       </p>
     );

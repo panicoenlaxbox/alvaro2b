@@ -18,7 +18,7 @@ export default async function NewGamePage({ searchParams }: PageProps<"/games/ne
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Añadir juego</h1>
+      <h1 className="text-3xl sm:text-4xl">Añadir juego</h1>
       {enabled && !thing && <BggSearch />}
       {thing && <p className="card text-sm">Datos importados de BoardGameGeek. Revísalos y completa lo que falte.</p>}
       {enabled && typeof bgg === "string" && !thing && (

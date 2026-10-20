@@ -27,7 +27,7 @@ export default async function NewPlayPage({ params, searchParams }: PageProps<"/
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold">Registrar partida</h1>
+        <h1 className="text-3xl sm:text-4xl">Registrar partida</h1>
         <p className="text-sm text-muted first-letter:uppercase">{formatSessionDate(session.date)}</p>
       </div>
       <PlayForm

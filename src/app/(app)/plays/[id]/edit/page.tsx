@@ -17,7 +17,7 @@ export default async function EditPlayPage({ params }: PageProps<"/plays/[id]/ed
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Editar partida</h1>
+      <h1 className="text-3xl sm:text-4xl">Editar partida</h1>
       <PlayForm
         sessionId={play.sessionId}
         games={games}

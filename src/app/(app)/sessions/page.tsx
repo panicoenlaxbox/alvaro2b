@@ -19,30 +19,48 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Sesiones</h1>
+        <h1 className="text-3xl sm:text-4xl">Sesiones</h1>
         <Link href="/sessions/new" className="btn-primary">
           Nueva sesión
         </Link>
       </div>
 
       {groups.pendingClose.length > 0 && (
-        <section className="space-y-2">
-          <h2 className="font-semibold text-accent">Pendientes de cerrar</h2>
+        <section className="space-y-3">
+          <h2 className="text-coral">Pendientes de cerrar</h2>
           <p className="text-sm text-muted">Ya pasó la fecha: registra lo que se jugó o cancélala.</p>
-          {groups.pendingClose.map((s) => (
-            <SessionCard key={s.id} session={s} pendingClose />
-          ))}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {groups.pendingClose.map((s) => (
+              <SessionCard key={s.id} session={s} pendingClose />
+            ))}
+          </div>
         </section>
       )}
 
-      <section className="space-y-2">
-        <h2 className="font-semibold">Próximas</h2>
-        {groups.upcoming.length ? groups.upcoming.map((s) => <SessionCard key={s.id} session={s} />) : <p className="text-sm text-muted">No hay ninguna planificada.</p>}
+      <section className="space-y-3">
+        <h2>Próximas</h2>
+        {groups.upcoming.length ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {groups.upcoming.map((s) => (
+              <SessionCard key={s.id} session={s} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted">No hay ninguna planificada.</p>
+        )}
       </section>
 
-      <section id="held" className="scroll-mt-4 space-y-2">
-        <h2 className="font-semibold">Celebradas{groups.held.length ? ` (${groups.held.length})` : ""}</h2>
-        {held.items.length ? held.items.map((s) => <SessionCard key={s.id} session={s} />) : <p className="text-sm text-muted">Aún no hay ninguna.</p>}
+      <section id="held" className="scroll-mt-20 space-y-3">
+        <h2>Celebradas{groups.held.length ? ` (${groups.held.length})` : ""}</h2>
+        {held.items.length ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {held.items.map((s) => (
+              <SessionCard key={s.id} session={s} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted">Aún no hay ninguna.</p>
+        )}
         {held.pageCount > 1 && (
           <nav aria-label="Páginas de sesiones celebradas" className="flex items-center justify-between gap-2 pt-2">
             {held.page > 1 ? (
@@ -69,7 +87,7 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
       {groups.cancelled.length > 0 && (
         <details className="space-y-2">
           <summary className="cursor-pointer font-semibold text-muted">Canceladas ({groups.cancelled.length})</summary>
-          <div className="mt-2 space-y-2">
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
             {groups.cancelled.map((s) => (
               <SessionCard key={s.id} session={s} />
             ))}

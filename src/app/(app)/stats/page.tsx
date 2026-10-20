@@ -21,7 +21,7 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 function Ranking({ title, rows, unit }: { title: string; rows: { name: string; count: number; href?: string }[]; unit: [string, string] }) {
   return (
     <section className="card space-y-2">
-      <h2 className="font-semibold">{title}</h2>
+      <h2>{title}</h2>
       {rows.length === 0 ? (
         <p className="text-sm text-muted">Sin datos.</p>
       ) : (
@@ -75,7 +75,7 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold">Estadísticas</h1>
+      <h1 className="text-3xl sm:text-4xl">Estadísticas</h1>
 
       <form method="get" className="card grid grid-cols-2 gap-2 sm:grid-cols-4">
         {player && <input type="hidden" name="player" value={player.id} />}
@@ -171,7 +171,7 @@ function GroupView({
         rows={stats.attendance.map((a) => ({ name: playerName.get(a.id) ?? "?", count: a.count, href: withRange(`player=${a.id}`) }))}
       />
       <section className="card space-y-2">
-        <h2 className="font-semibold">La vergüenza de la estantería</h2>
+        <h2>La vergüenza de la estantería</h2>
         <p className="text-xs text-muted">Juegos del catálogo que nunca se han jugado.</p>
         {stats.neverPlayed.length === 0 ? (
           <p className="text-sm text-muted">¡Ninguno! Se ha jugado a todo.</p>
@@ -209,7 +209,7 @@ function PlayerView({
   const stats = playerStats(id, data.plays, range);
   return (
     <>
-      <h2 className="text-xl font-semibold">{name}</h2>
+      <h2 className="text-xl">{name}</h2>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         <Stat label="Partidas" value={stats.plays} />
         <Stat label="Victorias" value={stats.wins} />
@@ -248,7 +248,7 @@ function GameView({
   const stats = gameStats(game, data.plays, range);
   return (
     <>
-      <h2 className="text-xl font-semibold">
+      <h2 className="text-xl">
         <Link href={`/games/${game.id}`} className="underline">
           {game.name}
         </Link>

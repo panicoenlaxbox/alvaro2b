@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LogoDie } from "@/components/logo";
 import { safeNextPath } from "@/lib/paths";
 import { isLocalDevelopment } from "@/lib/supabase/env";
 import { GoogleSignInButton } from "./google-sign-in-button";
@@ -18,13 +19,15 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-8 px-4 py-12">
-      <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold tracking-tight">alvaro2b</h1>
-        <p className="text-muted">Las quedadas de juegos de mesa del grupo.</p>
+      <div className="flex flex-col items-center gap-4 text-center">
+        <LogoDie className="size-24 -rotate-6" />
+        <h1 className="text-5xl">alvaro2b</h1>
+        <p className="font-display text-lg text-soft">¿A qué jugamos hoy?</p>
+        <p className="text-soft">Las quedadas de juegos de mesa del grupo: sesiones, votaciones, partidas y fotos.</p>
       </div>
 
       {message && (
-        <p role="alert" className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+        <p role="alert" className="alert">
           {message}
         </p>
       )}

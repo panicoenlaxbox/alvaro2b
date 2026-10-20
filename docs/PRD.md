@@ -89,7 +89,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - "no jugado desde hace X" y "nunca jugado";
   - Rating medio ≥ X y "a mí me gusta".
 - **Ordenación**, entre otros criterios, por Rating.
-- **Botón "sorpréndeme"**: elige un Game al azar entre los resultados, con unos segundos de suspense en los que van pasando nombres y frases.
+- **Botón "¡Tira el dado!"**: elige un Game al azar entre los resultados, con unos segundos de suspense en los que van pasando nombres y frases. Inicio tiene el mismo botón, que tira sobre todo el catálogo.
 - **Con una Session planificada**: los filtros pueden partir de sus Attendees, por ejemplo "juegos para 5" o "juegos cuyo Owner viene".
 
 ### 4. Sessions

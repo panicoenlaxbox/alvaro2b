@@ -19,10 +19,10 @@ export default async function PlayersPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Jugadores</h1>
+      <h1 className="text-3xl sm:text-4xl">Jugadores</h1>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Miembros</h2>
+        <h2 className="text-lg">Miembros</h2>
         <ul className="card divide-y divide-border p-0">
           {members.map((p) => (
             <li key={p.id} className="flex items-center gap-3 px-4 py-3">
@@ -34,7 +34,7 @@ export default async function PlayersPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Invitados</h2>
+        <h2 className="text-lg">Invitados</h2>
         <p className="text-sm text-muted">
           Personas sin cuenta que juegan con el grupo. Un invitado puede convertirse en miembro conservando su historial: pídeselo al Admin.
         </p>

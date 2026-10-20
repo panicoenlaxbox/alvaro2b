@@ -13,7 +13,7 @@ export default async function NewSessionPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Nueva sesión</h1>
+      <h1 className="text-3xl sm:text-4xl">Nueva sesión</h1>
       <SessionForm action={createSession} players={players} submitLabel="Crear sesión" today={todayIso()} />
     </div>
   );
