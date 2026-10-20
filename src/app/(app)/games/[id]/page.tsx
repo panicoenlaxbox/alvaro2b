@@ -117,6 +117,9 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
         <Link href={`/games/${game.id}/edit`} className="btn-secondary">
           Editar
         </Link>
+        <Link href={`/stats?game=${game.id}`} className="btn-secondary">
+          Estadísticas
+        </Link>
         <RetireGameButton gameId={game.id} retired={game.retired_at !== null} />
         {canDelete && <DeleteGameButton gameId={game.id} />}
       </section>
