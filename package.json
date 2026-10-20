@@ -11,7 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:types": "node scripts/gen-types.mjs",
-    "bootstrap-admin": "node scripts/bootstrap-admin.mjs"
+    "bootstrap-admin": "node scripts/bootstrap-admin.mjs",
+    "test:db": "node scripts/supabase-local.mjs test db",
+    "db:reset": "node scripts/supabase-local.mjs db reset"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
