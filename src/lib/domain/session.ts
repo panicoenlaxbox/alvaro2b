@@ -20,9 +20,9 @@ export function todayIso(now: Date = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: GROUP_TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
 }
 
-/** A Session dated today or earlier is born held; a future one is born planned. */
+/** A Session dated today or later is born planned; a past one is born held. */
 export function initialStatus(date: string, today: string): SessionStatus {
-  return date > today ? "planned" : "held";
+  return date >= today ? "planned" : "held";
 }
 
 /** Only a planned Session can be cancelled or started by hand. */

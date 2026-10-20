@@ -1,7 +1,7 @@
 -- Session lifecycle and RSVPs.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(8);
+select plan(9);
 
 create function pg_temp.act_as(user_id uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', user_id, 'role', 'authenticated')::text, true);
@@ -10,11 +10,13 @@ $$;
 set local role authenticated;
 select pg_temp.act_as('22222222-2222-4222-8222-222222222222'); -- Bruno
 
-insert into public.sessions (date, place) values (private.today(), 't-held');
+insert into public.sessions (date, place) values (private.today() - 1, 't-held');
+insert into public.sessions (date, place) values (private.today(), 't-today');
 insert into public.sessions (date, place) values (private.today() + 7, 't-planned');
 create temp table ids on commit drop as
   select (select id from public.sessions where place = 't-held') as held, (select id from public.sessions where place = 't-planned') as planned;
-select is((select status::text from public.sessions where id = (select held from ids)), 'held', 'a Session dated today is born held');
+select is((select status::text from public.sessions where id = (select held from ids)), 'held', 'a past Session is born held');
+select is((select status::text from public.sessions where place = 't-today'), 'planned', 'a Session dated today is born planned');
 select is((select status::text from public.sessions where id = (select planned from ids)), 'planned', 'a future Session is born planned');
 
 select throws_ok(

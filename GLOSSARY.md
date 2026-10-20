@@ -27,7 +27,7 @@ Una quedada del grupo en una fecha concreta, en la que se juegan cero o más Pla
 _Evitar_: quedada, evento, partida, noche de juegos
 
 **Session status**:
-Situación de una Session: *planificada* (fecha futura, opcional), *celebrada* o *cancelada* (solo desde planificada). Una Session planificada cuya fecha ya ha pasado sin Plays está *pendiente de cerrar*, que es una condición y no un estado.
+Situación de una Session: *planificada* (fecha de hoy o futura, opcional), *celebrada* o *cancelada* (solo desde planificada). Una Session planificada cuya fecha ya ha pasado sin Plays está *pendiente de cerrar*, que es una condición y no un estado.
 _Evitar_: fase, etapa
 
 **Attendee**:

@@ -91,8 +91,8 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 
 - **Datos**: fecha, lugar (opcional), Attendees, notas y Photos.
 - **Ciclo de vida**:
-  - Con fecha de hoy o pasada, la Session nace **celebrada**.
-  - Con fecha futura, nace **planificada**. Es un paso opcional: muchas veces quedamos y se registra todo directamente.
+  - Con fecha pasada, la Session nace **celebrada**: se está registrando algo que ya ocurrió.
+  - Con fecha de hoy o futura, nace **planificada**. Es un paso opcional: muchas veces quedamos y se registra todo directamente, y la primera Play la pasa a celebrada.
   - De planificada se pasa a celebrada a mano ("¡Empezamos!") o al registrar la primera Play.
   - Una planificada puede **cancelarse**. Una celebrada no.
   - Si una planificada queda en el pasado sin Plays, aparece como **pendiente de cerrar** para que alguien la registre o la cancele. No se borra sola.
