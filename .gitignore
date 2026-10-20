@@ -37,3 +37,12 @@
 /.claude/skills/writing-for-agents/
 /.claude/skills/writing-fragments/
 /.claude/skills/writing-shape/
+
+# Local environment and secrets (never commit; see docs/SETUP.md)
+.env*
+!.env.example
+*.agekey
+.vercel/
+
+# Local Claude Code settings (contain secrets such as GH_TOKEN)
+/.claude/settings.local.json
