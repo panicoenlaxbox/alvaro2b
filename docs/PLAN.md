@@ -15,7 +15,7 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 
 - [x] **1. Base**: Next.js + pnpm + Supabase CLI, `.gitattributes`, `.env.example`, PWA, login con Google, lista de emails autorizados con el primer Admin desde `ADMIN_EMAIL`, `/privacy`, proyecto Vercel conectado a GitHub sin previews, variables de Production, cron diario de keep-alive, registro por email desactivado en Supabase, comprobación de producción.
 - [x] **2. Backup semanal cifrado**: workflow de GitHub Actions con `supabase db dump` + `age` (ADR 0004) y sus Secrets.
-- [ ] **3. Members y Admin**: gestión de la lista de autorizados, Members, Guests (alta, conversión a Member conservando historial).
+- [x] **3. Members y Admin**: gestión de la lista de autorizados, Members, Guests (alta, conversión a Member conservando historial).
 - [ ] **4. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
 - [ ] **5. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada.
 - [ ] **6. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
@@ -34,9 +34,11 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - **Primer Admin**: `scripts/bootstrap-admin.mjs` lee `ADMIN_EMAIL` del entorno y lo inserta en `allowed_emails` como Admin. El email nunca está en el repositorio.
 - **Sin `service_role` en Vercel**: todo pasa por RLS con la sesión del Member. El keep-alive actualiza con la clave pública la única fila de `keep_alive`, que no contiene datos del grupo.
 - **Login de desarrollo solo en local**: en local, el proveedor de email sigue activo para entrar como Members ficticios del seed (Chrome automatizado no puede usar varias cuentas de Google). La ruta solo existe si `NODE_ENV !== 'production'` y Supabase apunta a `127.0.0.1`. En producción, el registro por email está desactivado.
+- **Vocabulario de la interfaz**: el código usa los términos del glosario en inglés; la interfaz, siempre la misma traducción: Session → sesión, Play → partida, Game → juego, Expansion → expansión, Catalog → catálogo, Owner → dueño, Retired game → juego retirado, Rating → valoración (estrellas), Score → puntuación, Ranking → clasificación, Team → equipo, Play mode → modo (competitivo, cooperativo, por equipos), Member → miembro, Guest → invitado, Player → jugador, Admin → Admin, Attendee → asistente, Participant → participante, RSVP → "¿vienes?", Poll → votación, Candidate → candidato, Suggestion → sugerencia, Approval → "me apetece", Veto → veto, Photo → foto, Album → álbum.
 
 ## Registro
 
 - 2026-10-20: plan inicial.
 - 2026-10-20: hito 1 en producción (PR #1). Keep-alive comprobado con `vercel crons run`. El registro por email lo desactivó el propietario: el token del agente no puede cambiar la configuración de Auth.
 - 2026-10-20: hito 2. Secrets `SUPABASE_DB_URL` (pooler en modo sesión) y `AGE_RECIPIENT` en GitHub. Dump probado en local.
+- 2026-10-20: hito 3. Tests de base de datos con pgTAP en `supabase/tests/` (`pnpm test:db`). Solo el Admin ve los emails autorizados.

@@ -20,6 +20,14 @@ export default async function MorePage() {
       </section>
 
       <nav className="card divide-y divide-border p-0">
+        <Link href="/players" className="block px-4 py-3">
+          Jugadores
+        </Link>
+        {member.isAdmin && (
+          <Link href="/admin" className="block px-4 py-3">
+            Admin: accesos y datos
+          </Link>
+        )}
         <Link href="/privacy" className="block px-4 py-3">
           Privacidad
         </Link>
