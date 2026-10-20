@@ -23,7 +23,7 @@ El vocabulario está definido en [`GLOSSARY.md`](../GLOSSARY.md) y las decisione
 
 ## Alcance
 
-La primera versión incluye todas las funcionalidades de este documento.
+Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidades están en producción, y se actualiza en la misma PR que cualquier cambio de comportamiento.
 
 **Fuera de alcance:** notificaciones (push o email), rating de nivel tipo ELO, varios grupos, traducciones y páginas públicas.
 
@@ -192,4 +192,4 @@ Todas son filtrables por año o rango de fechas.
 
 ## Pendiente
 
-Las tareas de configuración del propietario (cuentas, tokens, OAuth de Google, token de BGG) están en [`SETUP.md`](./SETUP.md).
+La configuración del propietario (cuentas, tokens, OAuth de Google) está en [`SETUP.md`](./SETUP.md), y lo que aún le queda por hacer, en [`TASKS.md`](./TASKS.md).

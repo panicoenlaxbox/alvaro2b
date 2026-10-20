@@ -1,6 +1,8 @@
 # Plan de construcción
 
-Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y se marca al quedar en producción. Alcance: todo el [PRD](./PRD.md).
+> **Histórico.** Plan de la construcción inicial, completado el 2026-10-20. No se actualiza: los cambios posteriores siguen el flujo de [`CLAUDE.md`](../CLAUDE.md) (sección *Changing the app*) y quedan registrados en las PR.
+
+Fue la fuente de verdad del trabajo del agente durante la construcción. Cada hito era pequeño y verificable, y se marcaba al quedar en producción. Alcance: todo el [PRD](./PRD.md).
 
 ## Flujo de cada hito
 
