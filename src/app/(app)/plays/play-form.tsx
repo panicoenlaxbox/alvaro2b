@@ -5,6 +5,7 @@ import { PLAY_MODE_LABELS, PLAY_MODES, type PlayMode } from "@/lib/domain/game-f
 import type { ParticipantInput, PlayInput, TeamInput } from "@/lib/domain/play";
 import type { PlayFormGame } from "@/lib/data/play-form";
 import { savePlay } from "./actions";
+import { FirstPlayerDraw } from "./first-player-draw";
 
 type Player = { id: string; display_name: string; is_member: boolean };
 
@@ -189,6 +190,11 @@ export function PlayForm({
               </button>
             ))}
         </div>
+        {!initial.id && rows.length >= 2 && (
+          <div className="mt-3">
+            <FirstPlayerDraw key={rows.map((r) => r.playerId).join()} names={rows.map((r) => names.get(r.playerId) ?? "")} />
+          </div>
+        )}
       </fieldset>
 
       {rows.length > 0 && mode === "competitive" && (
