@@ -27,6 +27,8 @@ Solo valores no secretos. Los secretos viven en el gestor de contraseñas del pr
 | Proveedor de email desactivado en Supabase | ✅ Hecho por el propietario | El token del agente no tiene `project_admin_write`, necesario para cambiar la configuración de Auth por la Management API. Además, un trigger rechaza cualquier alta que no venga de Google |
 | Primer Admin | ✅ | Insertado desde `ADMIN_EMAIL` con `scripts/bootstrap-admin.mjs` |
 | Proyecto de Vercel | ✅ | `alvaro2b` en `sergio-1c62`, conectado a GitHub. Solo despliega `main` (`vercel.json`). Variables de Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `CRON_SECRET` |
+| Backup semanal | ✅ | `.github/workflows/backup.yml`, domingos a las 03:23 UTC. Secrets `SUPABASE_DB_URL` y `AGE_RECIPIENT`. Al renovar la contraseña de la base de datos hay que actualizar `SUPABASE_DB_URL` |
+| Keep-alive | ✅ | Cron diario de Vercel a las 06:17 UTC. Se puede comprobar en la tabla `keep_alive` |
 | Pooler de Supabase | ℹ️ | `aws-0-eu-west-1.pooler.supabase.com`, modo sesión en el puerto 5432 (lo usan el backup y el script del Admin) |
 
 ## Entornos
