@@ -145,3 +145,67 @@ export function formatDuration(minutes: number | null): string | null {
 export function ordinal(rank: number): string {
   return `${rank}.º`;
 }
+
+function num(v: unknown): number | null {
+  if (v === null || v === undefined || v === "") return null;
+  const n = typeof v === "number" ? v : Number(String(v).replace(",", "."));
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function str(v: unknown): string | null {
+  return typeof v === "string" && v.trim() !== "" ? v.trim() : null;
+}
+
+/** Parses the JSON sent by the Play form. Anything malformed becomes a validation error later. */
+export function parsePlayInput(raw: unknown): PlayInput | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const r = raw as Record<string, unknown>;
+  const mode = r.mode;
+  if (mode !== "competitive" && mode !== "cooperative" && mode !== "team") return null;
+  const list = (v: unknown) => (Array.isArray(v) ? v : []);
+
+  return {
+    id: str(r.id) ?? undefined,
+    sessionId: str(r.sessionId) ?? "",
+    gameId: str(r.gameId) ?? "",
+    mode,
+    expansionIds: list(r.expansionIds).filter((e): e is string => typeof e === "string"),
+    participants: list(r.participants).map((p) => {
+      const q = (p ?? {}) as Record<string, unknown>;
+      return { playerId: str(q.playerId) ?? "", score: num(q.score), rank: num(q.rank), teamKey: str(q.teamKey) };
+    }),
+    teams: list(r.teams).map((t) => {
+      const q = (t ?? {}) as Record<string, unknown>;
+      return { key: str(q.key) ?? "", name: typeof q.name === "string" ? q.name.trim() : "", won: q.won === true };
+    }),
+    coopWon: r.coopWon === true ? true : r.coopWon === false ? false : null,
+    durationMinutes: num(r.durationMinutes),
+    startedAt: str(r.startedAt),
+    endedAt: str(r.endedAt),
+    notes: str(r.notes),
+  };
+}
+
+/** The argument of the save_play database function, with the Ranking already computed. */
+export function toSavePlayPayload(play: PlayInput, lowerScoreWins: boolean) {
+  const ranks = play.mode === "competitive" ? computeRanking(play.participants, lowerScoreWins) : new Map<string, number | null>();
+  return {
+    id: play.id ?? null,
+    session_id: play.sessionId,
+    game_id: play.gameId,
+    play_mode: play.mode,
+    started_at: play.startedAt,
+    ended_at: play.endedAt,
+    duration_minutes: play.durationMinutes,
+    notes: play.notes,
+    coop_won: play.mode === "cooperative" ? play.coopWon : null,
+    expansion_ids: play.expansionIds,
+    teams: play.mode === "team" ? play.teams.map((t) => ({ key: t.key, name: t.name, won: t.won })) : [],
+    participants: play.participants.map((p) => ({
+      player_id: p.playerId,
+      score: play.mode === "competitive" ? p.score : null,
+      rank: ranks.get(p.playerId) ?? null,
+      team_key: play.mode === "team" ? p.teamKey : null,
+    })),
+  };
+}

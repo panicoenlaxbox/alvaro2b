@@ -43,8 +43,10 @@ export const getCurrentMember = cache(async (): Promise<CurrentMember | null> =>
 /** Use in pages and actions that need a Member; redirects otherwise. */
 export async function requireMember(): Promise<CurrentMember> {
   const member = await getCurrentMember();
-  if (!member) redirect("/not-allowed");
-  return member;
+  if (member) return member;
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  redirect(data?.claims ? "/not-allowed" : "/login");
 }
 
 export async function requireAdmin(): Promise<CurrentMember> {

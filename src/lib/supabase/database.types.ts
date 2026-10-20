@@ -103,6 +103,64 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"participants": {
+                  Row: {
+                    "play_id": string,"player_id": string,"rank": number | null,"score": number | null,"team_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "play_id": string,"player_id": string,"rank"?: number | null,"score"?: number | null,"team_id"?: string | null
+                  }
+                  Update: {
+                    "play_id"?: string,"player_id"?: string,"rank"?: number | null,"score"?: number | null,"team_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "participants_play_id_fkey"
+      columns: ["play_id"]
+isOneToOne: false
+      referencedRelation: "plays"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "participants_player_id_fkey"
+      columns: ["player_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "participants_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"play_expansions": {
+                  Row: {
+                    "expansion_id": string,"play_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "expansion_id": string,"play_id": string
+                  }
+                  Update: {
+                    "expansion_id"?: string,"play_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "play_expansions_expansion_id_fkey"
+      columns: ["expansion_id"]
+isOneToOne: false
+      referencedRelation: "expansions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "play_expansions_play_id_fkey"
+      columns: ["play_id"]
+isOneToOne: false
+      referencedRelation: "plays"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"players": {
                   Row: {
                     "avatar_url": string | null,"created_at": string,"created_by": string | null,"display_name": string,"id": string,"user_id": string | null
@@ -116,6 +174,32 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"plays": {
+                  Row: {
+                    "coop_won": boolean | null,"created_at": string,"created_by": string | null,"duration_minutes": number | null,"ended_at": string | null,"game_id": string,"id": string,"notes": string | null,"play_mode": Database["public"]['Enums']["play_mode"],"session_id": string,"started_at": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "coop_won"?: boolean | null,"created_at"?: string,"created_by"?: string | null,"duration_minutes"?: number | null,"ended_at"?: string | null,"game_id": string,"id"?: string,"notes"?: string | null,"play_mode": Database["public"]['Enums']["play_mode"],"session_id": string,"started_at"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "coop_won"?: boolean | null,"created_at"?: string,"created_by"?: string | null,"duration_minutes"?: number | null,"ended_at"?: string | null,"game_id"?: string,"id"?: string,"notes"?: string | null,"play_mode"?: Database["public"]['Enums']["play_mode"],"session_id"?: string,"started_at"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "plays_game_id_fkey"
+      columns: ["game_id"]
+isOneToOne: false
+      referencedRelation: "games"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "plays_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "sessions"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"ratings": {
                   Row: {
@@ -209,13 +293,35 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"teams": {
+                  Row: {
+                    "id": string,"name": string,"play_id": string,"won": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"name": string,"play_id": string,"won"?: boolean
+                  }
+                  Update: {
+                    "id"?: string,"name"?: string,"play_id"?: string,"won"?: boolean
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "teams_play_id_fkey"
+      columns: ["play_id"]
+isOneToOne: false
+      referencedRelation: "plays"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "save_play":
+{ Args: { "play": Json }; Returns: string
+                           }
           }
           Enums: {
             "play_mode": "competitive"|"cooperative"|"team","rsvp_response": "yes"|"maybe"|"no","session_status": "planned"|"held"|"cancelled"

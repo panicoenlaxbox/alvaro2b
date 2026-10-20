@@ -1,7 +1,7 @@
 -- save_play under a Member's RLS, and the Play rules on Sessions.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(11);
 
 create function pg_temp.act_as(user_id uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', user_id, 'role', 'authenticated')::text, true);
@@ -60,6 +60,17 @@ select throws_ok(
     (select id from saved), (select ana from ids)),
   'Every Participant needs a Team', 'team Participants need a Team'
 );
+
+-- Any Member edits a Play; only its author or the Admin deletes it
+select pg_temp.act_as('22222222-2222-4222-8222-222222222222'); -- Bruno
+select lives_ok(
+  format($$select public.save_play('{"id": "%s", "game_id": "a0000000-0000-4000-8000-000000000002", "play_mode": "cooperative",
+    "coop_won": true, "participants": [{"player_id": "%s"}]}')$$, (select id from saved), (select ana from ids)),
+  'another Member edits the Play'
+);
+with d as (delete from public.plays where id = (select id from saved) returning 1)
+select is(count(*)::int, 0, 'another Member cannot delete the Play') from d;
+select pg_temp.act_as('33333333-3333-4333-8333-333333333333'); -- Carla again
 
 -- Cancelled Sessions take no Plays
 reset role;

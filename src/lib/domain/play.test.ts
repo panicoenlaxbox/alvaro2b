@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeRanking, formatDuration, minutesBetween, validatePlay, winnersOf, type PlayInput } from "./play";
+import { computeRanking, formatDuration, minutesBetween, parsePlayInput, toSavePlayPayload, validatePlay, winnersOf, type PlayInput } from "./play";
 
 const p = (playerId: string, score: number | null = null, rank: number | null = null, teamKey: string | null = null) => ({
   playerId,
@@ -147,4 +147,52 @@ describe("durations", () => {
     expect(formatDuration(120)).toBe("2 h");
     expect(formatDuration(null)).toBeNull();
   });
+});
+
+describe("parsePlayInput and toSavePlayPayload", () => {
+  it("computes the Ranking from Scores when saving, ignoring manual ranks", () => {
+    const input = parsePlayInput({
+      sessionId: "s",
+      gameId: "g",
+      mode: "competitive",
+      participants: [
+        { playerId: "ana", score: "12", rank: "2" },
+        { playerId: "bruno", score: "7,5", rank: "1" },
+      ],
+      durationMinutes: "30",
+      notes: "  ",
+    })!;
+    expect(input.participants[1]!.score).toBe(7.5);
+    expect(input.notes).toBeNull();
+    expect(validatePlay(input)).toEqual({ ok: true });
+
+    const payload = toSavePlayPayload(input, true);
+    expect(payload.participants).toEqual([
+      { player_id: "ana", score: 12, rank: 2, team_key: null },
+      { player_id: "bruno", score: 7.5, rank: 1, team_key: null },
+    ]);
+    expect(payload.duration_minutes).toBe(30);
+  });
+
+  it("drops fields that do not belong to the mode", () => {
+    const input = parsePlayInput({
+      sessionId: "s",
+      gameId: "g",
+      mode: "cooperative",
+      coopWon: false,
+      teams: [{ key: "a", name: "A" }],
+      participants: [{ playerId: "ana", score: 3 }],
+    })!;
+    const payload = toSavePlayPayload(input, false);
+    expect(payload.teams).toEqual([]);
+    expect(payload.coop_won).toBe(false);
+    expect(payload.participants[0]).toEqual({ player_id: "ana", score: null, rank: null, team_key: null });
+  });
+
+  it("turns garbage numbers into a validation error", () => {
+    const input = parsePlayInput({ sessionId: "s", gameId: "g", mode: "competitive", participants: [{ playerId: "a", score: "abc" }] })!;
+    expect(validatePlay(input).ok).toBe(false);
+  });
+
+  it("rejects unknown modes", () => expect(parsePlayInput({ mode: "solo" })).toBeNull());
 });

@@ -18,7 +18,7 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - [x] **3. Members y Admin**: gestión de la lista de autorizados, Members, Guests (alta, conversión a Member conservando historial).
 - [x] **4. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
 - [x] **5. Sessions**: ciclo de vida (planificada, celebrada, cancelada, pendiente de cerrar), Attendees, RSVP, compartir por WhatsApp.
-- [ ] **6. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
+- [x] **6. Plays**: Participants, Expansions usadas, cronómetro, tres Play modes (Ranking desde Score con empates y "menor es mejor", cooperativo, por equipos).
 - [ ] **7. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada. Va después de Plays porque varios filtros dependen del historial.
 - [ ] **8. Polls**: Candidates, Suggestions, Approvals, Veto opcional, cierre por fecha o manual, desempate del creador, resultado.
 - [ ] **9. Photos**: bucket privado, compresión en el navegador y miniatura, Album y Session, etiquetado de Players y Play, URLs firmadas.
@@ -35,6 +35,8 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - **Sin `service_role` en Vercel**: todo pasa por RLS con la sesión del Member. El keep-alive actualiza con la clave pública la única fila de `keep_alive`, que no contiene datos del grupo.
 - **Login de desarrollo solo en local**: en local, el proveedor de email sigue activo para entrar como Members ficticios del seed (Chrome automatizado no puede usar varias cuentas de Google). La ruta solo existe si `NODE_ENV !== 'production'` y Supabase apunta a `127.0.0.1`. En producción, el registro por email está desactivado.
 - **Vocabulario de la interfaz**: el código usa los términos del glosario en inglés; la interfaz, siempre la misma traducción: Session → sesión, Play → partida, Game → juego, Expansion → expansión, Catalog → catálogo, Owner → dueño, Retired game → juego retirado, Rating → valoración (estrellas), Score → puntuación, Ranking → clasificación, Team → equipo, Play mode → modo (competitivo, cooperativo, por equipos), Member → miembro, Guest → invitado, Player → jugador, Admin → Admin, Attendee → asistente, Participant → participante, RSVP → "¿vienes?", Poll → votación, Candidate → candidato, Suggestion → sugerencia, Approval → "me apetece", Veto → veto, Photo → foto, Album → álbum.
+- **Ranking guardado**: al guardar una Play se calcula el Ranking (`src/lib/domain/play.ts`) con el "menor es mejor" del Game en ese momento y se guarda en `participants.rank`. Si después cambia esa opción del Game, las Plays antiguas no se recalculan: es una foto del resultado.
+- **Escritura atómica de Plays**: `public.save_play(jsonb)` (`security invoker`, así que aplica RLS) escribe la Play, sus Participants, Teams y Expansions en una transacción.
 
 ## Registro
 
@@ -44,3 +46,4 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - 2026-10-20: hito 3. Tests de base de datos con pgTAP en `supabase/tests/` (`pnpm test:db`). Solo el Admin ve los emails autorizados.
 - 2026-10-20: hito 4. Migración `strict_default_privileges`: las tablas nuevas no reciben permisos por defecto ni en local ni en producción, así local no oculta GRANTs olvidados (se detectó uno en el upsert de Ratings). CI en `.github/workflows/ci.yml`.
 - 2026-10-20: hito 5. El estado de la Session lo gobierna un trigger (`private.session_lifecycle`), con "hoy" en `Europe/Madrid`. "Pendiente de cerrar" se calcula en `src/lib/domain/session.ts`. El recuento de Plays se completa en el hito 6.
+- 2026-10-20: hito 6. Cronómetro: "Empezar" guarda la Play con `started_at`; "Terminar" fija `ended_at` y la duración, y lleva a editar el resultado. Las server actions ya no reciben redirecciones del proxy si caduca la sesión. Aviso "Leaked Password Protection" aceptado (ver SETUP).

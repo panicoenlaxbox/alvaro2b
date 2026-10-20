@@ -26,7 +26,9 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const signedIn = Boolean(data?.claims);
 
-  if (!signedIn && !isPublicPath(request.nextUrl.pathname)) {
+  // Only page loads are redirected. Server Actions (POST) check the session themselves and answer
+  // with a redirect the client understands.
+  if (!signedIn && request.method === "GET" && !isPublicPath(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
