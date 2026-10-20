@@ -29,7 +29,7 @@ Solo valores no secretos. Los secretos viven en el gestor de contraseñas del pr
 | Login con Google en producción | ✅ Confirmado por el propietario | Primer acceso real del Admin con Google |
 | `BGG_TOKEN` | ⏳ Pendiente de BGG | La integración ya está desplegada y se activa sola con el token (buscador en *Añadir juego* y bloque *BGG info*). Probada contra BGG con un token falso: responde 401 y la app sigue en modo manual. Cuando exista: añadirlo a Vercel (`vercel env add BGG_TOKEN production`, marcado como sensible) y **volver a desplegar** (por ejemplo, *Redeploy* del último despliegue). Las variables nuevas no llegan a un despliegue ya hecho |
 | Proyecto de Vercel | ✅ | `alvaro2b` en `sergio-1c62`, conectado a GitHub. Solo despliega `main` (`vercel.json`). Variables de Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `CRON_SECRET` |
-| Backup semanal | ✅ | `.github/workflows/backup.yml`, domingos a las 03:23 UTC. Secrets `SUPABASE_DB_URL` y `AGE_RECIPIENT`. Al renovar la contraseña de la base de datos hay que actualizar `SUPABASE_DB_URL` |
+| Backup semanal | ✅ | `.github/workflows/backup.yml`, domingos a las 03:23 UTC. Secrets `SUPABASE_DB_URL` y `AGE_RECIPIENT`. Primera ejecución manual correcta (artefacto `alvaro2b-backup-1`). Al renovar la contraseña de la base de datos hay que actualizar `SUPABASE_DB_URL` |
 | Keep-alive | ✅ | Cron diario de Vercel a las 06:17 UTC. Se puede comprobar en la tabla `keep_alive` |
 | Aviso del advisor "Leaked Password Protection" | ℹ️ Aceptado | No aplica: no hay login con contraseña (solo Google). Es una función del plan Pro y el token del agente no puede cambiar la configuración de Auth. No requiere acción |
 | Logo "Powered by BGG" | ℹ️ Provisional | El agente no puede descargar los logos oficiales (BGG responde 403 a peticiones automáticas). Se muestra una insignia de texto con enlace a BGG. Opcional: descargar el logo oficial de BGG y guardarlo como `public/powered-by-bgg.webp` para que el agente lo use |
@@ -184,6 +184,7 @@ $s | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $f
 
 ## Mantenimiento recurrente del propietario
 
-- **Cada 90 días:** renovar `SUPABASE_ACCESS_TOKEN` y `VERCEL_TOKEN`, y actualizar los Secrets que el agente indique.
+- **Una vez, y luego de vez en cuando:** descargar un artefacto del workflow *Backup* y comprobar que se descifra con la clave privada: `age -d -i $HOMEalvaro2b-backup.agekey backup.tar.age | tar -t` debe listar `roles.sql`, `schema.sql` y `data.sql`. El agente no lo hace porque no usa la clave privada.
+- **Cada 90 días:** renovar `SUPABASE_ACCESS_TOKEN` y `VERCEL_TOKEN` en `.claude/settings.local.json`. Ningún Secret de GitHub depende de ellos; `SUPABASE_DB_URL` solo cambia si cambia la contraseña de la base de datos.
 - **Si llega un email de Supabase avisando de una pausa:** el keep-alive no está funcionando. Avisa al agente.
 - **Si llega un email de GitHub avisando de que va a desactivar el workflow de backup por inactividad:** reactívalo en la pestaña *Actions* del repositorio.
