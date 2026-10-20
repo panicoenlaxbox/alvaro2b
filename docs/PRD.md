@@ -98,6 +98,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Si una planificada queda en el pasado sin Plays, aparece como **pendiente de cerrar** para que alguien la registre o la cancele. No se borra sola.
 - **RSVP**. En una planificada, los Members confirman si asistirán.
 - **Compartir**. Un botón "Compartir por WhatsApp" genera el enlace de la Session o de su Poll.
+- **Listado**. Primero las pendientes de cerrar, luego las próximas y después las celebradas, de la más reciente a la más antigua y de 10 en 10. Las canceladas van plegadas al final.
 
 ### 5. Plays
 
