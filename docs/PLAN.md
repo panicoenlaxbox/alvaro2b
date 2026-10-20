@@ -25,7 +25,7 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - [x] **10. Estadísticas**: grupo, Player y Game, filtrables por fechas.
 - [x] **11. Exportación**: JSON para el Admin y descarga aparte de Photos.
 - [x] **12. BGG**: búsqueda e importación, bloque BGG info con caché de 7 días, "Powered by BGG"; se activa sola cuando existe `BGG_TOKEN`.
-- [ ] **13. Cierre**: repaso del PRD, advisors limpios, README actualizado, resumen de pendientes del propietario.
+- [x] **13. Cierre**: repaso del PRD, advisors limpios, README actualizado, resumen de pendientes del propietario.
 
 ## Decisiones de implementación
 
@@ -53,3 +53,4 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 - 2026-10-20: hito 10. Sin migración: se carga el historial completo y se calcula en `src/lib/domain/stats.ts`. Las victorias cuentan todos los modos (puesto 1, equipo ganador o el grupo en cooperativo); el porcentaje y la némesis, solo competitivo. "La vergüenza de la estantería" no depende del rango de fechas.
 - 2026-10-20: hito 11. `/api/export` (solo Admin) devuelve todas las tablas en JSON, paginando de 1000 en 1000 y con RLS. Las fotos se descargan en ZIP de 100 en 100, generados en el navegador con `fflate` a partir de URLs firmadas.
 - 2026-10-20: hito 12. `src/lib/bgg/`: parseo del XML con tests y cliente de servidor con `fetch` en caché 7 días (`next.revalidate`). Sin `BGG_TOKEN` no aparece nada de BGG; si BGG falla, aviso y alta manual. Importa solo nuestros campos; el modo se deduce de las mecánicas (cooperativo, por equipos).
+- 2026-10-20: hito 13. Repaso del PRD completo. Producción: 9 migraciones aplicadas y sincronizadas con local, advisors de seguridad limpios salvo el aviso aceptado de contraseñas filtradas, y en rendimiento solo "índice sin usar" (índices de claves foráneas, normal con la base casi vacía). Prueba de humo sin dejar datos: rutas públicas y PWA responden, `/dev-login` da 404, keep-alive y API protegidos. Lo pendiente del propietario está en `SETUP.md`.

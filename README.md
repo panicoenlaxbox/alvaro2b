@@ -2,13 +2,22 @@
 
 A private web app (PWA) for a group of friends who meet to play board games: browse the game catalog, vote on what to play before a session, log each play (who played, who won, how long it took, notes), keep group photos, and review history and stats.
 
-Product and domain docs are in Spanish: see [`docs/PRD.md`](docs/PRD.md), [`GLOSSARY.md`](GLOSSARY.md) and [`docs/adr/`](docs/adr/).
+Live at https://alvaro2b.vercel.app (Members only). Product and domain docs are in Spanish: see [`docs/PRD.md`](docs/PRD.md), [`GLOSSARY.md`](GLOSSARY.md), [`docs/adr/`](docs/adr/) and the build log in [`docs/PLAN.md`](docs/PLAN.md).
 
 ## Tech stack
 
 - [Next.js](https://nextjs.org/) (TypeScript), deployed on [Vercel](https://vercel.com/)
 - [Supabase](https://supabase.com/): Postgres, Auth (Google sign-in) and Storage
 - Optional [BoardGameGeek](https://boardgamegeek.com/) XML API integration
+
+## Project layout
+
+- `src/app/`: routes (App Router). Signed-in pages live in `src/app/(app)/`; `src/proxy.ts` sends signed-out visitors to `/login`.
+- `src/lib/domain/`: pure domain logic (Ranking, Session lifecycle, Polls, Catalog exploration, statistics), with Vitest tests next to each file.
+- `src/lib/data/`: server-side data loading through Supabase, always under the signed-in Member's Row Level Security.
+- `src/lib/bgg/`: optional BoardGameGeek client; it turns on when `BGG_TOKEN` is set.
+- `supabase/migrations/`: versioned schema with RLS and explicit grants. `supabase/tests/`: pgTAP tests of the access rules. `supabase/seed.sql`: fictional local data.
+- `.github/workflows/`: CI (lint, types, tests, build, pgTAP) and the weekly encrypted backup.
 
 ## Getting started
 
@@ -34,8 +43,9 @@ Local data is fictional seed data (`supabase/seed.sql`). Open http://localhost:3
 ### Useful scripts
 
 - `pnpm test`: domain logic tests (Vitest)
+- `pnpm test:db`: database tests (pgTAP) against the local stack
 - `pnpm typecheck` and `pnpm lint`
-- `pnpm supabase db reset`: recreate the local database from migrations and seed
+- `pnpm db:reset`: recreate the local database from migrations and seed
 - `pnpm db:types`: regenerate `src/lib/supabase/database.types.ts` from the local database
 - `pnpm bootstrap-admin`: add the first Admin (`ADMIN_EMAIL`) to the allowlist of the database at `SUPABASE_DB_URL`
 
