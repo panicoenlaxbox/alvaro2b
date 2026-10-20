@@ -10,11 +10,14 @@ describe("todayIso", () => {
 });
 
 describe("initialStatus", () => {
-  it("is held for today or the past", () => {
-    expect(initialStatus("2026-10-20", "2026-10-20")).toBe("held");
+  it("is held for the past", () => {
+    expect(initialStatus("2026-10-19", "2026-10-20")).toBe("held");
     expect(initialStatus("2026-01-01", "2026-10-20")).toBe("held");
   });
-  it("is planned for a future date", () => expect(initialStatus("2026-10-21", "2026-10-20")).toBe("planned"));
+  it("is planned for today or a future date", () => {
+    expect(initialStatus("2026-10-20", "2026-10-20")).toBe("planned");
+    expect(initialStatus("2026-10-21", "2026-10-20")).toBe("planned");
+  });
 });
 
 describe("lifecycle rules", () => {

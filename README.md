@@ -42,7 +42,7 @@ Local data is fictional seed data (`supabase/seed/`). Open http://localhost:3000
 ### Useful scripts
 
 - `pnpm test`: domain logic tests (Vitest)
-- `pnpm test:db`: database tests (pgTAP) against the local stack
+- `pnpm test:db`: database tests (pgTAP) against the local stack; they need the sample data (`pnpm db:reset --seed`)
 - `pnpm typecheck` and `pnpm lint`
 - `pnpm db:reset --seed` (or plain `pnpm db:reset`): recreate the local database from migrations with the Members and sample data
 - `pnpm db:reset --empty`: same, but with only the Members, to try the app from an empty group
