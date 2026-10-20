@@ -13,8 +13,8 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 
 ## Hitos
 
-- [ ] **1. Base**: Next.js + pnpm + Supabase CLI, `.gitattributes`, `.env.example`, PWA, login con Google, lista de emails autorizados con el primer Admin desde `ADMIN_EMAIL`, `/privacy`, proyecto Vercel conectado a GitHub sin previews, variables de Production, cron diario de keep-alive, registro por email desactivado en Supabase, comprobación de producción.
-- [ ] **2. Backup semanal cifrado**: workflow de GitHub Actions con `supabase db dump` + `age` (ADR 0004) y sus Secrets.
+- [x] **1. Base**: Next.js + pnpm + Supabase CLI, `.gitattributes`, `.env.example`, PWA, login con Google, lista de emails autorizados con el primer Admin desde `ADMIN_EMAIL`, `/privacy`, proyecto Vercel conectado a GitHub sin previews, variables de Production, cron diario de keep-alive, registro por email desactivado en Supabase, comprobación de producción.
+- [x] **2. Backup semanal cifrado**: workflow de GitHub Actions con `supabase db dump` + `age` (ADR 0004) y sus Secrets.
 - [ ] **3. Members y Admin**: gestión de la lista de autorizados, Members, Guests (alta, conversión a Member conservando historial).
 - [ ] **4. Catalog**: Games, Expansions, Owner, Retired game, borrado solo sin Plays, carátula propia (Storage), Ratings con media y desglose.
 - [ ] **5. Exploración del Catalog**: filtros (jugadores, duración, complejidad, Play mode, Owner, no jugado desde, nunca jugado, Rating medio, "a mí me gusta"), ordenación, "sorpréndeme", filtros desde una Session planificada.
@@ -38,3 +38,5 @@ Fuente de verdad del trabajo del agente. Cada hito es pequeño y verificable, y 
 ## Registro
 
 - 2026-10-20: plan inicial.
+- 2026-10-20: hito 1 en producción (PR #1). Keep-alive comprobado con `vercel crons run`. El registro por email lo desactivó el propietario: el token del agente no puede cambiar la configuración de Auth.
+- 2026-10-20: hito 2. Secrets `SUPABASE_DB_URL` (pooler en modo sesión) y `AGE_RECIPIENT` en GitHub. Dump probado en local.
