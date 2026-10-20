@@ -4,10 +4,11 @@ import { useMemo, useState, useTransition } from "react";
 import { PLAY_MODE_LABELS, PLAY_MODES, type PlayMode } from "@/lib/domain/game-form";
 import type { ParticipantInput, PlayInput, TeamInput } from "@/lib/domain/play";
 import type { PlayFormGame } from "@/lib/data/play-form";
+import { FACE_OFF, FACE_ON, NAME_OFF, NAME_ON, PlayerFace } from "@/components/player-face";
 import { savePlay } from "./actions";
 import { FirstPlayerDraw } from "./first-player-draw";
 
-type Player = { id: string; display_name: string; is_member: boolean; active: boolean };
+type Player = { id: string; display_name: string; avatar_url: string | null; is_member: boolean; active: boolean };
 
 type Row = { playerId: string; score: string; rank: string; teamKey: string };
 
@@ -174,7 +175,7 @@ export function PlayForm({
 
       <fieldset>
         <legend className="label">Participantes</legend>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-4">
           {players
             .filter((p) => p.active || selected.has(p.id))
             .sort((a, b) => Number(b.is_member) - Number(a.is_member) || a.display_name.localeCompare(b.display_name, "es"))
@@ -184,10 +185,15 @@ export function PlayForm({
                 type="button"
                 aria-pressed={selected.has(p.id)}
                 onClick={() => togglePlayer(p.id)}
-                className={`chip px-3 py-1.5 text-sm ${selected.has(p.id) ? "border-accent bg-accent text-accent-foreground" : ""}`}
+                className="flex flex-col items-center rounded-xl focus-visible:outline-2 focus-visible:outline-accent"
               >
-                {p.display_name}
-                {!p.is_member && <span className="ml-1 opacity-70">(inv.)</span>}
+                <PlayerFace
+                  name={p.display_name}
+                  avatarUrl={p.avatar_url}
+                  isMember={p.is_member}
+                  faceClassName={selected.has(p.id) ? FACE_ON : FACE_OFF}
+                  nameClassName={selected.has(p.id) ? NAME_ON : NAME_OFF}
+                />
               </button>
             ))}
         </div>
