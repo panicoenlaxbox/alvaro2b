@@ -13,7 +13,7 @@ export function SessionForm({
   today,
 }: {
   action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
-  defaults?: { id: string; date: string; place: string | null; notes: string | null };
+  defaults?: { id: string; date: string; name: string | null; place: string | null; notes: string | null };
   players?: { id: string; display_name: string; is_member: boolean }[];
   submitLabel: string;
   today: string;
@@ -28,7 +28,13 @@ export function SessionForm({
           Fecha
         </label>
         <input id="date" name="date" type="date" required defaultValue={defaults?.date ?? today} className="input" />
-        <p className="mt-1 text-xs text-muted">Hoy o antes: se registra como celebrada. Más adelante: queda planificada.</p>
+        <p className="mt-1 text-xs text-muted">Antes de hoy: se registra como celebrada. Hoy o más adelante: queda planificada.</p>
+      </div>
+      <div>
+        <label htmlFor="name" className="label">
+          Nombre (opcional)
+        </label>
+        <input id="name" name="name" maxLength={60} placeholder="Sábado de mazmorreo" defaultValue={defaults?.name ?? ""} className="input" />
       </div>
       <div>
         <label htmlFor="place" className="label">

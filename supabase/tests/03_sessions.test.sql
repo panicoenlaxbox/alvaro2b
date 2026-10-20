@@ -1,7 +1,7 @@
 -- Session lifecycle and RSVPs.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(11);
 
 create function pg_temp.act_as(user_id uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', user_id, 'role', 'authenticated')::text, true);
@@ -49,6 +49,16 @@ select lives_ok(
 select throws_ok(
   $$update public.sessions set status = 'held' where id = (select planned from ids)$$,
   'Invalid Session status change', 'a cancelled Session stays cancelled'
+);
+
+-- Optional name
+select lives_ok(
+  $$update public.sessions set name = 'Sábado de mazmorreo' where id = (select held from ids)$$,
+  'a Member names a Session'
+);
+select throws_ok(
+  $$update public.sessions set name = repeat('x', 61) where id = (select held from ids)$$,
+  '23514', null, 'a Session name is at most 60 characters'
 );
 
 select * from finish();

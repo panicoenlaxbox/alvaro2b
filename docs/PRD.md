@@ -89,7 +89,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 
 ### 4. Sessions
 
-- **Datos**: fecha, lugar (opcional), Attendees, notas y Photos.
+- **Datos**: fecha, nombre (opcional, por ejemplo "Sábado de mazmorreo", se muestra junto a la fecha), lugar (opcional), Attendees, notas y Photos.
 - **Ciclo de vida**:
   - Con fecha pasada, la Session nace **celebrada**: se está registrando algo que ya ocurrió.
   - Con fecha de hoy o futura, nace **planificada**. Es un paso opcional: muchas veces quedamos y se registra todo directamente, y la primera Play la pasa a celebrada.

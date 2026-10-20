@@ -5,7 +5,7 @@ export function SessionCard({
   session,
   pendingClose = false,
 }: {
-  session: { id: string; date: string; place: string | null; status: SessionStatus; playCount: number; attendeeCount: number };
+  session: { id: string; date: string; name: string | null; place: string | null; status: SessionStatus; playCount: number; attendeeCount: number };
   pendingClose?: boolean;
 }) {
   const details = [
@@ -22,6 +22,7 @@ export function SessionCard({
           {pendingClose ? "Pendiente de cerrar" : SESSION_STATUS_LABELS[session.status]}
         </span>
       </div>
+      {session.name && <p className="font-medium text-accent">{session.name}</p>}
       {details.length > 0 && <p className="text-sm text-muted">{details.join(" · ")}</p>}
     </Link>
   );
