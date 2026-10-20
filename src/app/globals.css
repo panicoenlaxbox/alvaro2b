@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf7f2;
+  --foreground: #1f1b16;
+  --card: #ffffff;
+  --muted: #6b6259;
+  --border: #e7dfd4;
+  --accent: #b4462b;
+  --accent-foreground: #ffffff;
+  --accent-soft: #f6e3dc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #16130f;
+    --foreground: #f1ebe3;
+    --card: #211d18;
+    --muted: #a99d90;
+    --border: #3a332b;
+    --accent: #e0714f;
+    --accent-foreground: #16130f;
+    --accent-soft: #3b241c;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: opacity 150ms, background-color 150ms;
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+@utility btn-primary {
+  @apply btn bg-accent text-accent-foreground hover:opacity-90;
+}
+
+@utility btn-secondary {
+  @apply btn border border-border bg-card hover:bg-accent-soft;
+}
+
+@utility btn-danger {
+  @apply btn border border-red-300 bg-card text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950;
+}
+
+@utility card {
+  @apply rounded-2xl border border-border bg-card p-4;
+}
+
+@utility input {
+  @apply w-full rounded-xl border border-border bg-card px-3 py-2.5 text-base outline-none focus:border-accent;
+}
+
+@utility label {
+  @apply mb-1 block text-sm font-medium text-muted;
+}
+
+@utility chip {
+  @apply inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-medium;
+}
