@@ -154,3 +154,13 @@ export function parseFilters(params: Record<string, string | string[] | undefine
     },
   };
 }
+
+/**
+ * The query string for a filters form: empty fields and the default sort are left out, so the URL
+ * only shows what is filtered. Fields in `keepEmpty` stay even when empty (a Session's "players="
+ * means "any number", not "as many as the Attendees").
+ */
+export function filterQuery(entries: [string, string][], keepEmpty: string[] = []): string {
+  const kept = entries.filter(([key, value]) => (value !== "" || keepEmpty.includes(key)) && !(key === "sort" && value === "name"));
+  return new URLSearchParams(kept).toString();
+}
