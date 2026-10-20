@@ -1,4 +1,4 @@
-# Junctions creadas por "npx skills add" (apuntan a .agents/skills/)
+# Junctions created by "npx skills add" (they point to .agents/skills/)
 /.claude/skills/ask-matt/
 /.claude/skills/chief-of-staff/
 /.claude/skills/claude-handoff/
