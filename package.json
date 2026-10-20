@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "local": "node scripts/local.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
