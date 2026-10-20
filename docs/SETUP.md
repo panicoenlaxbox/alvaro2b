@@ -32,7 +32,7 @@ Lo que queda por hacer del propietario está en [`TASKS.md`](./TASKS.md).
 | Proyecto de Vercel | ✅ | `alvaro2b` en `sergio-1c62`, conectado a GitHub. Solo despliega `main` (`vercel.json`). Variables de Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `CRON_SECRET` |
 | Keep-alive | ✅ | Cron diario de Vercel a las 06:17 UTC. Se puede comprobar en la tabla `keep_alive` |
 | Aviso del advisor "Leaked Password Protection" | ℹ️ Aceptado | No aplica: no hay login con contraseña (solo Google). El token del agente no puede cambiar la configuración de Auth. Opcional: activarlo en *Authentication* si el plan lo permite; no cambia nada en la práctica |
-| Logo "Powered by BGG" | ℹ️ Provisional | El agente no puede descargar los logos oficiales (BGG responde 403 a peticiones automáticas). Se muestra una insignia de texto con enlace a BGG. Opcional: descargar el logo oficial de BGG y guardarlo como `public/powered-by-bgg.webp` para que el agente lo use |
+| Logo "Powered by BGG" | ✅ | Logos oficiales en `public/powered-by-bgg-rgb.svg` y, para modo oscuro, `public/powered-by-bgg-reversed-rgb.svg` |
 | Pooler de Supabase | ℹ️ | `aws-0-eu-west-1.pooler.supabase.com`, modo sesión en el puerto 5432 (lo usa el script del Admin) |
 
 ## Entornos
