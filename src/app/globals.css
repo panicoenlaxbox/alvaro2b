@@ -54,6 +54,11 @@ body {
 }
 
 @layer base {
+  /* Tailwind 4 gives buttons the default cursor; ours should invite a tap. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
   /* Bungee has a single weight: never let the browser fake a bold one. */
   h1,
   h2,

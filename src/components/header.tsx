@@ -13,9 +13,9 @@ export function Header({ member }: { member: CurrentMember }) {
           <span className="font-display text-xl tracking-wide">alvaro2b</span>
         </Link>
         <TopNav />
-        <Link href="/more" className="flex min-h-11 items-center gap-2 rounded-full text-sm font-bold" aria-label="Más opciones">
-          <span className="hidden lg:inline">{member.displayName}</span>
-          <span className="rounded-full border-[3px] border-ink">
+        <Link href="/more" className="flex min-h-11 min-w-0 items-center gap-2 rounded-full text-sm font-bold" aria-label="Más opciones" title={member.displayName}>
+          <span className="hidden max-w-40 truncate lg:inline">{member.displayName}</span>
+          <span className="shrink-0 rounded-full border-[3px] border-ink">
             <Avatar name={member.displayName} url={member.avatarUrl} size={36} />
           </span>
         </Link>

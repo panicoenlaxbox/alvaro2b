@@ -21,7 +21,7 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-3xl sm:text-4xl">Sesiones</h1>
         <Link href="/sessions/new" className="btn-primary">
-          Nueva sesión
+          Añadir
         </Link>
       </div>
 

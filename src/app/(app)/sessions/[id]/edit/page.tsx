@@ -18,7 +18,7 @@ export default async function EditSessionPage({ params }: PageProps<"/sessions/[
   return (
     <div className="space-y-4">
       <h1 className="text-3xl sm:text-4xl">Editar sesión</h1>
-      <SessionForm action={updateSession} defaults={session} submitLabel="Guardar cambios" today={todayIso()} />
+      <SessionForm action={updateSession} defaults={session} today={todayIso()} />
     </div>
   );
 }

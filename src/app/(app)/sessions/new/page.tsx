@@ -5,7 +5,7 @@ import { todayIso } from "@/lib/domain/session";
 import { createSession } from "../actions";
 import { SessionForm } from "../session-form";
 
-export const metadata: Metadata = { title: "Nueva sesión" };
+export const metadata: Metadata = { title: "Añadir sesión" };
 
 export default async function NewSessionPage() {
   await requireMember();
@@ -13,8 +13,8 @@ export default async function NewSessionPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl sm:text-4xl">Nueva sesión</h1>
-      <SessionForm action={createSession} players={players} submitLabel="Crear sesión" today={todayIso()} />
+      <h1 className="text-3xl sm:text-4xl">Añadir sesión</h1>
+      <SessionForm action={createSession} players={players} today={todayIso()} />
     </div>
   );
 }
