@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { DiceIcon } from "@/components/dice-icon";
 import { useDraw } from "@/components/use-draw";
 
@@ -19,13 +19,11 @@ const PHRASES = [
 /** "¡Tira el dado!": a random Game among the results. `autoStart` rolls once on arrival (the home page's button). */
 export function SurpriseMe({ games, autoStart = false }: { games: { id: string; name: string }[]; autoStart?: boolean }) {
   const { phase, shown, phrase, start } = useDraw(games, PHRASES);
-  const rolled = useRef(false);
-
+  // Rolls on mount; a remount (Strict Mode in development) cancels the draw's timers, so it rolls again.
+  const roll = useEffectEvent(start);
   useEffect(() => {
-    if (!autoStart || rolled.current) return;
-    rolled.current = true;
-    start();
-  }, [autoStart, start]);
+    if (autoStart) roll();
+  }, [autoStart]);
 
   return (
     <div className="space-y-4">
