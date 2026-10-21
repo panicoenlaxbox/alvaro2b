@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FilterForm } from "@/components/auto-submit-form";
 import { requireMember } from "@/lib/auth";
 import { listCatalogGames } from "@/lib/data/explore";
 import { listPlayers } from "@/lib/data/players";
@@ -149,12 +150,12 @@ export default async function PollPage({ params, searchParams }: PageProps<"/pol
                   Sugerencias{attendees ? ` para ${attendees}` : ""}
                   {maxMinutes ? ` en ${maxMinutes} min` : ""}
                 </h3>
-                <form method="get" className="flex items-center gap-1">
+                <FilterForm action={`/polls/${p.id}`} className="flex items-center gap-1">
                   <input name="minutes" type="number" min={1} placeholder="min" aria-label="Minutos disponibles" defaultValue={maxMinutes ?? ""} className="input w-20 py-1 text-sm" />
                   <button type="submit" className="btn-secondary px-2 py-1 text-xs">
                     Filtrar
                   </button>
-                </form>
+                </FilterForm>
               </div>
               <ul className="space-y-1">
                 {suggestions.map((g) => (
