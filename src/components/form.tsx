@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useId, useState } from "react";
+import { startTransition, useActionState, useEffect, useId, useState } from "react";
 
 /**
  * A form for long inputs: unlike `<form action>`, React does not reset its fields after
@@ -25,7 +25,7 @@ export function ActionForm({
   );
 }
 import { useFormStatus } from "react-dom";
-import type { ActionState } from "@/lib/action-state";
+import { initialActionState, type ActionState } from "@/lib/action-state";
 
 export function SubmitButton({
   children,
@@ -39,6 +39,17 @@ export function SubmitButton({
       {pending ? (pendingText ?? "Guardando…") : children}
     </button>
   );
+}
+
+type RowAction = (prev: ActionState, formData: FormData) => Promise<ActionState>;
+
+/**
+ * One message for a group of forms (a row's buttons): each form runs through `run(action)`, so the
+ * group shows the result of its latest action only and a success clears an earlier error.
+ */
+export function useRowAction() {
+  const [state, dispatch] = useActionState((prev: ActionState, [action, formData]: [RowAction, FormData]) => action(prev, formData), initialActionState);
+  return [state, (action: RowAction) => (formData: FormData) => dispatch([action, formData])] as const;
 }
 
 /** Fired with the arming button's id so every other armed ConfirmSubmitButton collapses. */

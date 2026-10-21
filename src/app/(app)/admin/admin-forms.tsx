@@ -2,21 +2,10 @@
 
 import { useActionState, useState } from "react";
 import { Avatar } from "@/components/avatar";
-import { ConfirmSubmitButton, FormMessage, RequiredMark, SubmitButton } from "@/components/form";
-import { initialActionState, type ActionState } from "@/lib/action-state";
+import { ConfirmSubmitButton, FormMessage, RequiredMark, SubmitButton, useRowAction } from "@/components/form";
+import { initialActionState } from "@/lib/action-state";
 import { whatsappUrl } from "@/lib/share";
 import { addAllowedEmail, addGuest, deleteGuest, deleteMember, removeAllowedEmail, renamePlayer, setAdmin, setGuestActive, setMemberActive } from "./actions";
-
-type RowAction = (prev: ActionState, formData: FormData) => Promise<ActionState>;
-
-/**
- * One message per row: every form in it runs through this, so the row shows the result of the
- * latest action only and a success clears an earlier error.
- */
-function useRowAction() {
-  const [state, dispatch] = useActionState((prev: ActionState, [run, formData]: [RowAction, FormData]) => run(prev, formData), initialActionState);
-  return [state, (run: RowAction) => (formData: FormData) => dispatch([run, formData])] as const;
-}
 
 function inviteText(appUrl: string, email: string) {
   return `¡Ya puedes entrar en alvaro2b! Abre ${appUrl} y entra con tu cuenta de Google ${email}.`;

@@ -9,7 +9,7 @@ import { formatDeadline, isPollOpen, needsTieBreak, rankCandidates } from "@/lib
 import { formatSessionDate, todayIso } from "@/lib/domain/session";
 import { appUrl, whatsappUrl } from "@/lib/share";
 import { createClient } from "@/lib/supabase/server";
-import { ApprovalButton, ChosenButton, ClosePollButton, ProposeForm, SuggestButton, VetoButton, WithdrawButton } from "./poll-forms";
+import { CandidateActions, ClosePollButton, ProposeForm, SuggestButton } from "./poll-forms";
 
 export const metadata: Metadata = { title: "Votación" };
 
@@ -125,12 +125,14 @@ export default async function PollPage({ params, searchParams }: PageProps<"/pol
                   {c.vetoes.length > 0 && ` · Vetado por ${c.vetoes.map((v) => names.get(v)).join(", ")}`}
                 </p>
               )}
-              <div className="flex flex-wrap gap-2">
-                {open && <ApprovalButton pollId={p.id} candidateId={c.id} approved={mine} />}
-                {open && p.allow_veto && <VetoButton pollId={p.id} candidateId={c.id} vetoed={myVeto === c.id} />}
-                {!open && isCreator && <ChosenButton pollId={p.id} candidateId={c.id} chosen={c.chosen} />}
-                {open && (addedBy.get(c.id) === member.playerId || isCreator) && <WithdrawButton pollId={p.id} candidateId={c.id} />}
-              </div>
+              <CandidateActions
+                pollId={p.id}
+                candidateId={c.id}
+                approve={open ? mine : undefined}
+                veto={open && p.allow_veto ? myVeto === c.id : undefined}
+                choose={!open && isCreator ? c.chosen : undefined}
+                withdraw={open && (addedBy.get(c.id) === member.playerId || isCreator)}
+              />
             </div>
           );
         })}

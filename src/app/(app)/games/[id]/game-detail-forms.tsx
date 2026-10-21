@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useRef, useState, useTransition } from "react";
-import { ConfirmSubmitButton, FormMessage, SubmitButton } from "@/components/form";
+import { ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
 import { OwnerFaces } from "@/components/owners";
 import type { Owner } from "@/lib/data/explore";
 import { initialActionState } from "@/lib/action-state";
@@ -125,21 +125,20 @@ export function CoverUploader({ gameId, hasOwnCover }: { gameId: string; hasOwnC
 type ExpansionItem = { id: string; name: string; retired: boolean; owners: Owner[]; canDelete: boolean };
 
 function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: ExpansionItem }) {
-  const [retireState, retireAction] = useActionState(setExpansionRetired, initialActionState);
-  const [deleteState, deleteAction] = useActionState(deleteExpansion, initialActionState);
+  const [state, run] = useRowAction();
   return (
     <li className="space-y-1 py-2">
       <div className="flex flex-wrap items-center gap-2">
         <span className={`flex-1 ${expansion.retired ? "text-muted line-through" : ""}`}>{expansion.name}</span>
         <OwnerFaces owners={expansion.owners} size={24} />
-        <form action={retireAction}>
+        <form action={run(setExpansionRetired)}>
           <input type="hidden" name="id" value={expansion.id} />
           <input type="hidden" name="game_id" value={gameId} />
           <input type="hidden" name="retired" value={String(!expansion.retired)} />
           <SubmitButton className="text-sm text-muted underline">{expansion.retired ? "Recuperar" : "Retirar"}</SubmitButton>
         </form>
         {expansion.canDelete && (
-          <form action={deleteAction}>
+          <form action={run(deleteExpansion)}>
             <input type="hidden" name="id" value={expansion.id} />
             <input type="hidden" name="game_id" value={gameId} />
             <ConfirmSubmitButton className="text-sm font-bold text-danger underline" confirmText="¿Borrar?">
@@ -148,8 +147,7 @@ function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: Expans
           </form>
         )}
       </div>
-      <FormMessage state={retireState} />
-      <FormMessage state={deleteState} />
+      <FormMessage state={state} />
     </li>
   );
 }
