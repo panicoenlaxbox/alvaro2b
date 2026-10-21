@@ -2,10 +2,11 @@
 
 import { useActionState } from "react";
 import { ActionForm, FormMessage } from "@/components/form";
+import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { PLAY_MODE_LABELS, PLAY_MODES, type GameInput } from "@/lib/domain/game-form";
 
-export type GameFormDefaults = Partial<GameInput> & { id?: string; bgg_image_url?: string | null };
+export type GameFormDefaults = Partial<GameInput> & { id?: string; bgg_image_url?: string | null; owner_ids?: string[] };
 
 function NumberField({ name, label, value, step }: { name: string; label: string; value?: number | null; step?: string }) {
   return (
@@ -26,7 +27,7 @@ export function GameForm({
 }: {
   action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
   defaults?: GameFormDefaults;
-  owners: { id: string; display_name: string; active?: boolean }[];
+  owners: { id: string; display_name: string; is_member: boolean; avatar_url: string | null; active: boolean }[];
   submitLabel: string;
 }) {
   const [state, formAction, pending] = useActionState(action, initialActionState);
@@ -52,35 +53,24 @@ export function GameForm({
         <NumberField name="year" label="Año" value={defaults.year} />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div>
-          <label htmlFor="default_play_mode" className="label">
-            Modo por defecto
-          </label>
-          <select id="default_play_mode" name="default_play_mode" defaultValue={defaults.default_play_mode ?? "competitive"} className="input">
-            {PLAY_MODES.map((m) => (
-              <option key={m} value={m}>
-                {PLAY_MODE_LABELS[m]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="owner_id" className="label">
-            Dueño
-          </label>
-          <select id="owner_id" name="owner_id" defaultValue={defaults.owner_id ?? ""} className="input">
-            <option value="">Sin dueño (prestado, de un bar…)</option>
-            {owners
-              .filter((o) => o.active !== false || o.id === defaults.owner_id)
-              .map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.display_name}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div>
+        <label htmlFor="default_play_mode" className="label">
+          Modo por defecto
+        </label>
+        <select id="default_play_mode" name="default_play_mode" defaultValue={defaults.default_play_mode ?? "competitive"} className="input">
+          {PLAY_MODES.map((m) => (
+            <option key={m} value={m}>
+              {PLAY_MODE_LABELS[m]}
+            </option>
+          ))}
+        </select>
       </div>
+
+      <fieldset>
+        <legend className="label">Dueños</legend>
+        <p className="mb-3 text-sm text-muted">Marca a quien lo compró, o a varios si fue a medias. Si no es de nadie (prestado, de un bar…), no marques a nadie.</p>
+        <PlayerPicker name="owner_id" players={owners} selected={defaults.owner_ids ?? []} />
+      </fieldset>
 
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="lower_score_wins" defaultChecked={defaults.lower_score_wins ?? false} className="size-4" />

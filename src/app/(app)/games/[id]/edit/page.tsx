@@ -12,7 +12,7 @@ export default async function EditGamePage({ params }: PageProps<"/games/[id]/ed
   await requireMember();
   const { id } = await params;
   const supabase = await createClient();
-  const [{ data: game }, owners] = await Promise.all([supabase.from("games").select("*").eq("id", id).maybeSingle(), listMembers()]);
+  const [{ data: game }, owners] = await Promise.all([supabase.from("games").select("*, game_owners(player_id)").eq("id", id).maybeSingle(), listMembers()]);
   if (!game) notFound();
 
   return (
@@ -22,7 +22,7 @@ export default async function EditGamePage({ params }: PageProps<"/games/[id]/ed
         action={updateGame}
         owners={owners}
         submitLabel="Guardar cambios"
-        defaults={{ ...game, complexity: game.complexity === null ? null : Number(game.complexity) }}
+        defaults={{ ...game, complexity: game.complexity === null ? null : Number(game.complexity), owner_ids: game.game_owners.map((o) => o.player_id) }}
       />
     </div>
   );

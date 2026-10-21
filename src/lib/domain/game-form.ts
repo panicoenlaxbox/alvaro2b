@@ -18,7 +18,6 @@ export type GameInput = {
   default_play_mode: PlayMode;
   lower_score_wins: boolean;
   bgg_id: number | null;
-  owner_id: string | null;
   notes: string | null;
 };
 
@@ -74,7 +73,6 @@ export function parseGameForm(values: GameFormValues): ParseResult<GameInput> {
       ...n,
       default_play_mode: mode,
       lower_score_wins: values.lower_score_wins === "on" || values.lower_score_wins === "true",
-      owner_id: values.owner_id?.trim() || null,
       notes: notes || null,
     },
   };
@@ -92,4 +90,9 @@ export function durationText(min: number | null, max: number | null): string | n
   if (min === null && max === null) return null;
   if (min !== null && max !== null) return min === max ? `${min} min` : `${min}–${max} min`;
   return `${min ?? max} min`;
+}
+
+/** The owners picked in a form (several checkboxes with the same name): distinct ids, blanks dropped. */
+export function parseOwnerIds(values: unknown[]): string[] {
+  return [...new Set(values.filter((v): v is string => typeof v === "string").map((v) => v.trim()).filter(Boolean))];
 }

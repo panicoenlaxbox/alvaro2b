@@ -56,10 +56,10 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Play mode por defecto;
   - "puntuación menor es mejor";
   - id de BGG (opcional);
-  - Owner (opcional);
+  - Owners (opcional): uno o varios, porque a veces un Game se compra entre varios;
   - notas.
 - **Juegos sin Owner.** Se puede registrar un Game sin Owner, por ejemplo uno prestado o jugado en un bar.
-- **Expansion**. Va vinculada a su Game base. No cambia los filtros de jugadores ni de duración.
+- **Expansion**. Va vinculada a su Game base y, como el Game, puede tener uno o varios Owners. No cambia los filtros de jugadores ni de duración.
 - **Retired game**.
   - Un Game que ya no tenemos se retira: desaparece de la exploración y de las Suggestions, pero conserva su historial.
   - Solo se puede borrar un Game que no tenga Plays.
@@ -90,7 +90,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Rating medio ≥ X y "a mí me gusta".
 - **Ordenación**, entre otros criterios, por Rating.
 - **Botón "¡Tira el dado!"**: elige un Game al azar entre los resultados, con unos segundos de suspense en los que van pasando nombres y frases. Inicio tiene el mismo botón, que tira sobre todo el catálogo.
-- **Con una Session planificada**: los filtros pueden partir de sus Attendees, por ejemplo "juegos para 5" o "juegos cuyo Owner viene".
+- **Con una Session planificada**: los filtros pueden partir de sus Attendees, por ejemplo "juegos para 5" o "juegos con algún Owner que viene".
 
 ### 4. Sessions
 

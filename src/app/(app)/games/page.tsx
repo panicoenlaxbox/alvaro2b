@@ -9,6 +9,8 @@ import { formatSessionDate, formatShortDate, todayIso } from "@/lib/domain/sessi
 import { coverUrl, signedUrls } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import { AutoSubmitForm } from "@/components/auto-submit-form";
+import { OwnerFaces } from "@/components/owners";
+import type { Owner } from "@/lib/data/explore";
 import { tint } from "@/components/tint";
 import { SurpriseMe } from "./surprise-me";
 
@@ -120,11 +122,11 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
                 </label>
               </div>
               <fieldset>
-                <legend className="label">Dueño</legend>
+                <legend className="label">De quién es</legend>
                 <div className="flex flex-wrap gap-2">
                   {session ? (
                     <Check name="owners_coming" checked={params.owners_coming === "1"}>
-                      Solo juegos cuyo dueño viene
+                      Solo juegos de alguien que viene
                     </Check>
                   ) : (
                     members.map((m) => (
@@ -183,7 +185,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
                 game={g}
                 cover={coverUrl({ cover_path: g.coverPath, bgg_image_url: g.bggImageUrl }, signed)}
                 details={[playersText(g.minPlayers, g.maxPlayers), durationText(g.minDuration, g.maxDuration)].filter(Boolean).join(" · ")}
-                owner={g.ownerName}
+                owners={g.owners}
               />
             </li>
           ))}
@@ -261,12 +263,12 @@ function GameCard({
   game,
   cover,
   details,
-  owner,
+  owners,
 }: {
   game: { id: string; name: string; mode: PlayMode; playCount: number; lastPlayed: string | null; averageRating: number | null };
   cover: string | null;
   details: string;
-  owner: string | null;
+  owners: Owner[];
 }) {
   const tag = MODE_TAG[game.mode];
   return (
@@ -293,8 +295,8 @@ function GameCard({
         <h2 className="font-sans text-lg leading-snug font-bold">{game.name}</h2>
         {details && <p className="text-soft">{details}</p>}
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1 text-sm text-muted">
-          <span>{owner ? `De ${owner}` : "Sin dueño"}</span>
-          <span>
+          <OwnerFaces owners={owners} size={28} />
+          <span className="ml-auto">
             {game.playCount === 0 ? "Nunca jugado" : `${game.playCount} ${game.playCount === 1 ? "partida" : "partidas"} · ${formatShortDate(game.lastPlayed!)}`}
           </span>
         </div>

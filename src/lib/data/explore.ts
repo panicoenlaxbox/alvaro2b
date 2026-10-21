@@ -2,7 +2,17 @@ import "server-only";
 import type { ExplorableGame } from "@/lib/domain/explore";
 import { createClient } from "@/lib/supabase/server";
 
-export type CatalogGame = ExplorableGame & { coverPath: string | null; bggImageUrl: string | null; ownerName: string | null };
+/** An owner as the catalogue shows it: a face and a name. */
+export type Owner = { id: string; name: string; avatarUrl: string | null };
+
+export type CatalogGame = ExplorableGame & { coverPath: string | null; bggImageUrl: string | null; owners: Owner[] };
+
+/** Owners as Supabase returns them through a join table, sorted by name. */
+export function toOwners(rows: { players: { id: string; display_name: string; avatar_url: string | null } | null }[]): Owner[] {
+  return rows
+    .flatMap((r) => (r.players ? [{ id: r.players.id, name: r.players.display_name, avatarUrl: r.players.avatar_url }] : []))
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
+}
 
 /** Every Game with the history and Ratings the explorer filters on. */
 export async function listCatalogGames(myPlayerId: string): Promise<CatalogGame[]> {
@@ -10,8 +20,8 @@ export async function listCatalogGames(myPlayerId: string): Promise<CatalogGame[
   const { data } = await supabase
     .from("games")
     .select(
-      "id, name, min_players, max_players, min_duration, max_duration, complexity, default_play_mode, owner_id, retired_at, cover_path, bgg_image_url, " +
-        "owner:players!games_owner_id_fkey(display_name), ratings(player_id, stars), plays(sessions(date))",
+      "id, name, min_players, max_players, min_duration, max_duration, complexity, default_play_mode, retired_at, cover_path, bgg_image_url, " +
+        "game_owners(players(id, display_name, avatar_url)), ratings(player_id, stars), plays(sessions(date))",
     )
     .order("name");
 
@@ -24,11 +34,10 @@ export async function listCatalogGames(myPlayerId: string): Promise<CatalogGame[
     max_duration: number | null;
     complexity: number | null;
     default_play_mode: ExplorableGame["mode"];
-    owner_id: string | null;
     retired_at: string | null;
     cover_path: string | null;
     bgg_image_url: string | null;
-    owner: { display_name: string } | null;
+    game_owners: { players: { id: string; display_name: string; avatar_url: string | null } | null }[];
     ratings: { player_id: string; stars: number }[];
     plays: { sessions: { date: string } | null }[];
   };
@@ -36,6 +45,7 @@ export async function listCatalogGames(myPlayerId: string): Promise<CatalogGame[
   return ((data ?? []) as unknown as Row[]).map((g) => {
     const dates = g.plays.map((p) => p.sessions?.date).filter((d): d is string => Boolean(d)).sort();
     const total = g.ratings.reduce((s, r) => s + r.stars, 0);
+    const owners = toOwners(g.game_owners);
     return {
       id: g.id,
       name: g.name,
@@ -45,7 +55,7 @@ export async function listCatalogGames(myPlayerId: string): Promise<CatalogGame[
       maxDuration: g.max_duration,
       complexity: g.complexity === null ? null : Number(g.complexity),
       mode: g.default_play_mode,
-      ownerId: g.owner_id,
+      ownerIds: owners.map((o) => o.id),
       retired: g.retired_at !== null,
       playCount: g.plays.length,
       lastPlayed: dates.at(-1) ?? null,
@@ -53,7 +63,7 @@ export async function listCatalogGames(myPlayerId: string): Promise<CatalogGame[
       myRating: g.ratings.find((r) => r.player_id === myPlayerId)?.stars ?? null,
       coverPath: g.cover_path,
       bggImageUrl: g.bgg_image_url,
-      ownerName: g.owner?.display_name ?? null,
+      owners,
     };
   });
 }

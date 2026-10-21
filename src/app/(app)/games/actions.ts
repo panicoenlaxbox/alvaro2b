@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
-import { parseGameForm, type GameFormValues } from "@/lib/domain/game-form";
+import { parseGameForm, parseOwnerIds, type GameFormValues } from "@/lib/domain/game-form";
 import { ATTACHMENTS_BUCKET, MEDIA_BUCKET } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 
@@ -12,7 +12,7 @@ function formValues(formData: FormData): GameFormValues {
   const values: GameFormValues = {};
   for (const key of [
     "name", "year", "min_players", "max_players", "min_duration", "max_duration", "complexity",
-    "default_play_mode", "lower_score_wins", "bgg_id", "owner_id", "notes",
+    "default_play_mode", "lower_score_wins", "bgg_id", "notes",
   ] as const) {
     const v = formData.get(key);
     values[key] = typeof v === "string" ? v : null;
@@ -33,6 +33,8 @@ export async function createGame(_prev: ActionState, formData: FormData): Promis
     .select("id")
     .single();
   if (error) return { error: errorMessage(error) };
+  const owners = await supabase.rpc("set_game_owners", { game: data.id, owners: parseOwnerIds(formData.getAll("owner_id")) });
+  if (owners.error) return { error: errorMessage(owners.error) };
 
   revalidatePath("/games");
   redirect(`/games/${data.id}`);
@@ -47,6 +49,8 @@ export async function updateGame(_prev: ActionState, formData: FormData): Promis
   const supabase = await createClient();
   const { error } = await supabase.from("games").update(parsed.value).eq("id", id).select("id").single();
   if (error) return { error: errorMessage(error) };
+  const owners = await supabase.rpc("set_game_owners", { game: id, owners: parseOwnerIds(formData.getAll("owner_id")) });
+  if (owners.error) return { error: errorMessage(owners.error) };
 
   revalidatePath("/games");
   redirect(`/games/${id}`);
@@ -128,12 +132,16 @@ export async function addExpansion(_prev: ActionState, formData: FormData): Prom
   await requireMember();
   const gameId = String(formData.get("game_id"));
   const name = String(formData.get("name") ?? "").trim();
-  const ownerId = String(formData.get("owner_id") ?? "") || null;
+  const ownerIds = parseOwnerIds(formData.getAll("owner_id"));
   if (name.length < 1 || name.length > 120) return { error: "Escribe el nombre de la expansión." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("expansions").insert({ game_id: gameId, name, owner_id: ownerId });
+  const { data, error } = await supabase.from("expansions").insert({ game_id: gameId, name }).select("id").single();
   if (error) return { error: errorMessage(error) };
+  if (ownerIds.length) {
+    const owners = await supabase.from("expansion_owners").insert(ownerIds.map((player_id) => ({ expansion_id: data.id, player_id })));
+    if (owners.error) return { error: errorMessage(owners.error) };
+  }
 
   revalidatePath(`/games/${gameId}`);
   return { ok: true };
