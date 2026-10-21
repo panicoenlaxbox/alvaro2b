@@ -141,16 +141,22 @@ body {
   @apply inline-flex items-center rounded-full border-2 border-border px-2.5 py-0.5 text-xs font-medium text-soft;
 }
 
-/* A selectable pill: plain text on the card, yellow when on (aria-pressed, or a checked peer before it). */
+/* A selectable pill: plain text on the card, yellow when on (aria-pressed, aria-current, or a checked peer before it). */
 @utility toggle {
   @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-border px-3.5 py-2 text-[0.9375rem] font-bold text-foreground transition-colors select-none hover:border-muted;
-  &[aria-pressed="true"] {
+  &[aria-pressed="true"],
+  &[aria-current="page"] {
     @apply border-accent bg-accent text-ink;
   }
 }
 
 @utility no-scrollbar {
   scrollbar-width: none;
+}
+
+/* A Polaroid: cream paper with a thicker bottom edge, an ink outline and a hard shadow. */
+@utility polaroid {
+  @apply border-2 border-ink bg-paper p-2 pb-7 shadow-hard-lg sm:p-3 sm:pb-10;
 }
 
 @utility alert {

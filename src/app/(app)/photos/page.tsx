@@ -14,13 +14,13 @@ export default async function PhotosPage({ searchParams }: PageProps<"/photos">)
   const photos = await listPhotos(all ? undefined : null);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <h1 className="text-3xl sm:text-4xl">Fotos</h1>
-      <nav className="grid grid-cols-2 gap-2" aria-label="Qué fotos ver">
-        <Link href="/photos" aria-current={!all ? "page" : undefined} className={!all ? "btn-primary" : "btn-secondary"}>
+      <nav className="flex gap-2" aria-label="Qué fotos ver">
+        <Link href="/photos" aria-current={!all ? "page" : undefined} className="toggle">
           Álbum
         </Link>
-        <Link href="/photos?view=all" aria-current={all ? "page" : undefined} className={all ? "btn-primary" : "btn-secondary"}>
+        <Link href="/photos?view=all" aria-current={all ? "page" : undefined} className="toggle">
           Todas
         </Link>
       </nav>
