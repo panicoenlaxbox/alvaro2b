@@ -87,7 +87,7 @@ export async function addGuest(_prev: ActionState, formData: FormData): Promise<
   if (error) return { error: errorMessage(error) };
 
   revalidatePath("/admin");
-  return { ok: true, message: `${name} añadido como invitado.` };
+  return { ok: true };
 }
 
 export async function renamePlayer(_prev: ActionState, formData: FormData): Promise<ActionState> {

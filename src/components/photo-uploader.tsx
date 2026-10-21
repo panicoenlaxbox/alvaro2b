@@ -37,7 +37,7 @@ export function PhotoUploader({ sessionId }: { sessionId: string | null }) {
           uploaded.push({ path, thumbPath, width: full.width, height: full.height, sizeBytes: full.blob.size });
         }
         const result = await recordPhotos(sessionId, uploaded);
-        setStatus(result.message ?? null);
+        setStatus(null);
         if (result.error) setError(result.error);
       } catch {
         setStatus(null);
