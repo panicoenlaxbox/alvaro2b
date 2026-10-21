@@ -12,7 +12,7 @@ const PHRASES = [
   "Contando meeples…",
   "Haciendo tiempo…",
   "Calculando probabilidades dudosas…",
-  "Leyéndose las reglas…",
+  "Leyendo las reglas…",
   "Casi lo tengo…",
 ];
 

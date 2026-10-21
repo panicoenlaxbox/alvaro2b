@@ -34,7 +34,7 @@ export default async function HomePage() {
         <div className="max-w-2xl space-y-3">
           <p className="font-display text-lg text-soft">¡Hola, {member.displayName.split(" ")[0]}!</p>
           <h1 className="text-[2.75rem] sm:text-6xl">¿A qué jugamos hoy?</h1>
-          <p className="text-lg text-soft">Decid cuántos sois y cuánto tiempo tenéis. El resto lo filtra el catálogo… o el dado.</p>
+          <p className="text-lg text-soft">Cuántos somos, cuánto tiempo tenemos… y el resto lo decide el catálogo. O el dado.</p>
         </div>
         <div className="flex w-full flex-col gap-3 sm:w-auto">
           <Link href="/games?roll=1" className="btn-hot min-h-16 px-7 text-xl shadow-hard-lg">

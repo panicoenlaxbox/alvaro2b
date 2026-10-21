@@ -55,7 +55,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
   const pending = isPendingClose({ status: session.status, date: session.date, playCount }, todayIso());
   const url = `${appUrl()}/sessions/${session.id}`;
   const when = `el ${formatSessionDate(session.date)}${session.place ? ` en ${session.place}` : ""}`;
-  const shareText = `${session.name ? `«${session.name}», ${when}` : `Quedada de juegos ${when}`}. ¿Te vienes? ${url}`;
+  const shareText = `${session.name ? `«${session.name}», ${when}` : `Sesión de juegos ${when}`}. ¿Te vienes? ${url}`;
 
   return (
     <div className="space-y-6">

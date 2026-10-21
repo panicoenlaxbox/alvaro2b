@@ -23,7 +23,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         <LogoDie className="size-24 -rotate-6" />
         <h1 className="text-5xl">alvaro2b</h1>
         <p className="font-display text-lg text-soft">¿A qué jugamos hoy?</p>
-        <p className="text-soft">Las quedadas de juegos de mesa del grupo: sesiones, votaciones, partidas y fotos.</p>
+        <p className="text-soft">Los juegos de mesa del grupo: catálogo, sesiones, votaciones, partidas y fotos.</p>
       </div>
 
       {message && (
@@ -36,12 +36,12 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
 
       {isLocalDevelopment() && (
         <Link href="/dev-login" className="text-center text-sm text-muted underline">
-          Entrar como Member ficticio (solo en local)
+          Entrar como miembro ficticio (solo en local)
         </Link>
       )}
 
       <p className="text-center text-xs text-muted">
-        Solo para Members invitados. <Link href="/privacy" className="underline">Privacidad</Link>
+        Solo para miembros invitados. <Link href="/privacy" className="underline">Privacidad</Link>
       </p>
     </main>
   );
