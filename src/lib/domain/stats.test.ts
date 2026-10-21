@@ -77,10 +77,23 @@ describe("groupStats", () => {
     expect(stats.sessions).toBe(3);
     expect(stats.plays).toBe(7);
     expect(stats.hoursPlayed).toBe(4.3); // 40 + 50 + 60 + 60 + 20 + 30 = 260 min; p3 has no duration
-    expect(stats.mostPlayed[0]).toEqual({ id: "azul", count: 3 });
+    expect(stats.mostPlayed[0]).toMatchObject({ id: "azul", count: 3 });
     expect(stats.neverPlayed).toEqual(["wingspan"]);
-    expect(stats.attendance.slice(0, 1)).toEqual([{ id: "ana", count: 3 }]);
-    expect(stats.attendance.find((a) => a.id === "dani")).toEqual({ id: "dani", count: 1 });
+    expect(stats.attendance[0]).toMatchObject({ id: "ana", count: 3 });
+    expect(stats.attendance.find((a) => a.id === "dani")).toMatchObject({ id: "dani", count: 1 });
+  });
+
+  it("lists the Plays and Sessions behind each count, newest first", () => {
+    const stats = groupStats(sessions, plays, games, { from: "2026-01-01" });
+    expect(stats.mostPlayed[0]).toEqual({
+      id: "azul",
+      count: 2,
+      items: [
+        { id: "p7", date: "2026-04-01" },
+        { id: "p2", date: "2026-01-10" },
+      ],
+    });
+    expect(stats.attendance.find((a) => a.id === "dani")).toEqual({ id: "dani", count: 1, items: [{ id: "s2", date: "2026-01-10" }] });
   });
 
   it("filters by date range but keeps the shelf of shame absolute", () => {

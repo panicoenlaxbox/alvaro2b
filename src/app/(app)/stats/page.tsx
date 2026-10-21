@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireMember } from "@/lib/auth";
+import { FilterForm } from "@/components/auto-submit-form";
+import { Avatar } from "@/components/avatar";
 import { Dropdown } from "@/components/dropdown";
 import { loadStatsData } from "@/lib/data/stats";
 import { formatDuration } from "@/lib/domain/play";
 import { formatShortDate } from "@/lib/domain/session";
 import { gameStats, groupStats, parseRange, playerStats, type DateRange } from "@/lib/domain/stats";
+import { RankingRow, type RankingItem } from "./ranking-row";
 
 export const metadata: Metadata = { title: "Estadísticas" };
 
@@ -18,7 +21,10 @@ function Stat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-function Ranking({ title, rows, unit }: { title: string; rows: { name: string; count: number; href?: string }[]; unit: [string, string] }) {
+type RankingEntry = { name: string; count: number; href?: string; avatarUrl?: string | null; items?: RankingItem[] };
+
+/** Players get their avatar next to the name; pass `avatarUrl` (even null) to show it. */
+function Ranking({ title, rows, unit }: { title: string; rows: RankingEntry[]; unit: [string, string] }) {
   return (
     <section className="card space-y-2">
       <h2>{title}</h2>
@@ -27,21 +33,28 @@ function Ranking({ title, rows, unit }: { title: string; rows: { name: string; c
       ) : (
         <ol className="space-y-1 text-sm">
           {[...rows].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "es")).map((r, i) => (
-            <li key={r.name + i} className="flex justify-between gap-2">
-              <span>
-                <span className="inline-block w-6 text-muted">{i + 1}.</span>
-                {r.href ? (
-                  <Link href={r.href} className="underline">
-                    {r.name}
-                  </Link>
-                ) : (
-                  r.name
-                )}
-              </span>
-              <span className="tabular-nums text-muted">
-                {r.count} {r.count === 1 ? unit[0] : unit[1]}
-              </span>
-            </li>
+            <RankingRow
+              key={r.name + i}
+              position={i + 1}
+              count={`${r.count} ${r.count === 1 ? unit[0] : unit[1]}`}
+              items={r.items ?? []}
+              name={
+                <>
+                  {r.avatarUrl !== undefined && (
+                    <span className="mr-2 inline-flex shrink-0">
+                      <Avatar name={r.name} url={r.avatarUrl} size={24} />
+                    </span>
+                  )}
+                  {r.href ? (
+                    <Link href={r.href} className="truncate underline">
+                      {r.name}
+                    </Link>
+                  ) : (
+                    <span className="truncate">{r.name}</span>
+                  )}
+                </>
+              }
+            />
           ))}
         </ol>
       )}
@@ -77,7 +90,7 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
     <div className="space-y-5">
       <h1 className="text-3xl sm:text-4xl">Estadísticas</h1>
 
-      <form method="get" className="card grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <FilterForm key={JSON.stringify(params)} action="/stats" className="card grid grid-cols-2 gap-2 sm:grid-cols-4">
         {player && <input type="hidden" name="player" value={player.id} />}
         {game && <input type="hidden" name="game" value={game.id} />}
         <label className="text-sm">
@@ -102,7 +115,7 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
         <button type="submit" className="btn-primary self-end">
           Filtrar
         </button>
-      </form>
+      </FilterForm>
 
       <nav className="flex flex-wrap gap-2" aria-label="Qué estadísticas ver">
         <Link href={withRange("")} className={!player && !game ? "btn-primary" : "btn-secondary"}>
@@ -153,6 +166,7 @@ function GroupView({
   withRange: (extra: string) => string;
 }) {
   const stats = groupStats(data.sessions, data.plays, data.games, range);
+  const avatarUrl = new Map(data.players.map((p) => [p.id, p.avatarUrl]));
   return (
     <>
       <div className="grid grid-cols-3 gap-2">
@@ -163,12 +177,23 @@ function GroupView({
       <Ranking
         title="Juegos más jugados"
         unit={["partida", "partidas"]}
-        rows={stats.mostPlayed.map((g) => ({ name: gameName.get(g.id) ?? "?", count: g.count, href: withRange(`game=${g.id}`) }))}
+        rows={stats.mostPlayed.map((g) => ({
+          name: gameName.get(g.id) ?? "?",
+          count: g.count,
+          href: withRange(`game=${g.id}`),
+          items: g.items.map((p) => ({ href: `/plays/${p.id}`, label: formatShortDate(p.date) })),
+        }))}
       />
       <Ranking
         title="Asistencia"
         unit={["sesión", "sesiones"]}
-        rows={stats.attendance.map((a) => ({ name: playerName.get(a.id) ?? "?", count: a.count, href: withRange(`player=${a.id}`) }))}
+        rows={stats.attendance.map((a) => ({
+          name: playerName.get(a.id) ?? "?",
+          count: a.count,
+          href: withRange(`player=${a.id}`),
+          avatarUrl: avatarUrl.get(a.id) ?? null,
+          items: a.items.map((s) => ({ href: `/sessions/${s.id}`, label: formatShortDate(s.date) })),
+        }))}
       />
       <section className="card space-y-2">
         <h2>La vergüenza de la estantería</h2>
@@ -246,6 +271,7 @@ function GameView({
   playerName: Map<string, string>;
 }) {
   const stats = gameStats(game, data.plays, range);
+  const avatarUrl = new Map(data.players.map((p) => [p.id, p.avatarUrl]));
   return (
     <>
       <h2 className="text-xl">
@@ -261,7 +287,7 @@ function GameView({
         {stats.coopPlays > 0 && <Stat label={`Victorias del grupo (${stats.coopPlays})`} value={`${stats.coopWinRate} %`} />}
       </div>
       {stats.topWinners.length > 0 && (
-        <Ranking title="Quién gana más" unit={["victoria", "victorias"]} rows={stats.topWinners.map((w) => ({ name: playerName.get(w.id) ?? "?", count: w.count }))} />
+        <Ranking title="Quién gana más" unit={["victoria", "victorias"]} rows={stats.topWinners.map((w) => ({ name: playerName.get(w.id) ?? "?", count: w.count, avatarUrl: avatarUrl.get(w.id) ?? null }))} />
       )}
     </>
   );

@@ -7,7 +7,7 @@ export type StatsData = {
   plays: StatsPlay[];
   sessions: StatsSession[];
   games: StatsGame[];
-  players: { id: string; name: string; isMember: boolean }[];
+  players: { id: string; name: string; avatarUrl: string | null; isMember: boolean }[];
 };
 
 /** The whole history. A group of friends generates a few hundred Plays a year, so this stays small. */
@@ -19,7 +19,7 @@ export async function loadStatsData(): Promise<StatsData> {
       .select("id, session_id, game_id, play_mode, duration_minutes, coop_won, sessions(date), participants(player_id, rank, team_id), teams(id, won)"),
     supabase.from("sessions").select("id, date, status, session_attendees(player_id)"),
     supabase.from("games").select("id, name, retired_at, min_duration, max_duration").order("name"),
-    supabase.from("players").select("id, display_name, user_id").order("display_name"),
+    supabase.from("players").select("id, display_name, avatar_url, user_id").order("display_name"),
   ]);
 
   return {
@@ -47,6 +47,6 @@ export async function loadStatsData(): Promise<StatsData> {
       minDuration: g.min_duration,
       maxDuration: g.max_duration,
     })),
-    players: (players.data ?? []).map((p) => ({ id: p.id, name: p.display_name, isMember: p.user_id !== null })),
+    players: (players.data ?? []).map((p) => ({ id: p.id, name: p.display_name, avatarUrl: p.avatar_url, isMember: p.user_id !== null })),
   };
 }
