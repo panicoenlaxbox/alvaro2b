@@ -57,7 +57,7 @@ export async function setMemberActive(_prev: ActionState, formData: FormData): P
   if (error) return { error: errorMessage(error) };
 
   revalidatePath("/admin");
-  return { ok: true, message: active ? "Reactivado." : undefined };
+  return { ok: true };
 }
 
 export async function deleteMember(_prev: ActionState, formData: FormData): Promise<ActionState> {
