@@ -199,7 +199,9 @@ function GroupView({
       />
       <section className="card space-y-2">
         <h2>La vergüenza de la estantería</h2>
-        {stats.neverPlayed.length === 0 ? (
+        {!data.games.some((g) => !g.retired) ? (
+          <p className="text-sm text-muted">Aún no hay juegos en el catálogo.</p>
+        ) : stats.neverPlayed.length === 0 ? (
           <p className="text-sm text-muted">¡Ninguno! Hemos jugado a todo.</p>
         ) : (
           <ul className="text-[0.9375rem]">
