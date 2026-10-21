@@ -143,6 +143,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 - **Ubicación**. Una Photo se asocia a una Session o al Album general.
 - **Compresión**. Las Photos se comprimen en el navegador antes de subirlas (lado largo de unos 2000 px, en WebP o JPEG, unos 300–500 KB) y se genera una miniatura para la galería. No se guardan los originales.
 - **Etiquetado** opcional de los Players que aparecen y de la Play.
+- **Galería**. Una sola página con todas las Photos: primero las del Album, donde se suben, y después las de cada Session, de la más reciente a la más antigua, con su fecha enlazada a la Session. En cada Photo, el pie va escrito a mano en el margen de la Polaroid, junto a los avatares de quienes salen.
 - **Acceso** solo para Members, mediante URLs firmadas.
 
 ### 8. Estadísticas

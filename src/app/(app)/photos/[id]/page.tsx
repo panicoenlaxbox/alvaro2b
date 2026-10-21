@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Avatar } from "@/components/avatar";
 import { requireMember } from "@/lib/auth";
 import { listPlayers } from "@/lib/data/players";
 import { formatSessionDate } from "@/lib/domain/session";
@@ -30,8 +31,9 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
     supabase.storage.from(MEDIA_BUCKET).createSignedUrl(photo.path, 3600),
     supabase.storage.from(MEDIA_BUCKET).createSignedUrl(photo.path, 3600, { download: true }),
   ]);
-  const names = new Map(players.map((p) => [p.id, p.display_name]));
+  const byId = new Map(players.map((p) => [p.id, p]));
   const tagged = photo.photo_tags.map((t) => t.player_id);
+  const taggedPlayers = tagged.flatMap((t) => byId.get(t) ?? []);
   const plays = photo.sessions?.plays.map((p) => ({ id: p.id, name: p.games?.name ?? "?" })) ?? [];
   const playName = plays.find((p) => p.id === photo.play_id)?.name;
 
@@ -58,18 +60,26 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
             height={photo.height}
             className="h-auto w-full border-2 border-ink"
           />
-          {photo.caption && <figcaption className="px-1 pt-3 text-lg text-ink">{photo.caption}</figcaption>}
+          {(photo.caption || taggedPlayers.length > 0) && (
+            <figcaption className="flex items-center gap-3 px-1 pt-3">
+              <span className="min-w-0 flex-1 font-hand text-2xl leading-tight text-ink sm:text-3xl">{photo.caption}</span>
+              {taggedPlayers.length > 0 && (
+                <span className="flex shrink-0 -space-x-2">
+                  <span className="sr-only">Salen: {taggedPlayers.map((p) => p.display_name).join(", ")}</span>
+                  {taggedPlayers.map((p) => (
+                    <span key={p.id} title={p.display_name} className="inline-flex rounded-full ring-2 ring-paper">
+                      <Avatar name={p.display_name} url={p.avatar_url} size={32} />
+                    </span>
+                  ))}
+                </span>
+              )}
+            </figcaption>
+          )}
         </figure>
       )}
 
       {!view?.signedUrl && photo.caption && <p>{photo.caption}</p>}
-      {(tagged.length > 0 || playName) && (
-        <p className="text-sm text-muted">
-          {tagged.length > 0 && `Salen: ${tagged.map((t) => names.get(t)).join(", ")}`}
-          {tagged.length > 0 && playName && " · "}
-          {playName && `Partida de ${playName}`}
-        </p>
-      )}
+      {playName && <p className="text-sm text-muted">Partida de {playName}</p>}
 
       <details className="card">
         <summary className="cursor-pointer font-semibold">Editar pie, etiquetas y partida</summary>

@@ -40,6 +40,8 @@
   --color-paper: var(--paper);
   --font-sans: var(--font-rubik);
   --font-display: var(--font-bungee);
+  /* Handwriting for Photo captions, as if written on the Polaroid. */
+  --font-hand: var(--font-caveat);
   --shadow-hard: 4px 4px 0 var(--ink);
   --shadow-hard-lg: 6px 6px 0 var(--ink);
 }
