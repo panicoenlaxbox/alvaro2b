@@ -47,7 +47,7 @@ export async function recordPhotos(sessionId: string | null, photos: UploadedPho
   }
 
   revalidatePhotos(sessionId);
-  return { ok: true, message: `${valid.length} ${valid.length === 1 ? "foto subida" : "fotos subidas"}.` };
+  return { ok: true };
 }
 
 export async function updatePhoto(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -75,7 +75,7 @@ export async function updatePhoto(_prev: ActionState, formData: FormData): Promi
   }
 
   revalidatePhotos(photo.session_id, id);
-  return { ok: true, message: "Guardado." };
+  return { ok: true };
 }
 
 export async function deletePhoto(_prev: ActionState, formData: FormData): Promise<ActionState> {

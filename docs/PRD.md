@@ -147,7 +147,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 
 ### 8. Estadísticas
 
-Todas son filtrables por año o rango de fechas.
+Todas son filtrables por año o rango de fechas. En los rankings, los Players llevan su avatar, y el número de Plays o Sessions lleva a ellas: directamente si es una, o desplegando la lista con sus fechas si son varias.
 
 - **Grupo**:
   - Sessions y Plays totales, y horas jugadas.

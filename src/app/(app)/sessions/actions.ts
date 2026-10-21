@@ -113,7 +113,7 @@ export async function setAttendees(_prev: ActionState, formData: FormData): Prom
   }
 
   revalidateSession(id);
-  return { ok: true, message: "Asistentes guardados." };
+  return { ok: true };
 }
 
 export async function answerRsvp(_prev: ActionState, formData: FormData): Promise<ActionState> {

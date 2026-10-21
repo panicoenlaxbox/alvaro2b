@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { Avatar } from "@/components/avatar";
 import { ConfirmSubmitButton, FormMessage, RequiredMark, SubmitButton, useRowAction } from "@/components/form";
-import { initialActionState, type ActionState } from "@/lib/action-state";
+import { initialActionState } from "@/lib/action-state";
 import { whatsappUrl } from "@/lib/share";
 import { addAllowedEmail, addGuest, deleteGuest, deleteMember, removeAllowedEmail, renamePlayer, setAdmin, setGuestActive, setMemberActive } from "./actions";
 
@@ -20,16 +20,8 @@ function inviteText(appUrl: string, email: string) {
   return `¡Ya puedes entrar en alvaro2b! Abre ${appUrl} y entra con tu cuenta de Google ${email}.`;
 }
 
-/** The anchor of an allowlist row, so the "added" message can scroll to it. */
-function rowId(email: string) {
-  return `member-${email}`;
-}
-
 export function AddEmailForm({ guests }: { guests: { id: string; display_name: string }[] }) {
-  const [state, action] = useActionState<ActionState & { email?: string }, FormData>(async (prev, formData) => {
-    const result = await addAllowedEmail(prev, formData);
-    return { ...result, email: String(formData.get("email") ?? "").trim().toLowerCase() };
-  }, initialActionState);
+  const [state, action] = useActionState(addAllowedEmail, initialActionState);
   return (
     <form action={action} className="space-y-3">
       <div>
@@ -58,22 +50,7 @@ export function AddEmailForm({ guests }: { guests: { id: string; display_name: s
         <input type="checkbox" name="is_admin" className="size-4" /> Hacer Admin
       </label>
       <SubmitButton>Añadir</SubmitButton>
-      {state.ok && state.email ? (
-        <p className="text-sm">
-          <a
-            href={`#${rowId(state.email)}`}
-            className="font-medium underline"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById(rowId(state.email!))?.scrollIntoView({ behavior: "smooth", block: "center" });
-            }}
-          >
-            Pásale un WhatsApp a {state.email}
-          </a>
-        </p>
-      ) : (
-        <FormMessage state={state} />
-      )}
+      <FormMessage state={state} />
     </form>
   );
 }
@@ -103,7 +80,7 @@ export function AllowedEmailRow({
   const status = deactivated ? "Desactivado" : signedUp ? "Activo" : "Pendiente";
 
   return (
-    <li id={rowId(email)} className={`space-y-2 px-4 py-3 ${deactivated ? "opacity-70" : ""}`}>
+    <li className={`space-y-2 px-4 py-3 ${deactivated ? "opacity-70" : ""}`}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         {playerId && playerName ? (
           <>

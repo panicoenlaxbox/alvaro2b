@@ -50,6 +50,18 @@ function topEntries(counts: Map<string, number>, limit = Infinity): { id: string
     .slice(0, limit);
 }
 
+/** A ranking entry with the Plays or Sessions behind its count, newest first. */
+export type RankedEntry = { id: string; count: number; items: { id: string; date: string }[] };
+
+function rankBy<T extends { id: string; date: string }>(items: T[], keys: (item: T) => string[], limit = Infinity): RankedEntry[] {
+  const groups = new Map<string, { id: string; date: string }[]>();
+  for (const item of items) for (const key of keys(item)) groups.set(key, [...(groups.get(key) ?? []), { id: item.id, date: item.date }]);
+  return [...groups.entries()]
+    .map(([id, list]) => ({ id, count: list.length, items: list.sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)) }))
+    .sort((a, b) => b.count - a.count || a.id.localeCompare(b.id))
+    .slice(0, limit);
+}
+
 // ---------------------------------------------------------------------------
 // Group
 // ---------------------------------------------------------------------------
@@ -58,10 +70,10 @@ export type GroupStats = {
   sessions: number;
   plays: number;
   hoursPlayed: number;
-  mostPlayed: { id: string; count: number }[];
+  mostPlayed: RankedEntry[];
   /** "La vergüenza de la estantería": active Games never played (ever, not just in the range). */
   neverPlayed: string[];
-  attendance: { id: string; count: number }[];
+  attendance: RankedEntry[];
 };
 
 export function groupStats(sessions: StatsSession[], plays: StatsPlay[], games: StatsGame[], range: DateRange): GroupStats {
@@ -74,9 +86,9 @@ export function groupStats(sessions: StatsSession[], plays: StatsPlay[], games: 
     sessions: held.length,
     plays: ranged.length,
     hoursPlayed: Math.round((minutes / 60) * 10) / 10,
-    mostPlayed: topEntries(countBy(ranged, (p) => p.gameId), 10),
+    mostPlayed: rankBy(ranged, (p) => [p.gameId], 10),
     neverPlayed: games.filter((g) => !g.retired && !everPlayed.has(g.id)).map((g) => g.id),
-    attendance: topEntries(countBy(held.flatMap((s) => s.attendees), (id) => id)),
+    attendance: rankBy(held, (s) => s.attendees),
   };
 }
 
