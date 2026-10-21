@@ -13,8 +13,10 @@ const HELD_PAGE_SIZE = 10;
 export default async function SessionsPage({ searchParams }: PageProps<"/sessions">) {
   await requireMember();
   const groups = groupSessions(await listSessions(), todayIso());
-  const held = paginate(groups.held, parsePage((await searchParams).page), HELD_PAGE_SIZE);
-  const pageHref = (page: number) => (page === 1 ? "/sessions#held" : `/sessions?page=${page}#held`);
+  const { page } = await searchParams;
+  const held = paginate(groups.held, parsePage(page), HELD_PAGE_SIZE);
+  // Held starts collapsed; a page link keeps it open.
+  const pageHref = (n: number) => `/sessions?page=${n}#held`;
 
   return (
     <div className="space-y-6">
@@ -26,42 +28,48 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
       </div>
 
       {groups.pendingClose.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-danger">Pendientes de cerrar</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+        <details open>
+          <summary className="cursor-pointer text-danger">
+            <h2 className="inline">Pendientes de cerrar ({groups.pendingClose.length})</h2>
+          </summary>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
             {groups.pendingClose.map((s) => (
               <SessionCard key={s.id} session={s} pendingClose />
             ))}
           </div>
-        </section>
+        </details>
       )}
 
-      <section className="space-y-3">
-        <h2>Próximas</h2>
+      <details open>
+        <summary className="cursor-pointer">
+          <h2 className="inline">Próximas ({groups.upcoming.length})</h2>
+        </summary>
         {groups.upcoming.length ? (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
             {groups.upcoming.map((s) => (
               <SessionCard key={s.id} session={s} />
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted">No hay ninguna planificada.</p>
+          <p className="mt-3 text-sm text-muted">No hay ninguna planificada.</p>
         )}
-      </section>
+      </details>
 
-      <section id="held" className="scroll-mt-20 space-y-3">
-        <h2>Celebradas{groups.held.length ? ` (${groups.held.length})` : ""}</h2>
+      <details id="held" open={page !== undefined} className="scroll-mt-20">
+        <summary className="cursor-pointer">
+          <h2 className="inline">Celebradas ({groups.held.length})</h2>
+        </summary>
         {held.items.length ? (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
             {held.items.map((s) => (
               <SessionCard key={s.id} session={s} />
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted">Aún no hay ninguna.</p>
+          <p className="mt-3 text-sm text-muted">Aún no hay ninguna.</p>
         )}
         {held.pageCount > 1 && (
-          <nav aria-label="Páginas de sesiones celebradas" className="flex items-center justify-between gap-2 pt-2">
+          <nav aria-label="Páginas de sesiones celebradas" className="mt-3 flex items-center justify-between gap-2 pt-2">
             {held.page > 1 ? (
               <Link href={pageHref(held.page - 1)} className="btn-secondary">
                 ← Más recientes
@@ -81,11 +89,13 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
             )}
           </nav>
         )}
-      </section>
+      </details>
 
       {groups.cancelled.length > 0 && (
-        <details className="space-y-2">
-          <summary className="cursor-pointer font-semibold text-muted">Canceladas ({groups.cancelled.length})</summary>
+        <details>
+          <summary className="cursor-pointer">
+            <h2 className="inline">Canceladas ({groups.cancelled.length})</h2>
+          </summary>
           <div className="mt-3 grid gap-4 sm:grid-cols-2">
             {groups.cancelled.map((s) => (
               <SessionCard key={s.id} session={s} />

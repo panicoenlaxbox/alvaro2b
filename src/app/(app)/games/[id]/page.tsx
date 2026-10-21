@@ -77,7 +77,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
           </div>
           <h1 className="text-3xl break-words sm:text-5xl">{game.name}</h1>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-soft">
-            <OwnerFaces owners={owners} withNames />
+            <OwnerFaces owners={owners} withNames on="background" />
             {ratings.average !== null && (
               <span>
                 <span className="font-bold text-accent">★ {ratings.average.toLocaleString("es-ES")}</span> <span className="text-muted">({ratings.count})</span>

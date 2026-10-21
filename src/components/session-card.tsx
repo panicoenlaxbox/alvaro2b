@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { formatSessionDate, SESSION_STATUS_LABELS, type SessionStatus } from "@/lib/domain/session";
+import type { Owner } from "@/lib/data/explore";
 import { DateTile } from "./date-tile";
+import { Faces } from "./owners";
 
 export const STATUS_CHIP: Record<SessionStatus, string> = {
   planned: "border-green text-green",
@@ -12,12 +14,11 @@ export function SessionCard({
   session,
   pendingClose = false,
 }: {
-  session: { id: string; date: string; name: string | null; place: string | null; status: SessionStatus; playCount: number; attendeeCount: number };
+  session: { id: string; date: string; name: string | null; place: string | null; status: SessionStatus; playCount: number; attendees: Owner[] };
   pendingClose?: boolean;
 }) {
   const details = [
     session.place,
-    session.attendeeCount ? `${session.attendeeCount} ${session.attendeeCount === 1 ? "asistente" : "asistentes"}` : null,
     session.playCount ? `${session.playCount} ${session.playCount === 1 ? "partida" : "partidas"}` : null,
   ].filter(Boolean);
 
@@ -29,11 +30,14 @@ export function SessionCard({
       <DateTile date={session.date} />
       <div className="min-w-0 flex-1 space-y-1">
         <p className="font-bold leading-snug first-letter:uppercase">{session.name ?? formatSessionDate(session.date)}</p>
-        {session.name && <p className="text-sm text-soft first-letter:uppercase">{formatSessionDate(session.date)}</p>}
+        {session.name && <p className="sr-only">{formatSessionDate(session.date)}</p>}
         {details.length > 0 && <p className="text-sm text-muted">{details.join(" · ")}</p>}
-        <span className={`chip ${pendingClose ? "border-danger text-danger" : STATUS_CHIP[session.status]}`}>
-          {pendingClose ? "Pendiente de cerrar" : SESSION_STATUS_LABELS[session.status]}
-        </span>
+        <div className="flex flex-wrap items-center gap-3">
+          <Faces people={session.attendees} prefix="Con" />
+          <span className={`chip ${pendingClose ? "border-danger text-danger" : STATUS_CHIP[session.status]}`}>
+            {pendingClose ? "Pendiente de cerrar" : SESSION_STATUS_LABELS[session.status]}
+          </span>
+        </div>
       </div>
     </Link>
   );
