@@ -19,7 +19,7 @@ export async function addAllowedEmail(_prev: ActionState, formData: FormData): P
   if (error) return { error: error.code === "23505" ? "Ese email ya está en la lista de miembros." : errorMessage(error) };
 
   revalidatePath("/admin");
-  return { ok: true, message: `${email} añadido. Pásale el enlace de la aplicación.` };
+  return { ok: true };
 }
 
 export async function setAdmin(_prev: ActionState, formData: FormData): Promise<ActionState> {
