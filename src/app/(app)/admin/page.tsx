@@ -23,7 +23,7 @@ export default async function AdminPage() {
     <div className="space-y-8">
       <div className="space-y-1">
         <h1 className="text-3xl sm:text-4xl">Admin</h1>
-        <p className="text-sm text-muted">
+        <p className="text-sm hint">
           Solo pueden entrar los emails de esta lista, con su cuenta de Google. La aplicación no envía emails: pasa tú el enlace.
         </p>
       </div>

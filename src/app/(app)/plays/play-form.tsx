@@ -212,7 +212,7 @@ export function PlayForm({
       {rows.length > 0 && mode === "competitive" && (
         <fieldset className="card space-y-3">
           <legend className="sr-only">Resultado</legend>
-          <p className="text-sm text-muted">
+          <p className="text-sm hint">
             {allScored
               ? `Con puntuación para todos, la clasificación se calcula sola${game?.lowerScoreWins ? " (gana la más baja)" : ""}.`
               : "Pon la puntuación de todos para calcular la clasificación, o marca las posiciones a mano (se permiten empates)."}

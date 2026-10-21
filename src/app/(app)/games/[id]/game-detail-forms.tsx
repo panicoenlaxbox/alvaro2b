@@ -37,7 +37,7 @@ export function RatingPicker({ gameId, stars }: { gameId: string; stars: number 
             ★
           </button>
         ))}
-        {stars > 0 && <span className="ml-2 text-xs text-muted">Pulsa tu estrella para quitarla</span>}
+        {stars > 0 && <span className="ml-2 text-xs hint">Pulsa tu estrella para quitarla</span>}
       </div>
       <FormMessage state={state} />
     </form>
@@ -90,7 +90,7 @@ export function CoverUploader({ gameId, hasOwnCover }: { gameId: string; hasOwnC
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-muted">Sube una foto propia; sustituye a la imagen de BoardGameGeek.</p>
+      <p className="text-sm hint">Sube una foto propia; sustituye a la imagen de BoardGameGeek.</p>
       <input
         ref={input}
         type="file"

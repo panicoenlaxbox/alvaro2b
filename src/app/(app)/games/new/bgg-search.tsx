@@ -49,7 +49,7 @@ export function BggSearch() {
           ))}
         </ul>
       )}
-      <p className="text-xs text-muted">Se importan solo jugadores, duración, complejidad, año y carátula. Todo se puede editar.</p>
+      <p className="text-xs hint">Se importan solo jugadores, duración, complejidad, año y carátula. Todo se puede editar.</p>
     </section>
   );
 }

@@ -69,7 +69,7 @@ export function GameForm({
 
       <fieldset>
         <legend className="label">Dueños</legend>
-        <p className="mb-3 text-sm text-muted">Marca a quien lo compró, o a varios si fue a medias. Si no es de nadie (prestado, de un bar…), no marques a nadie.</p>
+        <p className="mb-3 text-sm hint">Marca a quien lo compró, o a varios si fue a medias. Si no es de nadie (prestado, de un bar…), no marques a nadie.</p>
         <PlayerPicker name="owner_id" players={owners} selected={defaults.owner_ids ?? []} />
       </fieldset>
 

@@ -35,7 +35,7 @@ export default async function PlayersPage() {
 
       <section className="space-y-3">
         <h2 className="text-lg">Invitados</h2>
-        <p className="text-sm text-muted">
+        <p className="text-sm hint">
           Personas sin cuenta que juegan con el grupo. Un invitado puede convertirse en miembro conservando su historial: pídeselo al Admin.
         </p>
         <AddGuestForm />

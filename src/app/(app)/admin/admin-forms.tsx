@@ -116,7 +116,7 @@ export function AllowedEmailRow({
         )}
       </div>
       {signedUp && !isSelf && !isAdmin && (
-        <p className="text-xs text-muted">
+        <p className="text-xs hint">
           {!deactivated && "Desactivar conserva su historial. "}
           Eliminar solo es posible si no ha jugado ni creado nada.
         </p>

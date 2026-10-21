@@ -25,10 +25,10 @@ export default async function PhotosPage({ searchParams }: PageProps<"/photos">)
         </Link>
       </nav>
       {all ? (
-        <p className="text-sm text-muted">Todas las fotos, de las sesiones y del álbum.</p>
+        <p className="text-sm hint">Todas las fotos, de las sesiones y del álbum.</p>
       ) : (
         <>
-          <p className="text-sm text-muted">Fotos del grupo que no son de ninguna sesión. Las de cada sesión se suben desde la sesión.</p>
+          <p className="text-sm hint">Fotos del grupo que no son de ninguna sesión. Las de cada sesión se suben desde la sesión.</p>
           <PhotoUploader sessionId={null} />
         </>
       )}
