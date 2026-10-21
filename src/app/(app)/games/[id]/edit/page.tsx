@@ -21,7 +21,6 @@ export default async function EditGamePage({ params }: PageProps<"/games/[id]/ed
       <GameForm
         action={updateGame}
         owners={owners}
-        submitLabel="Guardar cambios"
         defaults={{ ...game, complexity: game.complexity === null ? null : Number(game.complexity), owner_ids: game.game_owners.map((o) => o.player_id) }}
       />
     </div>

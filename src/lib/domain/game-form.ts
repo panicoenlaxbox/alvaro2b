@@ -26,6 +26,17 @@ export type GameFormValues = Partial<Record<keyof GameInput, Field>>;
 
 export type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
+/** Accepted range of each numeric Game field; the form's inputs use it too. */
+export const GAME_NUMBER_LIMITS = {
+  year: { min: 1800, max: 2100 },
+  min_players: { min: 1, max: 100 },
+  max_players: { min: 1, max: 100 },
+  min_duration: { min: 1, max: 6000 },
+  max_duration: { min: 1, max: 6000 },
+  complexity: { min: 1, max: 5 },
+  bgg_id: { min: 1, max: 2_000_000_000 },
+} as const;
+
 function optionalNumber(value: Field, label: string, min: number, max: number, decimals = false): number | null | string {
   const text = (value ?? "").toString().trim().replace(",", ".");
   if (text === "") return null;
@@ -41,14 +52,15 @@ export function parseGameForm(values: GameFormValues): ParseResult<GameInput> {
   const name = (values.name ?? "").trim();
   if (name.length < 1 || name.length > 120) return { ok: false, error: "El nombre es obligatorio (máximo 120 caracteres)." };
 
+  const L = GAME_NUMBER_LIMITS;
   const numbers = {
-    year: optionalNumber(values.year, "Año", 1800, 2100),
-    min_players: optionalNumber(values.min_players, "Mínimo de jugadores", 1, 100),
-    max_players: optionalNumber(values.max_players, "Máximo de jugadores", 1, 100),
-    min_duration: optionalNumber(values.min_duration, "Duración mínima", 1, 6000),
-    max_duration: optionalNumber(values.max_duration, "Duración máxima", 1, 6000),
-    complexity: optionalNumber(values.complexity, "Complejidad", 1, 5, true),
-    bgg_id: optionalNumber(values.bgg_id, "Id de BGG", 1, 2_000_000_000),
+    year: optionalNumber(values.year, "Año", L.year.min, L.year.max),
+    min_players: optionalNumber(values.min_players, "Mínimo de jugadores", L.min_players.min, L.min_players.max),
+    max_players: optionalNumber(values.max_players, "Máximo de jugadores", L.max_players.min, L.max_players.max),
+    min_duration: optionalNumber(values.min_duration, "Duración mínima", L.min_duration.min, L.min_duration.max),
+    max_duration: optionalNumber(values.max_duration, "Duración máxima", L.max_duration.min, L.max_duration.max),
+    complexity: optionalNumber(values.complexity, "Complejidad", L.complexity.min, L.complexity.max, true),
+    bgg_id: optionalNumber(values.bgg_id, "Id de BGG", L.bgg_id.min, L.bgg_id.max),
   };
   for (const v of Object.values(numbers)) if (typeof v === "string") return { ok: false, error: v };
   const n = numbers as Record<keyof typeof numbers, number | null>;

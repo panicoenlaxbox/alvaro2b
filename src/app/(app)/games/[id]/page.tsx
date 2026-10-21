@@ -10,10 +10,11 @@ import { durationText, PLAY_MODE_LABELS, playersText } from "@/lib/domain/game-f
 import { starsText, summarizeRatings } from "@/lib/domain/ratings";
 import { ATTACHMENTS_BUCKET, coverUrl, signedUrls } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
-import { Cover } from "@/components/cover";
+import { Avatar } from "@/components/avatar";
+import { CHART, Icon } from "@/components/icon";
 import { OwnerFaces } from "@/components/owners";
 import { toOwners } from "@/lib/data/explore";
-import { CoverUploader, DeleteGameButton, ExpansionList, RatingPicker, RetireGameButton } from "./game-detail-forms";
+import { CoverEditor, DeleteGameButton, ExpansionList, RatingPicker, RetireGameButton } from "./game-detail-forms";
 import { Attachments, type AttachmentItem } from "./attachments";
 
 export async function generateMetadata({ params }: PageProps<"/games/[id]">): Promise<Metadata> {
@@ -50,6 +51,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
       : { id: a.id, kind: "file", url: attachmentUrls.get(a.path!) ?? null, fileName: a.file_name!, sizeBytes: a.size_bytes!, canDelete };
   });
   const names = new Map(members.map((m) => [m.id, m.display_name]));
+  const avatars = new Map(members.map((m) => [m.id, m.avatar_url]));
   const ratings = summarizeRatings(game.ratings.map((r) => ({ playerId: r.player_id, stars: r.stars })), names);
   const myStars = game.ratings.find((r) => r.player_id === member.playerId)?.stars ?? 0;
   const canDelete = member.isAdmin || game.created_by === member.userId;
@@ -65,7 +67,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
   return (
     <div className="space-y-6">
       <section className="flex items-center gap-4 sm:gap-8">
-        <Cover url={coverUrl(game, signed)} name={game.name} className="size-28 text-5xl shadow-hard-lg sm:size-48 sm:text-7xl" />
+        <CoverEditor gameId={game.id} url={coverUrl(game, signed)} name={game.name} hasOwnCover={Boolean(game.cover_path)} className="size-28 text-5xl shadow-hard-lg sm:size-48 sm:text-7xl" />
         <div className="min-w-0 flex-1 space-y-3">
           <div className="flex flex-wrap gap-2">
             <span className="rounded-md bg-ink px-2.5 py-0.5 font-display text-xs text-teal">{PLAY_MODE_LABELS[game.default_play_mode]}</span>
@@ -73,16 +75,24 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
             {game.lower_score_wins && <span className="chip">Gana la puntuación más baja</span>}
           </div>
           <h1 className="text-3xl break-words sm:text-5xl">{game.name}</h1>
-          {(owners.length > 0 || ratings.average !== null) && (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-soft">
-              <OwnerFaces owners={owners} withNames />
-              {ratings.average !== null && (
-                <span>
-                  <span className="font-bold text-accent">★ {ratings.average.toLocaleString("es-ES")}</span> <span className="text-muted">({ratings.count})</span>
-                </span>
-              )}
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-soft">
+            <OwnerFaces owners={owners} withNames />
+            {ratings.average !== null && (
+              <span>
+                <span className="font-bold text-accent">★ {ratings.average.toLocaleString("es-ES")}</span> <span className="text-muted">({ratings.count})</span>
+              </span>
+            )}
+            <Link href={`/stats?game=${game.id}`} aria-label="Estadísticas" title="Estadísticas" className="inline-flex size-9 items-center justify-center rounded-full text-muted hover:bg-accent-soft hover:text-foreground">
+              <Icon d={CHART} className="size-5" />
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/games/${game.id}/edit`} className="btn-secondary">
+              Editar
+            </Link>
+            <RetireGameButton gameId={game.id} retired={game.retired_at !== null} />
+            {canDelete && <DeleteGameButton gameId={game.id} />}
+          </div>
         </div>
       </section>
 
@@ -118,8 +128,11 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
             {ratings.breakdown.length > 0 && (
               <ul className="space-y-1 text-sm">
                 {ratings.breakdown.map((r) => (
-                  <li key={r.playerId} className="flex justify-between gap-2">
-                    <span>{r.name}</span>
+                  <li key={r.playerId} className="flex items-center justify-between gap-2">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <Avatar name={r.name} url={avatars.get(r.playerId) ?? null} size={24} />
+                      <span className="truncate">{r.name}</span>
+                    </span>
                     <span className="text-accent" aria-label={`${r.stars} estrellas`}>
                       {starsText(r.stars)}
                     </span>
@@ -151,21 +164,6 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
             <Attachments gameId={game.id} items={attachmentItems} />
           </section>
 
-          <section className="card space-y-3">
-            <h2>Carátula</h2>
-            <CoverUploader gameId={game.id} hasOwnCover={Boolean(game.cover_path)} />
-          </section>
-
-          <section className="flex flex-wrap gap-2">
-            <Link href={`/games/${game.id}/edit`} className="btn-secondary">
-              Editar
-            </Link>
-            <Link href={`/stats?game=${game.id}`} className="btn-secondary">
-              Estadísticas
-            </Link>
-            <RetireGameButton gameId={game.id} retired={game.retired_at !== null} />
-            {canDelete && <DeleteGameButton gameId={game.id} />}
-          </section>
         </aside>
       </div>
     </div>

@@ -4,17 +4,17 @@ import { useActionState } from "react";
 import { ActionForm, FormMessage, RequiredMark } from "@/components/form";
 import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState, type ActionState } from "@/lib/action-state";
-import { PLAY_MODE_LABELS, PLAY_MODES, type GameInput } from "@/lib/domain/game-form";
+import { GAME_NUMBER_LIMITS, PLAY_MODE_LABELS, PLAY_MODES, type GameInput } from "@/lib/domain/game-form";
 
 export type GameFormDefaults = Partial<GameInput> & { id?: string; bgg_image_url?: string | null; owner_ids?: string[] };
 
-function NumberField({ name, label, value, step }: { name: string; label: string; value?: number | null; step?: string }) {
+function NumberField({ name, label, value, step }: { name: keyof typeof GAME_NUMBER_LIMITS; label: string; value?: number | null; step?: string }) {
   return (
     <div>
       <label htmlFor={name} className="label">
         {label}
       </label>
-      <input id={name} name={name} type="number" inputMode="decimal" step={step} defaultValue={value ?? ""} className="input" />
+      <input id={name} name={name} type="number" inputMode="decimal" step={step} {...GAME_NUMBER_LIMITS[name]} defaultValue={value ?? ""} className="input" />
     </div>
   );
 }
@@ -23,12 +23,10 @@ export function GameForm({
   action,
   defaults = {},
   owners,
-  submitLabel,
 }: {
   action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
   defaults?: GameFormDefaults;
   owners: { id: string; display_name: string; is_member: boolean; avatar_url: string | null; active: boolean }[];
-  submitLabel: string;
 }) {
   const [state, formAction, pending] = useActionState(action, initialActionState);
 
@@ -69,7 +67,6 @@ export function GameForm({
 
       <fieldset>
         <legend className="label">Dueños</legend>
-        <p className="mb-3 text-sm hint">Marca a quien lo compró, o a varios si fue a medias. Si no es de nadie (prestado, de un bar…), no marques a nadie.</p>
         <PlayerPicker name="owner_id" players={owners} selected={defaults.owner_ids ?? []} />
       </fieldset>
 
@@ -89,7 +86,7 @@ export function GameForm({
 
       <FormMessage state={state} />
       <button type="submit" disabled={pending} className="btn-primary w-full">
-        {pending ? "Guardando…" : submitLabel}
+        {pending ? "Guardando…" : "Guardar"}
       </button>
     </ActionForm>
   );

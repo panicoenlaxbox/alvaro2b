@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState, useTransition } from "react";
 import { ConfirmSubmitButton, FormMessage, SubmitButton } from "@/components/form";
+import { FILE, Icon, LINK, PAPERCLIP } from "@/components/icon";
 import { initialActionState } from "@/lib/action-state";
 import { ATTACHMENT_TYPES, attachmentPath, checkAttachmentFile, formatBytes, linkLabel } from "@/lib/domain/attachments";
 import { createClient } from "@/lib/supabase/client";
@@ -11,28 +12,25 @@ export type AttachmentItem =
   | { id: string; kind: "link"; url: string; canDelete: boolean }
   | { id: string; kind: "file"; url: string | null; fileName: string; sizeBytes: number; canDelete: boolean };
 
-const DELETE_CLASS = "min-h-11 rounded-lg px-2 py-1 text-sm font-bold text-danger hover:bg-accent-soft";
-
 /** Files and links of a Game: a list to open them, plus forms to add a link or upload a file. */
 export function Attachments({ gameId, items }: { gameId: string; items: AttachmentItem[] }) {
   const [linkState, linkAction] = useActionState(addAttachmentLink, initialActionState);
 
   return (
     <div className="space-y-3">
-      {items.length > 0 ? (
+      {items.length > 0 && (
         <ul className="divide-y divide-border">
           {items.map((item) => (
             <AttachmentRow key={item.id} item={item} />
           ))}
         </ul>
-      ) : (
-        <p className="text-sm text-muted">Aún no hay ninguno. Añade un FAQ, una ayuda de juego o un enlace útil.</p>
       )}
 
       <form action={linkAction} className="flex gap-2">
         <input type="hidden" name="game_id" value={gameId} />
         <input name="url" type="url" inputMode="url" required placeholder="https://…" aria-label="Enlace" className="input" />
         <SubmitButton className="btn-secondary shrink-0" pendingText="…">
+          <Icon d={LINK} className="size-4" />
           Añadir enlace
         </SubmitButton>
       </form>
@@ -48,7 +46,7 @@ function AttachmentRow({ item }: { item: AttachmentItem }) {
   return (
     <li className="space-y-1 py-2">
       <div className="flex items-center gap-2">
-        <span aria-hidden>{item.kind === "link" ? "🔗" : "📄"}</span>
+        <Icon d={item.kind === "link" ? LINK : FILE} className="size-4 shrink-0 text-muted" />
         {item.url ? (
           <a href={item.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate underline">
             {item.kind === "link" ? linkLabel(item.url) : item.fileName}
@@ -60,8 +58,8 @@ function AttachmentRow({ item }: { item: AttachmentItem }) {
         {item.canDelete && (
           <form action={action}>
             <input type="hidden" name="id" value={item.id} />
-            <ConfirmSubmitButton className={DELETE_CLASS} confirmText="Sí, quitar">
-              Quitar
+            <ConfirmSubmitButton confirmText="Sí, eliminar">
+              Eliminar
             </ConfirmSubmitButton>
           </form>
         )}
@@ -104,9 +102,15 @@ function FileUploader({ gameId }: { gameId: string }) {
         }}
       />
       <button type="button" className="btn-secondary" disabled={pending} onClick={() => input.current?.click()}>
-        {pending ? "Subiendo…" : "📎 Subir fichero"}
+        {pending ? (
+          "Subiendo…"
+        ) : (
+          <>
+            <Icon d={PAPERCLIP} className="size-4" />
+            Añadir fichero
+          </>
+        )}
       </button>
-      <p className="text-xs hint">PDF, imagen, texto o documento, hasta 20 MB.</p>
       {error && (
         <p role="alert" className="text-sm font-medium text-danger">
           {error}

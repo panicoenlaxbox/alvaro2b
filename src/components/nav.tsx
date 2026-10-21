@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Icon } from "@/components/icon";
 
 const ITEMS = [
   { href: "/", label: "Inicio", icon: "M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" },
@@ -14,14 +15,6 @@ const ITEMS = [
 function useActive() {
   const pathname = usePathname();
   return (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
-}
-
-function Icon({ d, className }: { d: string; className: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d={d} />
-    </svg>
-  );
 }
 
 /** The phone's tab bar. */
