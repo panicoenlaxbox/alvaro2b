@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { PLAY_MODE_LABELS, PLAY_MODES, type PlayMode } from "@/lib/domain/game-form";
 import type { ParticipantInput, PlayInput, TeamInput } from "@/lib/domain/play";
 import type { PlayFormGame } from "@/lib/data/play-form";
+import { RequiredMark } from "@/components/form";
 import { FACE_OFF, FACE_ON, NAME_OFF, NAME_ON, PlayerFace } from "@/components/player-face";
 import { savePlay } from "./actions";
 import { FirstPlayerDraw } from "./first-player-draw";
@@ -123,6 +124,7 @@ export function PlayForm({
       <div>
         <label htmlFor="game" className="label">
           Juego
+          <RequiredMark />
         </label>
         <select id="game" required value={gameId} onChange={(e) => chooseGame(e.target.value)} className="input">
           <option value="">Elige un juego…</option>
@@ -174,7 +176,10 @@ export function PlayForm({
       </fieldset>
 
       <fieldset>
-        <legend className="label">Participantes</legend>
+        <legend className="label">
+          Participantes
+          <RequiredMark />
+        </legend>
         <div className="flex flex-wrap gap-4">
           {players
             .filter((p) => p.active || selected.has(p.id))
@@ -345,7 +350,6 @@ export function PlayForm({
           inputMode="numeric"
           value={duration}
           onChange={(e) => setDuration(e.target.value)}
-          placeholder="Opcional"
           className="input"
         />
       </div>

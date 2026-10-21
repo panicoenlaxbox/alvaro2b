@@ -93,7 +93,7 @@ export function OpenPollForm({ sessionId }: { sessionId: string }) {
       <input type="hidden" name="session_id" value={sessionId} />
       <div>
         <label htmlFor="closes_at" className="label">
-          Fecha límite (opcional)
+          Fecha límite
         </label>
         <input id="closes_at" name="closes_at" type="datetime-local" className="input" />
       </div>

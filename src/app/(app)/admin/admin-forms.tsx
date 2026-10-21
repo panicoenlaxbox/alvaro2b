@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { ConfirmSubmitButton, FormMessage, SubmitButton } from "@/components/form";
+import { ConfirmSubmitButton, FormMessage, RequiredMark, SubmitButton } from "@/components/form";
 import { initialActionState } from "@/lib/action-state";
 import { whatsappUrl } from "@/lib/share";
 import { addAllowedEmail, deleteMember, removeAllowedEmail, setAdmin, setMemberActive } from "./actions";
@@ -17,6 +17,7 @@ export function AddEmailForm({ guests }: { guests: { id: string; display_name: s
       <div>
         <label htmlFor="email" className="label">
           Email de su cuenta de Google
+          <RequiredMark />
         </label>
         <input id="email" name="email" type="email" required className="input" autoComplete="off" />
       </div>

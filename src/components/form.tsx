@@ -84,3 +84,12 @@ export function FormMessage({ state }: { state: ActionState }) {
   if (state.message) return <p className="text-sm text-muted">{state.message}</p>;
   return null;
 }
+
+/** The "*" after a required field's label. Screen readers skip it; the field's `required` already says so. */
+export function RequiredMark() {
+  return (
+    <span aria-hidden className="text-accent">
+      {" *"}
+    </span>
+  );
+}
