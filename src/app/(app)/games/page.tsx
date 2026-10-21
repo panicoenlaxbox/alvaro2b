@@ -140,7 +140,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
               </fieldset>
               <div className="flex flex-wrap gap-2">
                 <Check name="never" checked={filters.neverPlayed}>
-                  Nunca jugados
+                  Por estrenar
                 </Check>
                 <Check name="liked" checked={filters.iLikeIt}>
                   A mí me gustan
@@ -297,7 +297,7 @@ function GameCard({
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1 text-sm text-muted">
           <OwnerFaces owners={owners} size={28} />
           <span className="ml-auto">
-            {game.playCount === 0 ? "Nunca jugado" : `${game.playCount} ${game.playCount === 1 ? "partida" : "partidas"} · ${formatShortDate(game.lastPlayed!)}`}
+            {game.playCount === 0 ? "Por estrenar" : `${game.playCount} ${game.playCount === 1 ? "partida" : "partidas"} · ${formatShortDate(game.lastPlayed!)}`}
           </span>
         </div>
       </div>

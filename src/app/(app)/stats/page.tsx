@@ -172,7 +172,7 @@ function GroupView({
       />
       <section className="card space-y-2">
         <h2>La vergüenza de la estantería</h2>
-        <p className="text-xs text-muted">Juegos del catálogo a los que nunca hemos jugado.</p>
+        <p className="text-xs text-muted">Juegos del catálogo por estrenar.</p>
         {stats.neverPlayed.length === 0 ? (
           <p className="text-sm text-muted">¡Ninguno! Hemos jugado a todo.</p>
         ) : (
