@@ -1,3 +1,6 @@
+/** Longest Photo caption; the form input uses it too. */
+export const PHOTO_CAPTION_MAX = 500;
+
 type SessionRef = { id: string; date: string };
 
 /**

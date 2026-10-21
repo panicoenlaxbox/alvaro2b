@@ -2,15 +2,20 @@
 
 import { PlayerFace } from "@/components/player-face";
 
-/** Checkbox faces to pick Players; Members first, then Guests. Deactivated Members only show if already picked. */
+/**
+ * Checkbox faces to pick Players; Members first, then Guests. Deactivated Members only show if already picked.
+ * Players in `maybe` (Attendees who might come) carry a "?".
+ */
 export function PlayerPicker({
   name,
   players,
   selected = [],
+  maybe = [],
 }: {
   name: string;
   players: { id: string; display_name: string; is_member: boolean; avatar_url?: string | null; active?: boolean }[];
   selected?: string[];
+  maybe?: string[];
 }) {
   const sorted = players
     .filter((p) => p.active !== false || selected.includes(p.id))
@@ -24,6 +29,7 @@ export function PlayerPicker({
             name={p.display_name}
             avatarUrl={p.avatar_url ?? null}
             isMember={p.is_member}
+            maybe={maybe.includes(p.id)}
             faceClassName="opacity-50 ring-transparent grayscale peer-checked:opacity-100 peer-checked:ring-accent peer-checked:grayscale-0 peer-focus-visible:ring-foreground"
             nameClassName="text-muted peer-checked:font-semibold peer-checked:text-accent"
           />

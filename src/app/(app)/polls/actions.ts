@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
-import { localDateTimeToIso } from "@/lib/domain/poll";
+import { latestDeadline, localDateTimeToIso } from "@/lib/domain/poll";
+import { formatSessionTime } from "@/lib/domain/session";
 import { createClient } from "@/lib/supabase/server";
 
 function revalidatePoll(pollId: string, sessionId?: string) {
@@ -21,14 +22,20 @@ export async function openPoll(_prev: ActionState, formData: FormData): Promise<
   if (closesAt && Date.parse(closesAt) <= Date.now()) return { error: "La fecha límite tiene que ser futura." };
 
   const supabase = await createClient();
+  if (deadline) {
+    const { data: session } = await supabase.from("sessions").select("date, start_time").eq("id", sessionId).maybeSingle();
+    if (session && deadline > latestDeadline(session.date, formatSessionTime(session.start_time))) {
+      return { error: "La fecha límite no puede ser posterior a la sesión." };
+    }
+  }
   const { data, error } = await supabase
     .from("polls")
-    .insert({ session_id: sessionId, allow_veto: formData.get("allow_veto") === "on", closes_at: closesAt })
+    .insert({ session_id: sessionId, closes_at: closesAt })
     .select("id")
     .single();
   if (error) {
     if (error.code === "23505") return { error: "Esta sesión ya tiene votación." };
-    if (error.code === "42501") return { error: "Solo se puede abrir una votación en una sesión planificada." };
+    if (error.code === "42501") return { error: "Solo se puede abrir una votación en una sesión de hoy o futura." };
     return { error: errorMessage(error) };
   }
 
@@ -62,7 +69,7 @@ export async function withdrawCandidate(_prev: ActionState, formData: FormData):
   const supabase = await createClient();
   const { error, count } = await supabase.from("candidates").delete({ count: "exact" }).eq("id", id);
   if (error) return { error: errorMessage(error) };
-  if (!count) return { error: "Solo quien lo propuso o quien abrió la votación pueden quitarlo, y solo mientras está abierta." };
+  if (!count) return { error: "Solo se puede quitar mientras la votación está abierta." };
 
   revalidatePoll(pollId);
   return { ok: true };
@@ -84,21 +91,6 @@ export async function toggleApproval(_prev: ActionState, formData: FormData): Pr
   return { ok: true };
 }
 
-export async function setVeto(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const member = await requireMember();
-  const pollId = String(formData.get("poll_id"));
-  const candidateId = String(formData.get("candidate_id") ?? "");
-
-  const supabase = await createClient();
-  const { error } = candidateId
-    ? await supabase.from("vetoes").upsert({ poll_id: pollId, player_id: member.playerId, candidate_id: candidateId })
-    : await supabase.from("vetoes").delete().eq("poll_id", pollId).eq("player_id", member.playerId);
-  if (error) return { error: error.code === "42501" ? "La votación está cerrada o no admite vetos." : errorMessage(error) };
-
-  revalidatePoll(pollId);
-  return { ok: true };
-}
-
 export async function closePoll(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireMember();
   const pollId = String(formData.get("poll_id"));
@@ -111,7 +103,7 @@ export async function closePoll(_prev: ActionState, formData: FormData): Promise
     .select("session_id")
     .maybeSingle();
   if (error) return { error: errorMessage(error) };
-  if (!data) return { error: "Solo quien abrió la votación puede cerrarla." };
+  if (!data) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
 
   revalidatePoll(pollId, data.session_id);
   return { ok: true };
@@ -126,7 +118,7 @@ export async function toggleChosen(_prev: ActionState, formData: FormData): Prom
   const supabase = await createClient();
   const { data, error } = await supabase.from("candidates").update({ chosen }).eq("id", candidateId).select("id").maybeSingle();
   if (error) return { error: errorMessage(error) };
-  if (!data) return { error: "Solo quien abrió la votación decide los empates." };
+  if (!data) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
 
   revalidatePoll(pollId);
   return { ok: true };

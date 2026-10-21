@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { bggEnabled, bggGameUrl } from "@/lib/bgg/client";
+import { bggEnabled } from "@/lib/bgg/client";
+import { PoweredByBgg } from "@/components/powered-by-bgg";
 import { BggInfo } from "@/components/bgg-info";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { listMembers } from "@/lib/data/players";
-import { durationText, PLAY_MODE_LABELS, playersText } from "@/lib/domain/game-form";
+import { bggPageUrl, durationText, PLAY_MODE_LABELS, playersText } from "@/lib/domain/game-form";
 import { starsText, summarizeRatings } from "@/lib/domain/ratings";
 import { ATTACHMENTS_BUCKET, coverUrl, signedUrls } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
@@ -45,23 +46,20 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
     signedUrls((attachments ?? []).map((a) => a.path), ATTACHMENTS_BUCKET),
   ]);
   const attachmentItems: AttachmentItem[] = (attachments ?? []).map((a) => {
-    const canDelete = member.isAdmin || a.created_by === member.userId;
     return a.kind === "link"
-      ? { id: a.id, kind: "link", url: a.url!, canDelete }
-      : { id: a.id, kind: "file", url: attachmentUrls.get(a.path!) ?? null, fileName: a.file_name!, sizeBytes: a.size_bytes!, canDelete };
+      ? { id: a.id, kind: "link", url: a.url! }
+      : { id: a.id, kind: "file", url: attachmentUrls.get(a.path!) ?? null, fileName: a.file_name!, sizeBytes: a.size_bytes! };
   });
   const names = new Map(members.map((m) => [m.id, m.display_name]));
   const avatars = new Map(members.map((m) => [m.id, m.avatar_url]));
   const ratings = summarizeRatings(game.ratings.map((r) => ({ playerId: r.player_id, stars: r.stars })), names);
   const myStars = game.ratings.find((r) => r.player_id === member.playerId)?.stars ?? 0;
-  const canDelete = member.isAdmin || game.created_by === member.userId;
   const owners = toOwners(game.game_owners);
 
   const stats = [
     { label: "Jugadores", value: playersText(game.min_players, game.max_players)?.replace(" jugadores", "") },
     { label: "Duración", value: durationText(game.min_duration, game.max_duration) },
     { label: "Complejidad", value: game.complexity !== null ? `${Number(game.complexity).toLocaleString("es-ES")}/5` : null },
-    { label: "Año", value: game.year ? String(game.year) : null },
   ].filter((f) => f.value);
 
   return (
@@ -76,7 +74,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
           </div>
           <h1 className="text-3xl break-words sm:text-5xl">{game.name}</h1>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-soft">
-            <OwnerFaces owners={owners} withNames />
+            <OwnerFaces owners={owners} withNames on="background" />
             {ratings.average !== null && (
               <span>
                 <span className="font-bold text-accent">★ {ratings.average.toLocaleString("es-ES")}</span> <span className="text-muted">({ratings.count})</span>
@@ -91,7 +89,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
               Editar
             </Link>
             <RetireGameButton gameId={game.id} retired={game.retired_at !== null} />
-            {canDelete && <DeleteGameButton gameId={game.id} />}
+            <DeleteGameButton gameId={game.id} />
           </div>
         </div>
       </section>
@@ -117,9 +115,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
                 <BggInfo bggId={game.bgg_id} />
               </Suspense>
             ) : (
-              <a href={bggGameUrl(game.bgg_id)} target="_blank" rel="noreferrer" className="block text-sm underline">
-                Ver en BoardGameGeek
-              </a>
+              <PoweredByBgg href={bggPageUrl(game.bgg_id)} label="Ver en BoardGameGeek" />
             ))}
 
           <section className="card space-y-3">
@@ -130,7 +126,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
                 {ratings.breakdown.map((r) => (
                   <li key={r.playerId} className="flex items-center justify-between gap-2">
                     <span className="flex min-w-0 items-center gap-2">
-                      <Avatar name={r.name} url={avatars.get(r.playerId) ?? null} size={24} />
+                      <Avatar name={r.name} url={avatars.get(r.playerId) ?? null} />
                       <span className="truncate">{r.name}</span>
                     </span>
                     <span className="text-accent" aria-label={`${r.stars} estrellas`}>
@@ -152,7 +148,6 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
                 name: e.name,
                 retired: e.retired_at !== null,
                 owners: toOwners(e.expansion_owners),
-                canDelete: member.isAdmin || e.created_by === member.userId,
               }))}
             />
           </section>

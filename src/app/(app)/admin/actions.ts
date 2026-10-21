@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
+import { PLAYER_NAME_MAX } from "@/lib/domain/players";
 import { createClient } from "@/lib/supabase/server";
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -76,7 +77,7 @@ const TAKEN_GUEST_NAME = "Ya hay un invitado con ese nombre.";
 
 function nameFrom(formData: FormData): string | null {
   const name = String(formData.get("display_name") ?? "").trim();
-  return name.length >= 1 && name.length <= 60 ? name : null;
+  return name.length >= 1 && name.length <= PLAYER_NAME_MAX ? name : null;
 }
 
 export async function addGuest(_prev: ActionState, formData: FormData): Promise<ActionState> {

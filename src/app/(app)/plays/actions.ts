@@ -50,10 +50,7 @@ export async function savePlay(json: string, start = false): Promise<ActionState
   const { data: playId, error } = await supabase.rpc("save_play", {
     play: toSavePlayPayload(input, game.lower_score_wins) as unknown as Json,
   });
-  if (error) {
-    if (error.message === "Cannot add Plays to a cancelled Session") return { error: "La sesión está cancelada." };
-    return { error: errorMessage(error) };
-  }
+  if (error) return { error: errorMessage(error) };
 
   revalidatePlay(input.sessionId, playId);
   redirect(`/plays/${playId}`, RedirectType.replace);
@@ -88,7 +85,7 @@ export async function deletePlay(_prev: ActionState, formData: FormData): Promis
   const { data: play } = await supabase.from("plays").select("session_id").eq("id", id).maybeSingle();
   const { error, count } = await supabase.from("plays").delete({ count: "exact" }).eq("id", id);
   if (error) return { error: errorMessage(error) };
-  if (!count || !play) return { error: "Solo quien la registró o el Admin pueden eliminarla." };
+  if (!count || !play) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
 
   revalidatePlay(play.session_id);
   return { ok: true, leaveTo: `/sessions/${play.session_id}` };

@@ -14,7 +14,7 @@ export type StatsPlay = {
   teams: { id: string; won: boolean }[];
 };
 
-export type StatsSession = { id: string; date: string; status: "planned" | "held" | "cancelled"; attendees: string[] };
+export type StatsSession = { id: string; date: string; attendees: string[] };
 
 export type StatsGame = {
   id: string;
@@ -77,18 +77,20 @@ export type GroupStats = {
 };
 
 export function groupStats(sessions: StatsSession[], plays: StatsPlay[], games: StatsGame[], range: DateRange): GroupStats {
-  const held = sessions.filter((s) => s.status === "held" && inRange(s.date, range));
+  // A Session counts once it has a Play: Sessions have no status, and one never played adds nothing.
+  const playedIn = new Set(plays.map((p) => p.sessionId));
+  const played = sessions.filter((s) => playedIn.has(s.id) && inRange(s.date, range));
   const ranged = plays.filter((p) => inRange(p.date, range));
   const everPlayed = new Set(plays.map((p) => p.gameId));
   const minutes = ranged.reduce((sum, p) => sum + (p.durationMinutes ?? 0), 0);
 
   return {
-    sessions: held.length,
+    sessions: played.length,
     plays: ranged.length,
     hoursPlayed: Math.round((minutes / 60) * 10) / 10,
     mostPlayed: rankBy(ranged, (p) => [p.gameId], 10),
     neverPlayed: games.filter((g) => !g.retired && !everPlayed.has(g.id)).map((g) => g.id),
-    attendance: rankBy(held, (s) => s.attendees),
+    attendance: rankBy(played, (s) => s.attendees),
   };
 }
 

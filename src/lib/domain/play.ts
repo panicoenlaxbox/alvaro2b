@@ -82,6 +82,9 @@ export function winnersOf(play: {
 
 export type ValidationResult = { ok: true } | { ok: false; error: string };
 
+/** Limits of the Play fields; the form inputs use them too. */
+export const PLAY_LIMITS = { duration: { min: 1, max: 6000 }, notes: 4000, teamName: 60 } as const;
+
 /** Checks a Play before saving. Results are optional, but when present they must fit the mode. */
 export function validatePlay(play: PlayInput): ValidationResult {
   if (!play.gameId) return { ok: false, error: "Elige el juego." };
@@ -89,10 +92,11 @@ export function validatePlay(play: PlayInput): ValidationResult {
   if (new Set(play.participants.map((p) => p.playerId)).size !== play.participants.length) {
     return { ok: false, error: "Hay participantes repetidos." };
   }
-  if (play.durationMinutes !== null && (!Number.isInteger(play.durationMinutes) || play.durationMinutes < 1 || play.durationMinutes > 6000)) {
-    return { ok: false, error: "La duración debe estar entre 1 y 6000 minutos." };
+  const { min, max } = PLAY_LIMITS.duration;
+  if (play.durationMinutes !== null && (!Number.isInteger(play.durationMinutes) || play.durationMinutes < min || play.durationMinutes > max)) {
+    return { ok: false, error: `La duración debe estar entre ${min} y ${max} minutos.` };
   }
-  if (play.notes !== null && play.notes.length > 4000) return { ok: false, error: "Las notas son demasiado largas." };
+  if (play.notes !== null && play.notes.length > PLAY_LIMITS.notes) return { ok: false, error: "Las notas son demasiado largas." };
 
   const n = play.participants.length;
   switch (play.mode) {
@@ -114,7 +118,7 @@ export function validatePlay(play: PlayInput): ValidationResult {
       if (play.coopWon !== null) return { ok: false, error: "Resultado no válido para una partida por equipos." };
       if (play.teams.length < 2) return { ok: false, error: "Una partida por equipos necesita al menos dos equipos." };
       const keys = new Set(play.teams.map((t) => t.key));
-      if (play.teams.some((t) => !t.name.trim() || t.name.length > 60)) return { ok: false, error: "Pon nombre a cada equipo." };
+      if (play.teams.some((t) => !t.name.trim() || t.name.length > PLAY_LIMITS.teamName)) return { ok: false, error: "Pon nombre a cada equipo." };
       if (play.participants.some((p) => p.teamKey === null || !keys.has(p.teamKey))) {
         return { ok: false, error: "Cada participante tiene que estar en un equipo." };
       }

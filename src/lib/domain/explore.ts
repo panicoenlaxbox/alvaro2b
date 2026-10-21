@@ -9,13 +9,11 @@ export type ExplorableGame = {
   maxDuration: number | null;
   complexity: number | null;
   mode: PlayMode;
-  ownerIds: string[];
   retired: boolean;
   playCount: number;
   /** YYYY-MM-DD of the last Session with a Play of this Game. */
   lastPlayed: string | null;
   averageRating: number | null;
-  myRating: number | null;
 };
 
 export type GameFilters = {
@@ -23,18 +21,18 @@ export type GameFilters = {
   players?: number;
   /** Fits in this many minutes. */
   maxMinutes?: number;
-  minComplexity?: number;
-  maxComplexity?: number;
   mode?: PlayMode;
-  /** Owned by any of these Players. */
-  ownerIds?: string[];
-  /** Not played in the last N days (never played counts). */
-  notPlayedForDays?: number;
   neverPlayed?: boolean;
   minRating?: number;
-  /** Games the current Member rated 4 or 5 stars. */
-  iLikeIt?: boolean;
 };
+
+/** Accepted range of each numeric filter and the longest name searched; the filter inputs use them too. */
+export const FILTER_LIMITS = {
+  query: 100,
+  players: { min: 1, max: 100 },
+  minutes: { min: 1, max: 6000 },
+  rating: { min: 1, max: 5 },
+} as const;
 
 export const SORTS = ["name", "rating", "most-played", "least-recent", "complexity", "duration"] as const;
 export type GameSort = (typeof SORTS)[number];
@@ -48,17 +46,11 @@ export const SORT_LABELS: Record<GameSort, string> = {
   duration: "Duración",
 };
 
-export const LIKED_STARS = 4;
-
-function daysBetween(from: string, to: string): number {
-  return Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000);
-}
-
 /**
  * Applies the Catalog filters (PRD 3). Retired games never appear. When a filter is active and the
  * Game lacks that data (for example, no player count), the Game is left out.
  */
-export function filterGames<T extends ExplorableGame>(games: T[], f: GameFilters, today: string): T[] {
+export function filterGames<T extends ExplorableGame>(games: T[], f: GameFilters): T[] {
   const query = f.query?.trim().toLocaleLowerCase("es");
   return games.filter((g) => {
     if (g.retired) return false;
@@ -71,16 +63,9 @@ export function filterGames<T extends ExplorableGame>(games: T[], f: GameFilters
       const shortest = g.minDuration ?? g.maxDuration;
       if (shortest === null || shortest > f.maxMinutes) return false;
     }
-    if (f.minComplexity !== undefined && (g.complexity === null || g.complexity < f.minComplexity)) return false;
-    if (f.maxComplexity !== undefined && (g.complexity === null || g.complexity > f.maxComplexity)) return false;
     if (f.mode && g.mode !== f.mode) return false;
-    if (f.ownerIds && !g.ownerIds.some((id) => f.ownerIds!.includes(id))) return false;
     if (f.neverPlayed && g.playCount > 0) return false;
-    if (f.notPlayedForDays !== undefined && g.lastPlayed !== null && daysBetween(g.lastPlayed, today) < f.notPlayedForDays) {
-      return false;
-    }
     if (f.minRating !== undefined && (g.averageRating === null || g.averageRating < f.minRating)) return false;
-    if (f.iLikeIt && (g.myRating === null || g.myRating < LIKED_STARS)) return false;
     return true;
   });
 }
@@ -136,31 +121,21 @@ export function parseFilters(params: Record<string, string | string[] | undefine
   };
   const mode = one("mode");
   const sort = one("sort");
-  const owners = params.owner;
   return {
     sort: SORTS.includes(sort as GameSort) ? (sort as GameSort) : "name",
     filters: {
-      query: one("q")?.slice(0, 100) || undefined,
-      players: positive(one("players"), 100),
-      maxMinutes: positive(one("minutes"), 6000),
-      minComplexity: positive(one("cmin"), 5, true),
-      maxComplexity: positive(one("cmax"), 5, true),
+      query: one("q")?.slice(0, FILTER_LIMITS.query) || undefined,
+      players: positive(one("players"), FILTER_LIMITS.players.max),
+      maxMinutes: positive(one("minutes"), FILTER_LIMITS.minutes.max),
       mode: mode === "competitive" || mode === "cooperative" || mode === "team" ? mode : undefined,
-      ownerIds: owners ? (Array.isArray(owners) ? owners : [owners]).filter(Boolean) : undefined,
-      notPlayedForDays: positive(one("since"), 36500),
       neverPlayed: one("never") === "1" || undefined,
-      minRating: positive(one("rating"), 5, true),
-      iLikeIt: one("liked") === "1" || undefined,
+      minRating: positive(one("rating"), FILTER_LIMITS.rating.max, true),
     },
   };
 }
 
-/**
- * The query string for a filters form: empty fields and the default sort are left out, so the URL
- * only shows what is filtered. Fields in `keepEmpty` stay even when empty (a Session's "players="
- * means "any number", not "as many as the Attendees").
- */
-export function filterQuery(entries: [string, string][], keepEmpty: string[] = []): string {
-  const kept = entries.filter(([key, value]) => (value !== "" || keepEmpty.includes(key)) && !(key === "sort" && value === "name"));
+/** The query string for a filters form: empty fields and the default sort are left out, so the URL only shows what is filtered. */
+export function filterQuery(entries: [string, string][]): string {
+  const kept = entries.filter(([key, value]) => value !== "" && !(key === "sort" && value === "name"));
   return new URLSearchParams(kept).toString();
 }

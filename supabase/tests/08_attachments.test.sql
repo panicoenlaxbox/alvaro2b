@@ -1,7 +1,7 @@
--- Game attachments: files and links, added by any Member, deleted by their author or the Admin.
+-- Game attachments: files and links, added and deleted by any Member.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(10);
+select plan(7);
 
 create function pg_temp.act_as(user_id uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', user_id, 'role', 'authenticated')::text, true);
@@ -20,12 +20,8 @@ select pg_temp.act_as('33333333-3333-4333-8333-333333333333'); -- Carla
 set local storage.allow_delete_query = 'true';
 delete from storage.objects where bucket_id = 'attachments';
 select is(
-  (select count(*)::int from storage.objects where bucket_id = 'attachments' and name like '%kept.pdf'), 1,
-  'another Member cannot delete an attached file'
-);
-select is(
-  (select count(*)::int from storage.objects where bucket_id = 'attachments' and name like '%orphan.pdf'), 0,
-  'any Member cleans up an orphaned file'
+  (select count(*)::int from storage.objects where bucket_id = 'attachments'), 0,
+  'any Member deletes attached and orphaned files'
 );
 
 select pg_temp.act_as('22222222-2222-4222-8222-222222222222'); -- Bruno
@@ -55,16 +51,11 @@ select is(
   (select count(*)::int from public.game_attachments where game_id = 'a0000000-0000-4000-8000-000000000004'),
   3, 'Members see every attachment'
 );
-delete from public.game_attachments where kind = 'link';
-select is((select count(*)::int from public.game_attachments where kind = 'link'), 1, 'another Member cannot delete it');
-
-select pg_temp.act_as('22222222-2222-4222-8222-222222222222');
-delete from public.game_attachments where kind = 'link';
-select is((select count(*)::int from public.game_attachments where kind = 'link'), 0, 'the author deletes it');
-
-select pg_temp.act_as('11111111-1111-4111-8111-111111111111'); -- Ana, Admin
-delete from public.game_attachments where kind = 'file';
-select is((select count(*)::int from public.game_attachments), 0, 'the Admin deletes any attachment');
+delete from public.game_attachments where game_id = 'a0000000-0000-4000-8000-000000000004';
+select is(
+  (select count(*)::int from public.game_attachments where game_id = 'a0000000-0000-4000-8000-000000000004'),
+  0, 'another Member deletes them'
+);
 
 select * from finish();
 rollback;

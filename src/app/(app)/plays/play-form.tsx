@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { PLAY_MODE_LABELS, PLAY_MODES, type PlayMode } from "@/lib/domain/game-form";
-import type { ParticipantInput, PlayInput, TeamInput } from "@/lib/domain/play";
+import { PLAY_LIMITS, type ParticipantInput, type PlayInput, type TeamInput } from "@/lib/domain/play";
 import type { PlayFormGame } from "@/lib/data/play-form";
 import { RequiredMark } from "@/components/form";
 import { FACE_OFF, FACE_ON, NAME_OFF, NAME_ON, PlayerFace } from "@/components/player-face";
@@ -279,7 +279,7 @@ export function PlayForm({
                 <input
                   aria-label={`Nombre del equipo ${i + 1}`}
                   value={t.name}
-                  maxLength={60}
+                  maxLength={PLAY_LIMITS.teamName}
                   onChange={(e) => setTeams((ts) => ts.map((x) => (x.key === t.key ? { ...x, name: e.target.value } : x)))}
                   className="input"
                 />
@@ -347,7 +347,9 @@ export function PlayForm({
         </label>
         <input
           id="duration"
+          type="number"
           inputMode="numeric"
+          {...PLAY_LIMITS.duration}
           value={duration}
           onChange={(e) => setDuration(e.target.value)}
           className="input"
@@ -358,7 +360,7 @@ export function PlayForm({
         <label htmlFor="notes" className="label">
           Notas
         </label>
-        <textarea id="notes" rows={3} maxLength={4000} value={notes} onChange={(e) => setNotes(e.target.value)} className="input" />
+        <textarea id="notes" rows={3} maxLength={PLAY_LIMITS.notes} value={notes} onChange={(e) => setNotes(e.target.value)} className="input" />
       </div>
 
       {error && (

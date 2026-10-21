@@ -114,7 +114,7 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
             Buscar
           </button>
           {q && (
-            <Link href={clearHref} scroll={false} className="flex min-h-11 items-center text-sm text-muted underline">
+            <Link href={clearHref} scroll={false} className="btn-secondary">
               Limpiar
             </Link>
           )}

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
-import { parseGameForm, parseOwnerIds, type GameFormValues } from "@/lib/domain/game-form";
+import { GAME_TEXT_LIMITS, parseGameForm, parseOwnerIds, type GameFormValues } from "@/lib/domain/game-form";
 import { ATTACHMENTS_BUCKET, MEDIA_BUCKET } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 
@@ -87,7 +87,7 @@ export async function deleteGame(_prev: ActionState, formData: FormData): Promis
   if (error) {
     return { error: error.code === "23503" ? "No se puede eliminar un juego con partidas. Retíralo en su lugar." : errorMessage(error) };
   }
-  if (!count) return { error: "Solo quien lo añadió o el Admin pueden eliminarlo." };
+  if (!count) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
   if (game?.cover_path) await supabase.storage.from(MEDIA_BUCKET).remove([game.cover_path]);
   const files = (game?.game_attachments ?? []).flatMap((a) => (a.path ? [a.path] : []));
   if (files.length) await supabase.storage.from(ATTACHMENTS_BUCKET).remove(files);
@@ -135,7 +135,7 @@ export async function addExpansion(_prev: ActionState, formData: FormData): Prom
   const gameId = String(formData.get("game_id"));
   const name = String(formData.get("name") ?? "").trim();
   const ownerIds = parseOwnerIds(formData.getAll("owner_id"));
-  if (name.length < 1 || name.length > 120) return { error: "Escribe el nombre de la expansión." };
+  if (name.length < 1 || name.length > GAME_TEXT_LIMITS.name) return { error: "Escribe el nombre de la expansión." };
 
   const supabase = await createClient();
   const { data, error } = await supabase.from("expansions").insert({ game_id: gameId, name }).select("id").single();
@@ -176,7 +176,7 @@ export async function deleteExpansion(_prev: ActionState, formData: FormData): P
   const supabase = await createClient();
   const { error, count } = await supabase.from("expansions").delete({ count: "exact" }).eq("id", id);
   if (error) return { error: error.code === "23503" ? "Se usó en alguna partida. Retírala en su lugar." : errorMessage(error) };
-  if (!count) return { error: "Solo quien la añadió o el Admin pueden eliminarla." };
+  if (!count) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
 
   revalidatePath(`/games/${gameId}`);
   return { ok: true };

@@ -13,38 +13,29 @@ export type CandidateTally = {
   gameId: string;
   name: string;
   approvals: string[];
-  vetoes: string[];
   chosen: boolean;
 };
 
-export type RankedCandidate = CandidateTally & { position: number; vetoed: boolean; leading: boolean };
+export type RankedCandidate = CandidateTally & { position: number; leading: boolean };
 
 /**
- * Orientative ranking (PRD 6): most Approvals first, ties share a position, vetoed Candidates go
- * last. Every non-vetoed Candidate with the top count is "leading" (there can be several winners,
- * since an evening has room for several Games); the creator breaks ties by marking them chosen.
+ * Orientative ranking (PRD 6): most Approvals first, ties share a position. Every Candidate with the
+ * top count is "leading" (there can be several winners, since an evening has room for several Games);
+ * any Member breaks ties by marking them chosen.
  */
 export function rankCandidates(candidates: CandidateTally[]): RankedCandidate[] {
-  const sorted = [...candidates].sort((a, b) => {
-    const av = a.vetoes.length > 0;
-    const bv = b.vetoes.length > 0;
-    if (av !== bv) return av ? 1 : -1;
-    return b.approvals.length - a.approvals.length || a.name.localeCompare(b.name, "es");
-  });
-
-  const top = Math.max(0, ...sorted.filter((c) => c.vetoes.length === 0).map((c) => c.approvals.length));
+  const sorted = [...candidates].sort((a, b) => b.approvals.length - a.approvals.length || a.name.localeCompare(b.name, "es"));
+  const top = Math.max(0, ...sorted.map((c) => c.approvals.length));
   const ranked: RankedCandidate[] = [];
   sorted.forEach((c, i) => {
     const prev = ranked[i - 1];
-    const vetoed = c.vetoes.length > 0;
-    const position =
-      prev && prev.vetoed === vetoed && prev.approvals.length === c.approvals.length ? prev.position : i + 1;
-    ranked.push({ ...c, position, vetoed, leading: !vetoed && top > 0 && c.approvals.length === top });
+    const position = prev && prev.approvals.length === c.approvals.length ? prev.position : i + 1;
+    ranked.push({ ...c, position, leading: top > 0 && c.approvals.length === top });
   });
   return ranked;
 }
 
-/** Whether the creator still has to break a tie among the leaders. */
+/** Whether someone still has to break a tie among the leaders. */
 export function needsTieBreak(ranked: RankedCandidate[]): boolean {
   return ranked.filter((c) => c.leading).length > 1 && !ranked.some((c) => c.chosen);
 }
@@ -76,6 +67,14 @@ export function localDateTimeToIso(value: string): string | null {
   let instant = naive - zoneOffsetMinutes(new Date(naive)) * 60000;
   instant = naive - zoneOffsetMinutes(new Date(instant)) * 60000;
   return new Date(instant).toISOString();
+}
+
+/**
+ * The latest deadline a Poll can have, as a local "YYYY-MM-DDTHH:MM": when its Session starts, or the end
+ * of the Session's day when it has no time. The same format as the deadline input, so they compare as text.
+ */
+export function latestDeadline(sessionDate: string, startTime: string | null): string {
+  return `${sessionDate}T${startTime ?? "23:59"}`;
 }
 
 /** "viernes 23 oct, 20:00" in the group's time zone. */

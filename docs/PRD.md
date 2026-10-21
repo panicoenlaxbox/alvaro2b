@@ -44,29 +44,30 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - No vota en los Polls ni da Ratings.
   - Puede convertirse en Member enlazando una cuenta, y conserva su historial.
 - **Permisos**:
-  - Cualquier Member puede crear y editar todo: Sessions, Plays, Games, Polls y Photos.
-  - Solo el autor o el Admin pueden eliminar.
+  - Cualquier Member puede crear, editar y eliminar todo: Sessions, Plays, Games, Expansions, ficheros, Polls y Photos. También cerrar un Poll, decidir sus empates y quitar Candidates.
+  - Solo el Admin gestiona quién entra y los Players (Members y Guests).
+  - Lo personal es de cada uno: su Rating, su voto y su respuesta a "¿Vienes?".
 
 ## Funcionalidades
 
 ### 1. Catalog
 
 - **Game**. Campos propios, todos editables:
-  - nombre, año;
+  - nombre y año (el año no se muestra en la ficha);
   - mínimo y máximo de jugadores, duración mínima y máxima;
   - complejidad (1–5);
   - Play mode por defecto;
   - "puntuación menor es mejor";
-  - id de BGG (opcional);
+  - página en BGG (opcional): se pega la dirección de la ficha y se guarda su id;
   - Owners (opcional): uno o varios, porque a veces un Game se compra entre varios;
   - notas.
 - **Juegos sin Owner.** Se puede registrar un Game sin Owner, por ejemplo uno prestado o jugado en un bar.
 - **Expansion**. Va vinculada a su Game base y, como el Game, puede tener uno o varios Owners. No cambia los filtros de jugadores ni de duración.
 - **Retired game**.
-  - Un Game que ya no tenemos se retira: desaparece de la exploración y de las Suggestions, pero conserva su historial.
+  - Un Game que ya no tenemos se retira: desaparece de la exploración y de los Polls, pero conserva su historial.
   - Solo se puede eliminar un Game que no tenga Plays.
 - **Carátula**. La imagen enlazada de BGG, o una imagen propia subida por nosotros que la sustituye.
-- **Ficheros y enlaces**. Cualquier Member puede adjuntar a un Game ficheros (un FAQ en PDF, una ayuda de juego: PDF, imagen, texto o documento, hasta 20 MB) y enlaces (una herramienta online), sin descripción. Solo el autor o el Admin pueden eliminarlos.
+- **Ficheros y enlaces**. Cualquier Member puede adjuntar a un Game ficheros (un FAQ en PDF, una ayuda de juego: PDF, imagen, texto o documento, hasta 20 MB) y enlaces (una herramienta online), sin descripción. Cualquier Member puede eliminarlos.
 - **Rating**.
   - Cada Member puede dar de 1 a 5 estrellas a cada Game y cambiarlas cuando quiera.
   - Se muestra la media y el desglose por Member ("Juanito ★★★").
@@ -84,28 +85,19 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 
 ### 3. Exploración del Catalog
 
-- **Filtros**:
-  - número de jugadores y duración;
-  - complejidad y Play mode;
-  - Owner;
-  - "no jugado desde hace X" y "nunca jugado";
-  - Rating medio ≥ X y "a mí me gusta".
-- **Ordenación**, entre otros criterios, por Rating.
+- **Búsqueda**, sobria, con "Buscar" y "Limpiar": nombre, Play mode, Rating medio mínimo (con estrellas) y "Por estrenar".
+- **Ordenación** de los resultados, encima de la lista, entre otros criterios por Rating.
 - **"¿A qué jugamos hoy?" en Inicio**: tres preguntas rápidas (cuántos somos, cuánto tiempo tenemos, cooperativo o competitivo) y el botón **"¡Tira el dado!"**, que elige al azar un Game de los que encajan, con unos segundos de suspense en los que van pasando nombres y frases. El resultado sale en la misma Inicio. El Catalog no tiene dado.
-- **Con una Session planificada**: los filtros pueden partir de sus Attendees, por ejemplo "juegos para 5" o "juegos con algún Owner que viene".
 
 ### 4. Sessions
 
-- **Datos**: fecha, nombre (opcional, por ejemplo "Sábado de mazmorreo", se muestra junto a la fecha), lugar (opcional), Attendees, notas y Photos.
-- **Ciclo de vida**:
-  - Con fecha pasada, la Session nace **celebrada**: se está registrando algo que ya ocurrió.
-  - Con fecha de hoy o futura, nace **planificada**. Es un paso opcional: muchas veces quedamos y se registra todo directamente, y la primera Play la pasa a celebrada.
-  - De planificada se pasa a celebrada a mano ("¡Empezamos!") o al registrar la primera Play.
-  - Una planificada puede **cancelarse**. Una celebrada no.
-  - Si una planificada queda en el pasado sin Plays, aparece como **pendiente de cerrar** para que alguien la registre o la cancele. No se elimina sola.
-- **RSVP**. En una planificada, los Members confirman si asistirán.
-- **Compartir**. Un botón "Compartir por WhatsApp" genera el enlace de la Session o de su Poll.
-- **Listado**. Primero las pendientes de cerrar, luego las próximas y después las celebradas, de la más reciente a la más antigua y de 10 en 10. Las canceladas van plegadas al final.
+- **Datos**: fecha, hora (opcional, en formato 24 horas), nombre (opcional, por ejemplo "Sábado de mazmorreo", se muestra junto a la fecha), lugar (opcional), Attendees, notas y Photos.
+- **Sin estados**. Una Session no tiene estado: es **próxima** si su fecha es hoy o futura y **pasada** si es anterior. Siempre admite Plays y Photos.
+- **Si no se celebra, se elimina.** No hay cancelación.
+- **Attendees**. Se eligen al crear o editar la Session. En el detalle solo se ven; quien "quizá" va lleva un "?" en su cara, también en las tarjetas.
+- **RSVP**. En una próxima, cualquier Member responde "Voy", "Quizá" o "No voy", esté o no entre los Attendees; la respuesta se guarda al momento en la lista de Attendees. Quien juega una Play deja de ser "quizá".
+- **Compartir**. Un botón con el logo de WhatsApp, en la cabecera junto a "Editar" y "Eliminar", genera el enlace de la Session o de su Poll.
+- **Listado**. Primero las próximas, de la más cercana a la más lejana, y después las pasadas, de la más reciente a la más antigua y de 10 en 10. Cada grupo muestra cuántas tiene y se puede plegar; las pasadas empiezan plegadas. Cada Session muestra cuándo es, dónde y quién va.
 
 ### 5. Plays
 
@@ -125,15 +117,13 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 
 ### 6. Polls
 
-- **Asociación**. Un Poll pertenece siempre a una Session planificada.
+- **Asociación**. Un Poll pertenece siempre a una Session próxima.
 - **Candidates**.
   - Cualquier Member puede añadir Candidates mientras el Poll está abierto.
-  - La aplicación muestra Suggestions del Catalog, filtradas por número de Attendees, duración y Rating. Una Suggestion solo pasa a ser Candidate si un Member la añade.
 - **Votación por aprobación**.
   - Cada Member marca todos los Candidates que le apetecen.
-  - El Veto (uno por Member) es opcional y se configura en cada Poll.
   - Los Guests no votan.
-- **Cierre**. El Poll se cierra en la fecha límite o a mano por su creador. El creador decide los empates.
+- **Cierre**. El Poll se cierra en la fecha límite, que no puede pasar del comienzo de la Session, o a mano por cualquier Member, que también decide los empates.
 - **Resultado**.
   - Es un ranking orientativo y no vinculante. Puede haber varios "ganadores", porque en una tarde se juega a varias cosas.
   - Las Plays no tienen que coincidir con el resultado.
@@ -151,10 +141,10 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 Todas son filtrables por año o rango de fechas. En los rankings, los Players llevan su avatar, y el número de Plays o Sessions lleva a ellas: directamente si es una, o desplegando la lista con sus fechas si son varias.
 
 - **Grupo**:
-  - Sessions y Plays totales, y horas jugadas.
+  - Sessions con al menos una Play, Plays totales y horas jugadas.
   - Games más jugados.
   - Games del Catalog nunca jugados ("la vergüenza de la estantería").
-  - Asistencia por Member.
+  - Asistencia por Member, contando las Sessions con al menos una Play.
 - **Player**:
   - Plays y victorias.
   - Porcentaje de victorias en Plays competitivas.

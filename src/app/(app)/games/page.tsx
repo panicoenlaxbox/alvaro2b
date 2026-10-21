@@ -2,74 +2,39 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireMember } from "@/lib/auth";
 import { listCatalogGames } from "@/lib/data/explore";
-import { listMembers } from "@/lib/data/players";
-import { filterGames, parseFilters, SORT_LABELS, SORTS, sortGames } from "@/lib/domain/explore";
-import { durationText, playersText, type PlayMode } from "@/lib/domain/game-form";
-import { formatSessionDate, formatShortDate, todayIso } from "@/lib/domain/session";
+import { FILTER_LIMITS, filterGames, parseFilters, SORT_LABELS, SORTS, sortGames } from "@/lib/domain/explore";
+import { durationText, PLAY_MODE_LABELS, PLAY_MODES, playersText, type PlayMode } from "@/lib/domain/game-form";
+import { formatShortDate } from "@/lib/domain/session";
 import { coverUrl, signedUrls } from "@/lib/storage";
-import { createClient } from "@/lib/supabase/server";
-import { AutoSubmitForm } from "@/components/auto-submit-form";
+import { FilterForm } from "@/components/auto-submit-form";
 import { OwnerFaces } from "@/components/owners";
-import { PlayerPicker } from "@/components/player-picker";
+import { SortSelect } from "@/components/sort-select";
+import { StarFilter } from "@/components/star-filter";
+import { CHIP } from "@/components/game-choices";
 import type { Owner } from "@/lib/data/explore";
 import { tint } from "@/components/tint";
-import { CHIP, ChoiceGroup, MINUTE_CHOICES, MODE_CHOICES, PLAYER_CHOICES } from "@/components/game-choices";
 
 export const metadata: Metadata = { title: "Juegos" };
 
 export default async function GamesPage({ searchParams }: PageProps<"/games">) {
-  const member = await requireMember();
+  await requireMember();
   const params = await searchParams;
-  const sessionId = typeof params.session === "string" ? params.session : null;
   const showRetired = params.retired === "1";
-  const supabase = await createClient();
+  const games = await listCatalogGames();
 
-  const [games, members, { data: session }] = await Promise.all([
-    listCatalogGames(member.playerId),
-    listMembers(),
-    sessionId
-      ? supabase.from("sessions").select("id, date, status, session_attendees(player_id)").eq("id", sessionId).maybeSingle()
-      : Promise.resolve({ data: null }),
-  ]);
-
-  // With a planned Session, filters start from its Attendees (PRD 3).
-  const attendeeIds = session?.session_attendees.map((a) => a.player_id) ?? [];
-  const { filters, sort } = parseFilters(params);
-  if (session && params.players === undefined && attendeeIds.length) filters.players = attendeeIds.length;
-  if (session && params.owners_coming === "1") filters.ownerIds = attendeeIds;
-
-  const today = todayIso();
+  // The Catalog searches by name, mode, Rating and never played; players and time are the Home's questions.
+  const parsed = parseFilters(params);
+  const { query, mode, minRating, neverPlayed } = parsed.filters;
+  const filters = { query, mode, minRating, neverPlayed };
+  const sort = parsed.sort;
   const results = showRetired
     ? sortGames(games.filter((g) => g.retired), "name")
-    : sortGames(filterGames(games, filters, today), sort);
+    : sortGames(filterGames(games, filters), sort);
   const signed = await signedUrls(results.map((g) => g.coverPath));
   const activeFilters = Object.values(filters).filter((v) => v !== undefined).length;
-  const moreFilters = [
-    filters.query,
-    filters.minComplexity,
-    filters.maxComplexity,
-    filters.minRating,
-    filters.notPlayedForDays,
-    filters.neverPlayed,
-    filters.iLikeIt,
-    filters.ownerIds,
-  ].filter((v) => v !== undefined).length;
-  const clearHref = session ? `/games?session=${session.id}&players=` : "/games";
 
   return (
     <div className="space-y-6">
-      {session && (
-        <p className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border-[3px] border-ink bg-teal px-4 py-3 text-ink shadow-hard">
-          <span className="font-display text-sm">Para la sesión</span>
-          <span className="font-medium first-letter:uppercase">
-            {formatSessionDate(session.date)}: {attendeeIds.length} asistentes
-          </span>
-          <Link href={`/sessions/${session.id}`} className="font-bold underline sm:ml-auto">
-            Volver a la sesión
-          </Link>
-        </p>
-      )}
-
       <section className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-2">
           <h1 className="text-4xl sm:text-5xl">{showRetired ? "Juegos retirados" : "Juegos"}</h1>
@@ -80,90 +45,49 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
       </section>
 
       {!showRetired && (
-        <AutoSubmitForm key={JSON.stringify(params)} action="/games" keepEmpty={session ? ["players"] : []} className="card space-y-5 p-4 sm:p-6" aria-label="Filtros">
-          {session && <input type="hidden" name="session" value={session.id} />}
-          <div className="flex flex-wrap gap-x-10 gap-y-5">
-            <ChoiceGroup legend="¿Cuántos somos?" name="players" current={filters.players?.toString() ?? ""} options={PLAYER_CHOICES} />
-            <ChoiceGroup legend="¿Cuánto tiempo tenemos?" name="minutes" current={filters.maxMinutes?.toString() ?? ""} options={MINUTE_CHOICES} />
-            <ChoiceGroup legend="¿Juntos o a muerte?" name="mode" current={filters.mode ?? ""} options={MODE_CHOICES} />
+        <FilterForm key={JSON.stringify(params)} action="/games" className="card space-y-4" aria-label="Filtros">
+          <input type="hidden" name="sort" value={sort} />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <label className="col-span-2">
+              <span className="label">Nombre</span>
+              <input name="q" maxLength={FILTER_LIMITS.query} defaultValue={filters.query ?? ""} className="input" />
+            </label>
+            <label>
+              <span className="label">Modo</span>
+              <select name="mode" defaultValue={filters.mode ?? ""} className="input">
+                <option value="">Todos</option>
+                {PLAY_MODES.map((m) => (
+                  <option key={m} value={m}>
+                    {PLAY_MODE_LABELS[m]}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
-
-          <details className="group" open={moreFilters > 0}>
-            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 font-display text-sm text-muted">
-              <span aria-hidden className="transition-transform group-open:rotate-90">
-                ▸
-              </span>
-              Más filtros{moreFilters ? ` (${moreFilters})` : ""}
-            </summary>
-            <div className="mt-3 space-y-4">
-              <input name="q" defaultValue={filters.query ?? ""} placeholder="Buscar por nombre" aria-label="Buscar por nombre" className="input" />
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <label>
-                  <span className="label">Complejidad mín.</span>
-                  <input name="cmin" type="number" step="0.1" min={1} max={5} defaultValue={filters.minComplexity ?? ""} className="input" />
-                </label>
-                <label>
-                  <span className="label">Complejidad máx.</span>
-                  <input name="cmax" type="number" step="0.1" min={1} max={5} defaultValue={filters.maxComplexity ?? ""} className="input" />
-                </label>
-                <label>
-                  <span className="label">Valoración ≥</span>
-                  <input name="rating" type="number" step="0.5" min={1} max={5} defaultValue={filters.minRating ?? ""} className="input" />
-                </label>
-                <label>
-                  <span className="label">Sin jugar (días)</span>
-                  <input name="since" type="number" min={1} defaultValue={filters.notPlayedForDays ?? ""} className="input" />
-                </label>
-              </div>
-              <fieldset>
-                <legend className="label">De quién es</legend>
-                <div className="flex flex-wrap gap-2">
-                  {session ? (
-                    <Check name="owners_coming" checked={params.owners_coming === "1"}>
-                      Solo juegos de alguien que viene
-                    </Check>
-                  ) : (
-                    <PlayerPicker name="owner" players={members} selected={filters.ownerIds} />
-                  )}
-                </div>
-              </fieldset>
-              <div className="flex flex-wrap gap-2">
-                <Check name="never" checked={filters.neverPlayed}>
-                  Por estrenar
-                </Check>
-                <Check name="liked" checked={filters.iLikeIt}>
-                  A mí me gustan
-                </Check>
-              </div>
-              <button type="submit" className="btn-primary">
-                Buscar
-              </button>
-            </div>
-          </details>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-dashed border-border pt-4">
-            <p className="text-lg">
-              <strong className="font-display text-2xl text-accent">{results.length}</strong> {results.length === 1 ? "juego encaja" : "juegos encajan"}
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="flex items-center gap-2 text-sm text-muted">
-                Orden
-                <select name="sort" defaultValue={sort} className="input w-auto py-1.5">
-                  {SORTS.map((s) => (
-                    <option key={s} value={s}>
-                      {SORT_LABELS[s]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {activeFilters > 0 && (
-                <Link href={clearHref} scroll={false} className="flex min-h-11 items-center text-sm text-muted underline">
-                  Limpiar
-                </Link>
-              )}
-            </div>
+          <fieldset>
+            <legend className="label">Valoración mínima</legend>
+            <StarFilter name="rating" stars={filters.minRating ?? 0} />
+          </fieldset>
+          <Check name="never" checked={filters.neverPlayed}>
+            Por estrenar
+          </Check>
+          <div className="flex flex-wrap gap-3">
+            <button type="submit" className="btn-primary">
+              Buscar
+            </button>
+            {activeFilters > 0 && (
+              <Link href="/games" scroll={false} className="btn-secondary">
+                Limpiar
+              </Link>
+            )}
           </div>
-        </AutoSubmitForm>
+        </FilterForm>
+      )}
+
+      {!showRetired && results.length > 1 && (
+        <div className="flex justify-end">
+          <SortSelect options={SORTS.map((s) => ({ value: s, label: SORT_LABELS[s] }))} current={sort} fallback="name" />
+        </div>
       )}
 
       {results.length > 0 ? (
@@ -196,16 +120,19 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
         </p>
       )}
 
-      <Link href={showRetired ? "/games" : "/games?retired=1"} className="block text-center text-sm text-muted underline">
-        {showRetired ? "Volver al catálogo" : "Ver juegos retirados"}
-      </Link>
+      <div className="flex justify-center">
+        <Link href={showRetired ? "/games" : "/games?retired=1"} className="btn-secondary">
+          {showRetired ? "Volver al catálogo" : "Ver juegos retirados"}
+        </Link>
+      </div>
     </div>
   );
 }
 
+/** A filter that is on or off, as a pill that turns yellow when on. */
 function Check({ name, checked, children }: { name: string; checked?: boolean; children: React.ReactNode }) {
   return (
-    <label>
+    <label className="inline-flex">
       <input type="checkbox" name={name} value="1" defaultChecked={checked} className="peer sr-only" />
       <span className={CHIP}>{children}</span>
     </label>
@@ -255,7 +182,7 @@ function GameCard({
         <h2 className="font-sans text-lg leading-snug font-bold">{game.name}</h2>
         {details && <p className="text-soft">{details}</p>}
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1 text-sm text-muted">
-          <OwnerFaces owners={owners} size={28} />
+          <OwnerFaces owners={owners} />
           <span className="ml-auto">
             {game.playCount === 0 ? "Por estrenar" : `${game.playCount} ${game.playCount === 1 ? "partida" : "partidas"} · ${formatShortDate(game.lastPlayed!)}`}
           </span>

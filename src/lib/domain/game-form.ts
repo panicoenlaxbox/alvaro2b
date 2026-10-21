@@ -26,6 +26,9 @@ export type GameFormValues = Partial<Record<keyof GameInput, Field>>;
 
 export type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
+/** Longest text each Game and Expansion field takes; the form inputs use it too. */
+export const GAME_TEXT_LIMITS = { name: 120, notes: 4000 } as const;
+
 /** Accepted range of each numeric Game field; the form's inputs use it too. */
 export const GAME_NUMBER_LIMITS = {
   year: { min: 1800, max: 2100 },
@@ -47,10 +50,29 @@ function optionalNumber(value: Field, label: string, min: number, max: number, d
   return decimals ? Math.round(n * 10) / 10 : n;
 }
 
+const BGG_PAGE = /^(?:https?:\/\/)?(?:www\.)?boardgamegeek\.com\/[a-z]+\/(\d+)(?:[/?#].*)?$/i;
+
+/** The Game's BGG id from the address of its BGG page (a bare id still works). */
+function bggIdFromPage(value: Field): number | null | string {
+  const text = (value ?? "").toString().trim();
+  if (text === "") return null;
+  const id = Number(/^\d+$/.test(text) ? text : (BGG_PAGE.exec(text)?.[1] ?? NaN));
+  if (!Number.isInteger(id) || id < GAME_NUMBER_LIMITS.bgg_id.min || id > GAME_NUMBER_LIMITS.bgg_id.max) {
+    return "Página de BGG: pega la dirección de la ficha del juego, como https://boardgamegeek.com/boardgame/174430/gloomhaven.";
+  }
+  return id;
+}
+
+export function bggPageUrl(id: number): string {
+  return `https://boardgamegeek.com/boardgame/${id}`;
+}
+
 /** Validates the Game form. Every field except the name is optional (fast logging, PRD). */
 export function parseGameForm(values: GameFormValues): ParseResult<GameInput> {
   const name = (values.name ?? "").trim();
-  if (name.length < 1 || name.length > 120) return { ok: false, error: "El nombre es obligatorio (máximo 120 caracteres)." };
+  if (name.length < 1 || name.length > GAME_TEXT_LIMITS.name) {
+    return { ok: false, error: `El nombre es obligatorio (máximo ${GAME_TEXT_LIMITS.name} caracteres).` };
+  }
 
   const L = GAME_NUMBER_LIMITS;
   const numbers = {
@@ -60,7 +82,7 @@ export function parseGameForm(values: GameFormValues): ParseResult<GameInput> {
     min_duration: optionalNumber(values.min_duration, "Duración mínima", L.min_duration.min, L.min_duration.max),
     max_duration: optionalNumber(values.max_duration, "Duración máxima", L.max_duration.min, L.max_duration.max),
     complexity: optionalNumber(values.complexity, "Complejidad", L.complexity.min, L.complexity.max, true),
-    bgg_id: optionalNumber(values.bgg_id, "Id de BGG", L.bgg_id.min, L.bgg_id.max),
+    bgg_id: bggIdFromPage(values.bgg_id),
   };
   for (const v of Object.values(numbers)) if (typeof v === "string") return { ok: false, error: v };
   const n = numbers as Record<keyof typeof numbers, number | null>;
@@ -76,7 +98,7 @@ export function parseGameForm(values: GameFormValues): ParseResult<GameInput> {
   if (!PLAY_MODES.includes(mode)) return { ok: false, error: "Modo de juego no válido." };
 
   const notes = (values.notes ?? "").trim();
-  if (notes.length > 4000) return { ok: false, error: "Las notas son demasiado largas." };
+  if (notes.length > GAME_TEXT_LIMITS.notes) return { ok: false, error: "Las notas son demasiado largas." };
 
   return {
     ok: true,

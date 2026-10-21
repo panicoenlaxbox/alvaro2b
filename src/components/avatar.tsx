@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- avatars are tiny external images; no optimization needed */
 import { tint } from "./tint";
 
-export function Avatar({ name, url, size = 32 }: { name: string; url?: string | null; size?: number }) {
+export function Avatar({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
   const initials = name
     .split(/\s+/)
     .filter(Boolean)

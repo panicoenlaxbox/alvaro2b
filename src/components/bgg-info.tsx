@@ -1,4 +1,5 @@
-import { bggGameUrl, getBggThing } from "@/lib/bgg/client";
+import { getBggThing } from "@/lib/bgg/client";
+import { bggPageUrl } from "@/lib/domain/game-form";
 import { PoweredByBgg } from "./powered-by-bgg";
 
 /**
@@ -12,7 +13,7 @@ export async function BggInfo({ bggId }: { bggId: number }) {
     <section className="card space-y-3">
       <div className="flex items-center justify-between gap-2">
         <h2>Datos de BoardGameGeek</h2>
-        <PoweredByBgg />
+        <PoweredByBgg href={bggPageUrl(bggId)} label="Ver en BoardGameGeek" />
       </div>
       {!thing ? (
         <p className="text-sm text-muted">BoardGameGeek no responde ahora mismo.</p>
@@ -49,9 +50,6 @@ export async function BggInfo({ bggId }: { bggId: number }) {
           )}
         </>
       )}
-      <a href={bggGameUrl(bggId)} target="_blank" rel="noreferrer" className="text-sm underline">
-        Ver en BoardGameGeek
-      </a>
     </section>
   );
 }

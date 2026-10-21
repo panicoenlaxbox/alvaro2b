@@ -16,11 +16,11 @@ export default async function NewPlayPage({ params, searchParams }: PageProps<"/
   const supabase = await createClient();
 
   const [{ data: session }, games, players] = await Promise.all([
-    supabase.from("sessions").select("id, date, status, session_attendees(player_id)").eq("id", id).maybeSingle(),
+    supabase.from("sessions").select("id, date, session_attendees(player_id)").eq("id", id).maybeSingle(),
     listPlayFormGames(),
     listPlayers(),
   ]);
-  if (!session || session.status === "cancelled") notFound();
+  if (!session) notFound();
 
   const preselected = games.find((g) => g.id === game);
 

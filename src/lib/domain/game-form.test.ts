@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { durationText, parseGameForm, parseOwnerIds, playersText } from "./game-form";
+import { bggPageUrl, durationText, parseGameForm, parseOwnerIds, playersText } from "./game-form";
 
 describe("parseGameForm", () => {
   it("only requires a name", () => {
@@ -47,10 +47,29 @@ describe("parseGameForm", () => {
     [{ name: "X", complexity: "6" }, "Complejidad"],
     [{ name: "X", year: "1999.5" }, "Año"],
     [{ name: "X", default_play_mode: "solo" }, "Modo"],
+    [{ name: "X", bgg_id: "https://example.com/boardgame/174430" }, "Página de BGG"],
+    [{ name: "X", bgg_id: "https://boardgamegeek.com/boardgame/gloomhaven" }, "Página de BGG"],
   ])("rejects %o", (values, message) => {
     const result = parseGameForm(values);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain(message);
+  });
+});
+
+describe("BGG page", () => {
+  it.each([
+    ["https://boardgamegeek.com/boardgame/174430/gloomhaven", 174430],
+    ["boardgamegeek.com/boardgame/174430", 174430],
+    ["  https://www.boardgamegeek.com/boardgameexpansion/7/x?y=1  ", 7],
+    ["174430", 174430],
+    ["", null],
+  ])("reads the BGG id from %o", (bgg_id, expected) => {
+    const result = parseGameForm({ name: "X", bgg_id });
+    expect(result.ok && result.value.bgg_id).toBe(expected);
+  });
+
+  it("builds the page address back from the id", () => {
+    expect(bggPageUrl(174430)).toBe("https://boardgamegeek.com/boardgame/174430");
   });
 });
 

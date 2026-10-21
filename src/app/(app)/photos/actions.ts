@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
+import { PHOTO_CAPTION_MAX } from "@/lib/domain/photos";
 import { MEDIA_BUCKET } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 
@@ -55,7 +56,7 @@ export async function updatePhoto(_prev: ActionState, formData: FormData): Promi
   const caption = String(formData.get("caption") ?? "").trim();
   const playId = String(formData.get("play_id") ?? "") || null;
   const tagged = formData.getAll("tag").map(String);
-  if (caption.length > 500) return { error: "El pie de foto es demasiado largo." };
+  if (caption.length > PHOTO_CAPTION_MAX) return { error: "El pie de foto es demasiado largo." };
 
   const supabase = await createClient();
   const { data: photo, error } = await supabase
@@ -85,7 +86,7 @@ export async function deletePhoto(_prev: ActionState, formData: FormData): Promi
   const { data: photo } = await supabase.from("photos").select("session_id, path, thumb_path").eq("id", id).maybeSingle();
   const { error, count } = await supabase.from("photos").delete({ count: "exact" }).eq("id", id);
   if (error) return { error: errorMessage(error) };
-  if (!count || !photo) return { error: "Solo quien la subió o el Admin pueden eliminarla." };
+  if (!count || !photo) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
   await supabase.storage.from(MEDIA_BUCKET).remove([photo.path, photo.thumb_path]);
 
   revalidatePhotos(photo.session_id);

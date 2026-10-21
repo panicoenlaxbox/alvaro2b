@@ -45,7 +45,3 @@ export async function getBggThing(id: number): Promise<BggThing | null> {
   const xml = await fetchXml(`/thing?id=${id}&stats=1`, WEEK);
   return xml === null ? null : parseThing(xml);
 }
-
-export function bggGameUrl(id: number): string {
-  return `https://boardgamegeek.com/boardgame/${id}`;
-}
