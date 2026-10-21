@@ -50,16 +50,19 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
       </p>
 
       {view?.signedUrl && (
-        <img
-          src={view.signedUrl}
-          alt={photo.caption ?? "Foto del grupo"}
-          width={photo.width}
-          height={photo.height}
-          className="h-auto w-full rounded-xl border border-border"
-        />
+        <figure className="polaroid mx-auto max-w-3xl -rotate-1">
+          <img
+            src={view.signedUrl}
+            alt={photo.caption ?? "Foto del grupo"}
+            width={photo.width}
+            height={photo.height}
+            className="h-auto w-full border-2 border-ink"
+          />
+          {photo.caption && <figcaption className="px-1 pt-3 text-lg text-ink">{photo.caption}</figcaption>}
+        </figure>
       )}
 
-      {photo.caption && <p>{photo.caption}</p>}
+      {!view?.signedUrl && photo.caption && <p>{photo.caption}</p>}
       {(tagged.length > 0 || playName) && (
         <p className="text-sm text-muted">
           {tagged.length > 0 && `Salen: ${tagged.map((t) => names.get(t)).join(", ")}`}
