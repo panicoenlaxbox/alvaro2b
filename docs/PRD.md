@@ -91,7 +91,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - "no jugado desde hace X" y "nunca jugado";
   - Rating medio ≥ X y "a mí me gusta".
 - **Ordenación**, entre otros criterios, por Rating.
-- **Botón "¡Tira el dado!"**: elige un Game al azar entre los resultados, con unos segundos de suspense en los que van pasando nombres y frases. Inicio tiene el mismo botón, que tira sobre todo el catálogo.
+- **"¿A qué jugamos hoy?" en Inicio**: tres preguntas rápidas (cuántos somos, cuánto tiempo tenemos, cooperativo o competitivo) y el botón **"¡Tira el dado!"**, que elige al azar un Game de los que encajan, con unos segundos de suspense en los que van pasando nombres y frases. El resultado sale en la misma Inicio. El Catalog no tiene dado.
 - **Con una Session planificada**: los filtros pueden partir de sus Attendees, por ejemplo "juegos para 5" o "juegos con algún Owner que viene".
 
 ### 4. Sessions

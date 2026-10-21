@@ -4,15 +4,16 @@ import { requireMember } from "@/lib/auth";
 import { listCatalogGames } from "@/lib/data/explore";
 import { listMembers } from "@/lib/data/players";
 import { filterGames, parseFilters, SORT_LABELS, SORTS, sortGames } from "@/lib/domain/explore";
-import { durationText, PLAY_MODE_LABELS, PLAY_MODES, playersText, type PlayMode } from "@/lib/domain/game-form";
+import { durationText, playersText, type PlayMode } from "@/lib/domain/game-form";
 import { formatSessionDate, formatShortDate, todayIso } from "@/lib/domain/session";
 import { coverUrl, signedUrls } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import { AutoSubmitForm } from "@/components/auto-submit-form";
 import { OwnerFaces } from "@/components/owners";
+import { PlayerPicker } from "@/components/player-picker";
 import type { Owner } from "@/lib/data/explore";
 import { tint } from "@/components/tint";
-import { SurpriseMe } from "./surprise-me";
+import { CHIP, ChoiceGroup, MINUTE_CHOICES, MODE_CHOICES, PLAYER_CHOICES } from "@/components/game-choices";
 
 export const metadata: Metadata = { title: "Juegos" };
 
@@ -71,19 +72,12 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
 
       <section className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-2">
-          <h1 className="text-4xl sm:text-5xl">{showRetired ? "Juegos retirados" : "¿A qué jugamos?"}</h1>
-          {!showRetired && <p className="text-soft">Cuántos somos, cuánto tiempo tenemos… y el resto lo decide el catálogo. O el dado.</p>}
+          <h1 className="text-4xl sm:text-5xl">{showRetired ? "Juegos retirados" : "Juegos"}</h1>
         </div>
         <Link href="/games/new" className="btn-primary shrink-0">
-          <span>
-            + Añadir<span className="hidden sm:inline"> juego</span>
-          </span>
+          Añadir
         </Link>
       </section>
-
-      {!showRetired && results.length > 0 && (
-        <SurpriseMe key={results.map((g) => g.id).join()} games={results.map((g) => ({ id: g.id, name: g.name }))} autoStart={params.roll === "1"} />
-      )}
 
       {!showRetired && (
         <AutoSubmitForm key={JSON.stringify(params)} action="/games" keepEmpty={session ? ["players"] : []} className="card space-y-5 p-4 sm:p-6" aria-label="Filtros">
@@ -129,12 +123,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
                       Solo juegos de alguien que viene
                     </Check>
                   ) : (
-                    members.map((m) => (
-                      <label key={m.id}>
-                        <input type="checkbox" name="owner" value={m.id} defaultChecked={filters.ownerIds?.includes(m.id)} className="peer sr-only" />
-                        <span className={CHIP}>{m.display_name}</span>
-                      </label>
-                    ))
+                    <PlayerPicker name="owner" players={members} selected={filters.ownerIds} />
                   )}
                 </div>
               </fieldset>
@@ -147,7 +136,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
                 </Check>
               </div>
               <button type="submit" className="btn-primary">
-                Aplicar
+                Buscar
               </button>
             </div>
           </details>
@@ -169,7 +158,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
               </label>
               {activeFilters > 0 && (
                 <Link href={clearHref} scroll={false} className="flex min-h-11 items-center text-sm text-muted underline">
-                  Quitar filtros
+                  Limpiar
                 </Link>
               )}
             </div>
@@ -214,35 +203,6 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
   );
 }
 
-const CHIP = "toggle peer-checked:border-accent peer-checked:bg-accent peer-checked:text-ink peer-focus-visible:outline-3 peer-focus-visible:outline-accent";
-
-const PLAYER_CHOICES = [{ value: "", label: "Todos" }, ...[2, 3, 4, 5, 6, 7, 8].map((n) => ({ value: String(n), label: String(n) }))];
-const MINUTE_CHOICES = [
-  { value: "", label: "Me da igual" },
-  { value: "30", label: "Media hora" },
-  { value: "60", label: "1 h" },
-  { value: "120", label: "2 h" },
-];
-const MODE_CHOICES = [{ value: "", label: "Me da igual" }, ...PLAY_MODES.map((m) => ({ value: m, label: PLAY_MODE_LABELS[m] }))];
-
-/** Radio chips over one GET parameter. A value set some other way (a Session's Attendees) gets its own chip. */
-function ChoiceGroup({ legend, name, current, options }: { legend: string; name: string; current: string; options: { value: string; label: string }[] }) {
-  const shown = options.some((o) => o.value === current) ? options : [...options, { value: current, label: name === "minutes" ? `${current} min` : current }];
-  return (
-    <fieldset className="min-w-0 space-y-2 max-sm:w-full">
-      <legend className="label">{legend}</legend>
-      <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pt-0.5 pb-1.5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-        {shown.map((o) => (
-          <label key={o.value} className="relative shrink-0">
-            <input type="radio" name={name} value={o.value} defaultChecked={o.value === current} className="peer sr-only" />
-            <span className={`${CHIP} ${/^\d+$/.test(o.label) ? "min-w-12 font-display text-lg" : ""}`}>{o.label}</span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
-  );
-}
-
 function Check({ name, checked, children }: { name: string; checked?: boolean; children: React.ReactNode }) {
   return (
     <label>
@@ -280,8 +240,8 @@ function GameCard({
         {cover ? (
           <img src={cover} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />
         ) : (
-          <span aria-hidden className="font-display text-5xl text-paper [text-shadow:3px_3px_0_var(--ink)]">
-            {game.name.replace(/[^\p{L}\p{N}]/gu, "").slice(0, 3).toUpperCase()}
+          <span aria-hidden className="max-w-full truncate px-4 font-display text-4xl text-paper uppercase [text-shadow:3px_3px_0_var(--ink)]">
+            {game.name}
           </span>
         )}
         <span className={`absolute top-2.5 left-2.5 rounded-md bg-ink px-2.5 py-0.5 font-display text-xs ${tag.className}`}>{tag.label}</span>
