@@ -9,7 +9,7 @@ Persona del grupo con cuenta propia en la aplicación. Un Member *desactivado* n
 _Evitar_: usuario, socio, amigo
 
 **Guest**:
-Persona sin cuenta que ha participado en alguna Session; puede convertirse en Member conservando su historial.
+Persona sin cuenta que ha participado en alguna Session; puede convertirse en Member conservando su historial. Un Guest *desactivado* no aparece al elegir jugadores, pero conserva su historial.
 _Evitar_: invitado anónimo, jugador externo
 
 **Player**:

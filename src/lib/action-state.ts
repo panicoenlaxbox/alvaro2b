@@ -30,6 +30,7 @@ const CHECK_MESSAGES: Record<string, string> = {
   "Invalid Session status change": "Una sesión celebrada o cancelada ya no puede cambiar de estado.",
   "Remove the Admin role first": "Quítale antes el rol de Admin.",
   "A deactivated Member cannot be Admin": "Reactívalo antes de hacerlo Admin.",
+  "A deactivated Guest cannot become a Member": "Reactiva a ese invitado antes de hacerlo miembro.",
 };
 
 function checkMessage(message: string): string {

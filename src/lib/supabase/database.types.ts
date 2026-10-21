@@ -550,6 +550,9 @@ isOneToOne: false
 "set_game_owners":
 { Args: { "game": string,"owners": (string)[] }; Returns: undefined
                            },
+"set_guest_active":
+{ Args: { "active": boolean,"target": string }; Returns: undefined
+                           },
 "set_member_active":
 { Args: { "active": boolean,"target": string }; Returns: undefined
                            }
