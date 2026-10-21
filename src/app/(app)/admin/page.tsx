@@ -10,8 +10,9 @@ export default async function AdminPage() {
   const admin = await requireAdmin();
   const supabase = await createClient();
 
+  // Seeded emails share created_at: the email breaks the tie, so a row never jumps after an edit.
   const [{ data: emails }, { data: guests }] = await Promise.all([
-    supabase.from("allowed_emails").select("email, is_admin, player_id, players(display_name, user_id, deactivated_at)").order("created_at"),
+    supabase.from("allowed_emails").select("email, is_admin, player_id, players(display_name, user_id, deactivated_at)").order("created_at").order("email"),
     supabase.from("players").select("id, display_name").is("user_id", null).order("display_name"),
   ]);
 
