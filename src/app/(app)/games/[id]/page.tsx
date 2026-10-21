@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { bggEnabled, bggGameUrl } from "@/lib/bgg/client";
+import { bggEnabled } from "@/lib/bgg/client";
+import { PoweredByBgg } from "@/components/powered-by-bgg";
 import { BggInfo } from "@/components/bgg-info";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { listMembers } from "@/lib/data/players";
-import { durationText, PLAY_MODE_LABELS, playersText } from "@/lib/domain/game-form";
+import { bggPageUrl, durationText, PLAY_MODE_LABELS, playersText } from "@/lib/domain/game-form";
 import { starsText, summarizeRatings } from "@/lib/domain/ratings";
 import { ATTACHMENTS_BUCKET, coverUrl, signedUrls } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
@@ -117,9 +118,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
                 <BggInfo bggId={game.bgg_id} />
               </Suspense>
             ) : (
-              <a href={bggGameUrl(game.bgg_id)} target="_blank" rel="noreferrer" className="block text-sm underline">
-                Ver en BoardGameGeek
-              </a>
+              <PoweredByBgg href={bggPageUrl(game.bgg_id)} label="Ver en BoardGameGeek" />
             ))}
 
           <section className="card space-y-3">

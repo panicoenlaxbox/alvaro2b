@@ -57,7 +57,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - complejidad (1–5);
   - Play mode por defecto;
   - "puntuación menor es mejor";
-  - id de BGG (opcional);
+  - página en BGG (opcional): se pega la dirección de la ficha y se guarda su id;
   - Owners (opcional): uno o varios, porque a veces un Game se compra entre varios;
   - notas.
 - **Juegos sin Owner.** Se puede registrar un Game sin Owner, por ejemplo uno prestado o jugado en un bar.

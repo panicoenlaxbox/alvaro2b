@@ -4,11 +4,11 @@ import { useActionState } from "react";
 import { ActionForm, FormMessage, RequiredMark } from "@/components/form";
 import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState, type ActionState } from "@/lib/action-state";
-import { GAME_NUMBER_LIMITS, PLAY_MODE_LABELS, PLAY_MODES, type GameInput } from "@/lib/domain/game-form";
+import { bggPageUrl, GAME_NUMBER_LIMITS, PLAY_MODE_LABELS, PLAY_MODES, type GameInput } from "@/lib/domain/game-form";
 
 export type GameFormDefaults = Partial<GameInput> & { id?: string; bgg_image_url?: string | null; owner_ids?: string[] };
 
-function NumberField({ name, label, value, step }: { name: keyof typeof GAME_NUMBER_LIMITS; label: string; value?: number | null; step?: string }) {
+function NumberField({ name, label, value, step }: { name: Exclude<keyof typeof GAME_NUMBER_LIMITS, "bgg_id">; label: string; value?: number | null; step?: string }) {
   return (
     <div>
       <label htmlFor={name} className="label">
@@ -75,7 +75,20 @@ export function GameForm({
         Gana la puntuación más baja
       </label>
 
-      <NumberField name="bgg_id" label="Id de BoardGameGeek" value={defaults.bgg_id} />
+      <div>
+        <label htmlFor="bgg_id" className="label">
+          Página en BoardGameGeek
+        </label>
+        <input
+          id="bgg_id"
+          name="bgg_id"
+          type="text"
+          inputMode="url"
+          placeholder="https://boardgamegeek.com/boardgame/…"
+          defaultValue={defaults.bgg_id ? bggPageUrl(defaults.bgg_id) : ""}
+          className="input"
+        />
+      </div>
 
       <div>
         <label htmlFor="notes" className="label">
