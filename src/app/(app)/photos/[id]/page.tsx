@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Faces } from "@/components/owners";
 import { requireMember } from "@/lib/auth";
-import { photoSession } from "@/lib/data/photos";
+import { sessionSummary } from "@/lib/data/photos";
 import { listPlayers } from "@/lib/data/players";
-import { PhotoGroupHeader } from "@/components/photo-group-header";
+import { SessionHeader } from "@/components/session-header";
 import { MEDIA_BUCKET } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import { DeletePhotoButton, PhotoEditor } from "./photo-forms";
@@ -39,7 +39,7 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
 
   return (
     <div className="space-y-4">
-      <PhotoGroupHeader session={photo.session_id && photo.sessions ? photoSession(photo.session_id, photo.sessions) : null} />
+      <SessionHeader session={photo.session_id && photo.sessions ? sessionSummary(photo.session_id, photo.sessions) : null} />
 
       {view?.signedUrl && (
         <figure className="polaroid mx-auto max-w-3xl -rotate-1">

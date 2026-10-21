@@ -3,7 +3,7 @@ import { requireMember } from "@/lib/auth";
 import { listPhotos } from "@/lib/data/photos";
 import { groupBySession } from "@/lib/domain/photos";
 import { PhotoGrid } from "@/components/photo-grid";
-import { PhotoGroupHeader } from "@/components/photo-group-header";
+import { SessionHeader } from "@/components/session-header";
 import { PhotoUploader } from "@/components/photo-uploader";
 
 export const metadata: Metadata = { title: "Fotos" };
@@ -18,7 +18,7 @@ export default async function PhotosPage() {
       <PhotoUploader sessionId={null} />
       {groups.map((g) => (
         <section key={g.session?.id ?? "album"} className="space-y-3">
-          <PhotoGroupHeader session={g.session} />
+          <SessionHeader session={g.session} />
           <PhotoGrid photos={g.photos} />
         </section>
       ))}

@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { getPlay } from "@/lib/data/plays";
 import { PLAY_MODE_LABELS } from "@/lib/domain/game-form";
-import { photoSession } from "@/lib/data/photos";
+import { sessionSummary } from "@/lib/data/photos";
 import { createClient } from "@/lib/supabase/server";
 import { FlavorText } from "@/components/flavor-text";
-import { PhotoGroupHeader } from "@/components/photo-group-header";
+import { SessionHeader } from "@/components/session-header";
 import { PlayResult, playSummary } from "@/components/play-result";
 import { DeletePlayButton } from "./play-detail-forms";
 
@@ -30,7 +30,7 @@ export default async function PlayPage({ params }: PageProps<"/plays/[id]">) {
 
   return (
     <div className="space-y-6">
-      {session && <PhotoGroupHeader session={photoSession(play.sessionId, session)} />}
+      {session && <SessionHeader session={sessionSummary(play.sessionId, session)} />}
       <section className="space-y-1">
         <h1 className="text-3xl sm:text-4xl">
           <Link href={`/games/${play.game.id}`}>{play.game.name}</Link>
