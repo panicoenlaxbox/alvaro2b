@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { ActionForm, ConfirmSubmitButton, FormMessage } from "@/components/form";
+import { useLeavingAction } from "@/components/leave";
 import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState } from "@/lib/action-state";
 import { deletePhoto, updatePhoto } from "../actions";
@@ -59,11 +60,11 @@ export function PhotoEditor({
 }
 
 export function DeletePhotoButton({ photoId }: { photoId: string }) {
-  const [state, action] = useActionState(deletePhoto, initialActionState);
+  const [state, action] = useLeavingAction(deletePhoto);
   return (
     <form action={action} className="space-y-1">
       <input type="hidden" name="id" value={photoId} />
-      <ConfirmSubmitButton confirmText="Sí, borrar">Borrar</ConfirmSubmitButton>
+      <ConfirmSubmitButton confirmText="Sí, eliminar">Eliminar</ConfirmSubmitButton>
       <FormMessage state={state} />
     </form>
   );

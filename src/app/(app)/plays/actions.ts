@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
 import { minutesBetween, parsePlayInput, toSavePlayPayload, validatePlay } from "@/lib/domain/play";
@@ -56,7 +56,7 @@ export async function savePlay(json: string, start = false): Promise<ActionState
   }
 
   revalidatePlay(input.sessionId, playId);
-  redirect(`/plays/${playId}`);
+  redirect(`/plays/${playId}`, RedirectType.replace);
 }
 
 export async function finishPlay(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -77,7 +77,7 @@ export async function finishPlay(_prev: ActionState, formData: FormData): Promis
   if (error) return { error: errorMessage(error) };
 
   revalidatePlay(play.session_id, id);
-  redirect(`/plays/${id}/edit`);
+  redirect(`/plays/${id}/edit`, RedirectType.replace);
 }
 
 export async function deletePlay(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -88,8 +88,8 @@ export async function deletePlay(_prev: ActionState, formData: FormData): Promis
   const { data: play } = await supabase.from("plays").select("session_id").eq("id", id).maybeSingle();
   const { error, count } = await supabase.from("plays").delete({ count: "exact" }).eq("id", id);
   if (error) return { error: errorMessage(error) };
-  if (!count || !play) return { error: "Solo quien la registró o el Admin pueden borrarla." };
+  if (!count || !play) return { error: "Solo quien la registró o el Admin pueden eliminarla." };
 
   revalidatePlay(play.session_id);
-  redirect(`/sessions/${play.session_id}`);
+  return { ok: true, leaveTo: `/sessions/${play.session_id}` };
 }

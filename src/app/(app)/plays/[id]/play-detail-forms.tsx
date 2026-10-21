@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { ConfirmSubmitButton, FormMessage, SubmitButton } from "@/components/form";
+import { useLeavingAction } from "@/components/leave";
 import { initialActionState } from "@/lib/action-state";
 import { deletePlay, finishPlay } from "../actions";
 
@@ -45,11 +46,11 @@ export function RunningTimer({ playId, startedAt }: { playId: string; startedAt:
 }
 
 export function DeletePlayButton({ playId }: { playId: string }) {
-  const [state, action] = useActionState(deletePlay, initialActionState);
+  const [state, action] = useLeavingAction(deletePlay);
   return (
     <form action={action} className="space-y-1">
       <input type="hidden" name="id" value={playId} />
-      <ConfirmSubmitButton confirmText="Sí, borrar">Borrar</ConfirmSubmitButton>
+      <ConfirmSubmitButton confirmText="Sí, eliminar">Eliminar</ConfirmSubmitButton>
       <FormMessage state={state} />
     </form>
   );

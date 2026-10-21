@@ -45,7 +45,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Puede convertirse en Member enlazando una cuenta, y conserva su historial.
 - **Permisos**:
   - Cualquier Member puede crear y editar todo: Sessions, Plays, Games, Polls y Photos.
-  - Solo el autor o el Admin pueden borrar.
+  - Solo el autor o el Admin pueden eliminar.
 
 ## Funcionalidades
 
@@ -64,9 +64,9 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 - **Expansion**. Va vinculada a su Game base y, como el Game, puede tener uno o varios Owners. No cambia los filtros de jugadores ni de duración.
 - **Retired game**.
   - Un Game que ya no tenemos se retira: desaparece de la exploración y de las Suggestions, pero conserva su historial.
-  - Solo se puede borrar un Game que no tenga Plays.
+  - Solo se puede eliminar un Game que no tenga Plays.
 - **Carátula**. La imagen enlazada de BGG, o una imagen propia subida por nosotros que la sustituye.
-- **Ficheros y enlaces**. Cualquier Member puede adjuntar a un Game ficheros (un FAQ en PDF, una ayuda de juego: PDF, imagen, texto o documento, hasta 20 MB) y enlaces (una herramienta online), sin descripción. Solo el autor o el Admin pueden quitarlos.
+- **Ficheros y enlaces**. Cualquier Member puede adjuntar a un Game ficheros (un FAQ en PDF, una ayuda de juego: PDF, imagen, texto o documento, hasta 20 MB) y enlaces (una herramienta online), sin descripción. Solo el autor o el Admin pueden eliminarlos.
 - **Rating**.
   - Cada Member puede dar de 1 a 5 estrellas a cada Game y cambiarlas cuando quiera.
   - Se muestra la media y el desglose por Member ("Juanito ★★★").
@@ -102,7 +102,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Con fecha de hoy o futura, nace **planificada**. Es un paso opcional: muchas veces quedamos y se registra todo directamente, y la primera Play la pasa a celebrada.
   - De planificada se pasa a celebrada a mano ("¡Empezamos!") o al registrar la primera Play.
   - Una planificada puede **cancelarse**. Una celebrada no.
-  - Si una planificada queda en el pasado sin Plays, aparece como **pendiente de cerrar** para que alguien la registre o la cancele. No se borra sola.
+  - Si una planificada queda en el pasado sin Plays, aparece como **pendiente de cerrar** para que alguien la registre o la cancele. No se elimina sola.
 - **RSVP**. En una planificada, los Members confirman si asistirán.
 - **Compartir**. Un botón "Compartir por WhatsApp" genera el enlace de la Session o de su Poll.
 - **Listado**. Primero las pendientes de cerrar, luego las próximas y después las celebradas, de la más reciente a la más antigua y de 10 en 10. Las canceladas van plegadas al final.

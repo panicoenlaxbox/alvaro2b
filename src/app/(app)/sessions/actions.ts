@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
 import { RSVP_RESPONSES, type RsvpResponse } from "@/lib/domain/session";
@@ -45,7 +45,7 @@ export async function createSession(_prev: ActionState, formData: FormData): Pro
   }
 
   revalidateSession(data.id);
-  redirect(`/sessions/${data.id}`);
+  redirect(`/sessions/${data.id}`, RedirectType.replace);
 }
 
 export async function updateSession(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -59,7 +59,7 @@ export async function updateSession(_prev: ActionState, formData: FormData): Pro
   if (error) return { error: errorMessage(error) };
 
   revalidateSession(id);
-  redirect(`/sessions/${id}`);
+  redirect(`/sessions/${id}`, RedirectType.replace);
 }
 
 export async function setSessionStatus(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -82,13 +82,13 @@ export async function deleteSession(_prev: ActionState, formData: FormData): Pro
   const supabase = await createClient();
   const { error, count } = await supabase.from("sessions").delete({ count: "exact" }).eq("id", id);
   if (error) {
-    return { error: error.code === "23503" ? "Tiene partidas o fotos. Bórralas antes de borrar la sesión." : errorMessage(error) };
+    return { error: error.code === "23503" ? "Tiene partidas o fotos. Elimínalas antes de eliminar la sesión." : errorMessage(error) };
   }
-  if (!count) return { error: "Solo quien la creó o el Admin pueden borrarla." };
+  if (!count) return { error: "Solo quien la creó o el Admin pueden eliminarla." };
 
   revalidatePath("/sessions");
   revalidatePath("/");
-  redirect("/sessions");
+  return { ok: true, leaveTo: "/sessions" };
 }
 
 export async function setAttendees(_prev: ActionState, formData: FormData): Promise<ActionState> {

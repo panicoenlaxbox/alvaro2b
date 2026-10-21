@@ -1,6 +1,7 @@
 import type { PostgrestError } from "@supabase/supabase-js";
 
-export type ActionState = { error?: string; ok?: boolean; message?: string };
+/** `leaveTo`: the action removed the page it ran on; see `useLeavingAction`. */
+export type ActionState = { error?: string; ok?: boolean; message?: string; leaveTo?: string };
 
 export const initialActionState: ActionState = {};
 
@@ -11,7 +12,7 @@ export function errorMessage(error: Pick<PostgrestError, "code" | "message"> | n
     case "23505":
       return "Ya existe.";
     case "23503":
-      return "No se puede borrar porque tiene historial asociado.";
+      return "No se puede eliminar porque tiene historial asociado.";
     case "23514":
       return checkMessage(error.message);
     case "42501":
