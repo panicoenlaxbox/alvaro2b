@@ -197,14 +197,13 @@ function GroupView({
       />
       <section className="card space-y-2">
         <h2>La vergüenza de la estantería</h2>
-        <p className="text-xs hint">Juegos del catálogo por estrenar.</p>
         {stats.neverPlayed.length === 0 ? (
           <p className="text-sm text-muted">¡Ninguno! Hemos jugado a todo.</p>
         ) : (
-          <ul className="flex flex-wrap gap-2">
+          <ul className="space-y-1 text-sm">
             {stats.neverPlayed.map((id) => (
               <li key={id}>
-                <Link href={`/games/${id}`} className="chip px-3 py-1 text-sm">
+                <Link href={`/games/${id}`} className="underline">
                   {gameName.get(id)}
                 </Link>
               </li>
