@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { ActionForm, FormMessage } from "@/components/form";
+import { ActionForm, FormMessage, RequiredMark } from "@/components/form";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { PlayerPicker } from "@/components/player-picker";
 
@@ -26,19 +26,20 @@ export function SessionForm({
       <div>
         <label htmlFor="date" className="label">
           Fecha
+          <RequiredMark />
         </label>
         <input id="date" name="date" type="date" required defaultValue={defaults?.date ?? today} className="input" />
         <p className="mt-1 text-xs text-muted">Antes de hoy: se registra como celebrada. Hoy o más adelante: queda planificada.</p>
       </div>
       <div>
         <label htmlFor="name" className="label">
-          Nombre (opcional)
+          Nombre
         </label>
         <input id="name" name="name" maxLength={60} placeholder="Sábado de mazmorreo" defaultValue={defaults?.name ?? ""} className="input" />
       </div>
       <div>
         <label htmlFor="place" className="label">
-          Lugar (opcional)
+          Lugar
         </label>
         <input id="place" name="place" maxLength={120} defaultValue={defaults?.place ?? ""} className="input" />
       </div>

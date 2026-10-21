@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { ActionForm, FormMessage } from "@/components/form";
+import { ActionForm, FormMessage, RequiredMark } from "@/components/form";
 import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { PLAY_MODE_LABELS, PLAY_MODES, type GameInput } from "@/lib/domain/game-form";
@@ -39,7 +39,8 @@ export function GameForm({
 
       <div>
         <label htmlFor="name" className="label">
-          Nombre *
+          Nombre
+          <RequiredMark />
         </label>
         <input id="name" name="name" required maxLength={120} defaultValue={defaults.name ?? ""} className="input" />
       </div>
@@ -77,7 +78,7 @@ export function GameForm({
         Gana la puntuación más baja
       </label>
 
-      <NumberField name="bgg_id" label="Id de BoardGameGeek (opcional)" value={defaults.bgg_id} />
+      <NumberField name="bgg_id" label="Id de BoardGameGeek" value={defaults.bgg_id} />
 
       <div>
         <label htmlFor="notes" className="label">
