@@ -11,6 +11,8 @@ import { starsText, summarizeRatings } from "@/lib/domain/ratings";
 import { ATTACHMENTS_BUCKET, coverUrl, signedUrls } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import { Cover } from "@/components/cover";
+import { OwnerFaces } from "@/components/owners";
+import { toOwners } from "@/lib/data/explore";
 import { CoverUploader, DeleteGameButton, ExpansionList, RatingPicker, RetireGameButton } from "./game-detail-forms";
 import { Attachments, type AttachmentItem } from "./attachments";
 
@@ -29,7 +31,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
   const [{ data: game }, members, { data: attachments }] = await Promise.all([
     supabase
       .from("games")
-      .select("*, owner:players!games_owner_id_fkey(display_name), ratings(player_id, stars), expansions(id, name, retired_at, created_by, owner:players!expansions_owner_id_fkey(display_name))")
+      .select("*, game_owners(players(id, display_name, avatar_url)), ratings(player_id, stars), expansions(id, name, retired_at, created_by, expansion_owners(players(id, display_name, avatar_url)))")
       .eq("id", id)
       .maybeSingle(),
     listMembers(),
@@ -51,6 +53,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
   const ratings = summarizeRatings(game.ratings.map((r) => ({ playerId: r.player_id, stars: r.stars })), names);
   const myStars = game.ratings.find((r) => r.player_id === member.playerId)?.stars ?? 0;
   const canDelete = member.isAdmin || game.created_by === member.userId;
+  const owners = toOwners(game.game_owners);
 
   const stats = [
     { label: "Jugadores", value: playersText(game.min_players, game.max_players)?.replace(" jugadores", "") },
@@ -70,15 +73,16 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
             {game.lower_score_wins && <span className="chip">Gana la puntuación más baja</span>}
           </div>
           <h1 className="text-3xl break-words sm:text-5xl">{game.name}</h1>
-          <p className="text-soft">
-            {game.owner ? `De ${game.owner.display_name}` : "Sin dueño"}
-            {ratings.average !== null && (
-              <>
-                {" · "}
-                <span className="font-bold text-accent">★ {ratings.average.toLocaleString("es-ES")}</span> <span className="text-muted">({ratings.count})</span>
-              </>
-            )}
-          </p>
+          {(owners.length > 0 || ratings.average !== null) && (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-soft">
+              <OwnerFaces owners={owners} withNames />
+              {ratings.average !== null && (
+                <span>
+                  <span className="font-bold text-accent">★ {ratings.average.toLocaleString("es-ES")}</span> <span className="text-muted">({ratings.count})</span>
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
@@ -134,7 +138,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
                 id: e.id,
                 name: e.name,
                 retired: e.retired_at !== null,
-                ownerName: e.owner?.display_name ?? null,
+                owners: toOwners(e.expansion_owners),
                 canDelete: member.isAdmin || e.created_by === member.userId,
               }))}
             />

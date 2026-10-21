@@ -10,7 +10,7 @@ const game = (id: string, change: Partial<ExplorableGame> = {}): ExplorableGame 
   maxDuration: 60,
   complexity: 2,
   mode: "competitive",
-  ownerId: null,
+  ownerIds: [],
   retired: false,
   playCount: 0,
   lastPlayed: null,
@@ -40,13 +40,15 @@ describe("filterGames", () => {
 
   it("filters by complexity, mode and Owner", () => {
     const games = [
-      game("light", { complexity: 1.2, ownerId: "ana" }),
-      game("heavy", { complexity: 3.8, mode: "cooperative", ownerId: "bruno" }),
+      game("light", { complexity: 1.2, ownerIds: ["ana"] }),
+      game("heavy", { complexity: 3.8, mode: "cooperative", ownerIds: ["bruno", "dani"] }),
     ];
     expect(ids(filterGames(games, { minComplexity: 3 }, today))).toEqual(["heavy"]);
     expect(ids(filterGames(games, { maxComplexity: 2 }, today))).toEqual(["light"]);
     expect(ids(filterGames(games, { mode: "cooperative" }, today))).toEqual(["heavy"]);
     expect(ids(filterGames(games, { ownerIds: ["ana", "carla"] }, today))).toEqual(["light"]);
+    expect(ids(filterGames(games, { ownerIds: ["dani"] }, today))).toEqual(["heavy"]);
+    expect(ids(filterGames([game("nobody's")], { ownerIds: ["ana"] }, today))).toEqual([]);
   });
 
   it("filters by history", () => {

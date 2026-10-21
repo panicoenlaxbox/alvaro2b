@@ -9,7 +9,7 @@ export type ExplorableGame = {
   maxDuration: number | null;
   complexity: number | null;
   mode: PlayMode;
-  ownerId: string | null;
+  ownerIds: string[];
   retired: boolean;
   playCount: number;
   /** YYYY-MM-DD of the last Session with a Play of this Game. */
@@ -74,7 +74,7 @@ export function filterGames<T extends ExplorableGame>(games: T[], f: GameFilters
     if (f.minComplexity !== undefined && (g.complexity === null || g.complexity < f.minComplexity)) return false;
     if (f.maxComplexity !== undefined && (g.complexity === null || g.complexity > f.maxComplexity)) return false;
     if (f.mode && g.mode !== f.mode) return false;
-    if (f.ownerIds && (g.ownerId === null || !f.ownerIds.includes(g.ownerId))) return false;
+    if (f.ownerIds && !g.ownerIds.some((id) => f.ownerIds!.includes(id))) return false;
     if (f.neverPlayed && g.playCount > 0) return false;
     if (f.notPlayedForDays !== undefined && g.lastPlayed !== null && daysBetween(g.lastPlayed, today) < f.notPlayedForDays) {
       return false;

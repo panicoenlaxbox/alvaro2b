@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { durationText, parseGameForm, playersText } from "./game-form";
+import { durationText, parseGameForm, parseOwnerIds, playersText } from "./game-form";
 
 describe("parseGameForm", () => {
   it("only requires a name", () => {
@@ -17,7 +17,6 @@ describe("parseGameForm", () => {
         default_play_mode: "competitive",
         lower_score_wins: false,
         bgg_id: null,
-        owner_id: null,
         notes: null,
       },
     });
@@ -31,7 +30,6 @@ describe("parseGameForm", () => {
       complexity: "2,35",
       default_play_mode: "cooperative",
       lower_score_wins: "on",
-      owner_id: "p1",
     });
     expect(result.ok && result.value).toMatchObject({
       min_players: 2,
@@ -39,7 +37,6 @@ describe("parseGameForm", () => {
       complexity: 2.4,
       default_play_mode: "cooperative",
       lower_score_wins: true,
-      owner_id: "p1",
     });
   });
 
@@ -66,4 +63,10 @@ describe("playersText and durationText", () => {
     expect(durationText(30, 60)).toBe("30–60 min");
     expect(durationText(null, 45)).toBe("45 min");
   });
+});
+
+describe("parseOwnerIds", () => {
+  it("keeps distinct, non-empty ids", () => expect(parseOwnerIds(["p1", " p2 ", "", "p1"])).toEqual(["p1", "p2"]));
+  it("ignores files and other values", () => expect(parseOwnerIds([new Blob(), "p1"])).toEqual(["p1"]));
+  it("allows no owner", () => expect(parseOwnerIds([])).toEqual([]));
 });

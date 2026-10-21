@@ -77,7 +77,7 @@ Conjunto de Games y Expansions del grupo.
 _Evitar_: colección, ludoteca, estantería
 
 **Owner**:
-Member al que pertenece el ejemplar de un Game; es opcional.
+Member al que pertenece el ejemplar de un Game o de una Expansion. Es opcional y puede haber varios, si se compró entre varios.
 _Evitar_: dueño, propietario del juego
 
 **Retired game**:

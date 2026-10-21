@@ -2,6 +2,8 @@
 
 import { useActionState, useRef, useState, useTransition } from "react";
 import { ConfirmSubmitButton, FormMessage, SubmitButton } from "@/components/form";
+import { OwnerFaces } from "@/components/owners";
+import type { Owner } from "@/lib/data/explore";
 import { initialActionState } from "@/lib/action-state";
 import { COVER_MAX_SIDE } from "@/lib/domain/image-size";
 import { compressImage } from "@/lib/image-client";
@@ -120,7 +122,7 @@ export function CoverUploader({ gameId, hasOwnCover }: { gameId: string; hasOwnC
   );
 }
 
-type ExpansionItem = { id: string; name: string; retired: boolean; ownerName: string | null; canDelete: boolean };
+type ExpansionItem = { id: string; name: string; retired: boolean; owners: Owner[]; canDelete: boolean };
 
 function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: ExpansionItem }) {
   const [retireState, retireAction] = useActionState(setExpansionRetired, initialActionState);
@@ -128,10 +130,8 @@ function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: Expans
   return (
     <li className="space-y-1 py-2">
       <div className="flex flex-wrap items-center gap-2">
-        <span className={`flex-1 ${expansion.retired ? "text-muted line-through" : ""}`}>
-          {expansion.name}
-          {expansion.ownerName && <span className="text-sm text-muted"> · de {expansion.ownerName}</span>}
-        </span>
+        <span className={`flex-1 ${expansion.retired ? "text-muted line-through" : ""}`}>{expansion.name}</span>
+        <OwnerFaces owners={expansion.owners} size={24} />
         <form action={retireAction}>
           <input type="hidden" name="id" value={expansion.id} />
           <input type="hidden" name="game_id" value={gameId} />
@@ -177,18 +177,22 @@ export function ExpansionList({
       )}
       <form action={action} className="space-y-2">
         <input type="hidden" name="game_id" value={gameId} />
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex gap-2">
           <input name="name" required maxLength={120} placeholder="Nueva expansión" aria-label="Nombre de la expansión" className="input" />
-          <select name="owner_id" aria-label="Dueño de la expansión" className="input sm:w-48" defaultValue="">
-            <option value="">Sin dueño</option>
-            {owners.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.display_name}
-              </option>
-            ))}
-          </select>
           <SubmitButton>Añadir</SubmitButton>
         </div>
+        <fieldset className="flex flex-wrap items-center gap-2">
+          <legend className="sr-only">Dueños de la expansión</legend>
+          <span className="text-sm text-muted">De:</span>
+          {owners.map((o) => (
+            <label key={o.id} className="relative">
+              <input type="checkbox" name="owner_id" value={o.id} className="peer sr-only" />
+              <span className="toggle min-h-9 px-3 py-1 text-sm peer-checked:border-accent peer-checked:bg-accent peer-checked:text-ink peer-focus-visible:outline-3 peer-focus-visible:outline-accent">
+                {o.display_name}
+              </span>
+            </label>
+          ))}
+        </fieldset>
         <FormMessage state={state} />
       </form>
     </div>
