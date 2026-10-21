@@ -68,7 +68,7 @@ export function AllowedEmailRow({
   const [removeState, removeAction] = useActionState(removeAllowedEmail, initialActionState);
   const [activeState, activeAction] = useActionState(setMemberActive, initialActionState);
   const [deleteState, deleteAction] = useActionState(deleteMember, initialActionState);
-  const status = deactivated ? "Desactivado" : signedUp ? "Ha entrado" : "Pendiente";
+  const status = deactivated ? "Desactivado" : signedUp ? "Activo" : "Pendiente";
 
   return (
     <li className={`space-y-2 px-4 py-3 ${deactivated ? "opacity-70" : ""}`}>
