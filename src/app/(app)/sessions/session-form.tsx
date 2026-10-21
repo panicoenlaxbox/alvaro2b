@@ -9,13 +9,11 @@ export function SessionForm({
   action,
   defaults,
   players,
-  submitLabel,
   today,
 }: {
   action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
   defaults?: { id: string; date: string; name: string | null; place: string | null; notes: string | null };
   players?: { id: string; display_name: string; is_member: boolean }[];
-  submitLabel: string;
   today: string;
 }) {
   const [state, formAction, pending] = useActionState(action, initialActionState);
@@ -35,7 +33,7 @@ export function SessionForm({
         <label htmlFor="name" className="label">
           Nombre
         </label>
-        <input id="name" name="name" maxLength={60} placeholder="Sábado de mazmorreo" defaultValue={defaults?.name ?? ""} className="input" />
+        <input id="name" name="name" maxLength={60} defaultValue={defaults?.name ?? ""} className="input" />
       </div>
       <div>
         <label htmlFor="place" className="label">
@@ -57,7 +55,7 @@ export function SessionForm({
       </div>
       <FormMessage state={state} />
       <button type="submit" disabled={pending} className="btn-primary w-full">
-        {pending ? "Guardando…" : submitLabel}
+        {pending ? "Guardando…" : "Guardar"}
       </button>
     </ActionForm>
   );

@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Avatar } from "@/components/avatar";
-import { ConfirmSubmitButton, FormMessage, RequiredMark, SubmitButton, useRowAction } from "@/components/form";
+import { ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
 import { initialActionState } from "@/lib/action-state";
 import { whatsappUrl } from "@/lib/share";
 import { addAllowedEmail, addGuest, deleteGuest, deleteMember, removeAllowedEmail, renamePlayer, setAdmin, setGuestActive, setMemberActive } from "./actions";
@@ -16,6 +16,13 @@ function WhatsAppIcon() {
   );
 }
 
+/** Same colours as the Session status chips: soft red needs action, green is live, dashed is off. */
+const STATUS_CHIP = {
+  Pendiente: "border-danger text-danger",
+  Activo: "border-green text-green",
+  Desactivado: "border-dashed text-muted",
+} as const;
+
 function inviteText(appUrl: string, email: string) {
   return `¡Ya puedes entrar en alvaro2b! Abre ${appUrl} y entra con tu cuenta de Google ${email}.`;
 }
@@ -27,14 +34,13 @@ export function AddEmailForm({ guests }: { guests: { id: string; display_name: s
       <div>
         <label htmlFor="email" className="label">
           Email de su cuenta de Google
-          <RequiredMark />
         </label>
         <input id="email" name="email" type="email" required className="input" autoComplete="off" />
       </div>
       {guests.length > 0 && (
         <div>
           <label htmlFor="guest_id" className="label">
-            ¿Ya jugaba como invitado? (conserva su historial)
+            ¿Ya jugaba como invitado? <span className="text-[0.6875rem]">(conserva su historial)</span>
           </label>
           <select id="guest_id" name="guest_id" className="input" defaultValue="">
             <option value="">No, es alguien nuevo</option>
@@ -91,7 +97,7 @@ export function AllowedEmailRow({
           <span className="min-w-0 flex-1 truncate font-medium">{email}</span>
         )}
         {isAdmin && <span className="chip border-accent text-accent">Admin</span>}
-        <span className={`chip ${signedUp && !deactivated ? "" : "border-dashed text-muted"}`}>{status}</span>
+        <span className={`chip ${STATUS_CHIP[status]}`}>{status}</span>
       </div>
       {playerName && <p className="truncate text-sm text-muted">{email}</p>}
       <div className="flex flex-wrap gap-2">
@@ -163,7 +169,7 @@ export function GuestRow({ id, name, deactivated }: { id: string; name: string; 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <Avatar name={name} />
         <PlayerEditor id={id} name={name} />
-        <span className={`chip ${deactivated ? "border-dashed text-muted" : ""}`}>{deactivated ? "Desactivado" : "Activo"}</span>
+        <span className={`chip ${STATUS_CHIP[deactivated ? "Desactivado" : "Activo"]}`}>{deactivated ? "Desactivado" : "Activo"}</span>
       </div>
       <div className="flex flex-wrap gap-2">
         <form action={run(setGuestActive)}>

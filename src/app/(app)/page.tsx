@@ -1,13 +1,22 @@
 import Link from "next/link";
 import { requireMember } from "@/lib/auth";
+import { listCatalogGames } from "@/lib/data/explore";
 import { listSessions } from "@/lib/data/sessions";
+import { filterGames, parseFilters } from "@/lib/domain/explore";
 import { formatSessionDate, groupSessions, todayIso } from "@/lib/domain/session";
-import { DiceIcon } from "@/components/dice-icon";
+import { AutoSubmitForm } from "@/components/auto-submit-form";
+import { ChoiceGroup, MINUTE_CHOICES, MODE_CHOICES, PLAYER_CHOICES } from "@/components/game-choices";
 import { SessionCard } from "@/components/session-card";
+import { SurpriseMe } from "@/components/surprise-me";
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: PageProps<"/">) {
   const member = await requireMember();
-  const groups = groupSessions(await listSessions(), todayIso());
+  const today = todayIso();
+  const [sessions, games, params] = await Promise.all([listSessions(), listCatalogGames(member.playerId), searchParams]);
+  const groups = groupSessions(sessions, today);
+  // Only the three quick questions apply here; the rest of the filters live in the Catalog.
+  const { filters } = parseFilters(params);
+  const fits = filterGames(games, { players: filters.players, maxMinutes: filters.maxMinutes, mode: filters.mode }, today);
   const [next, ...later] = groups.upcoming;
   const lastHeld = groups.held[0];
 
@@ -36,25 +45,29 @@ export default async function HomePage() {
           <h1 className="text-[2.75rem] sm:text-6xl">¿A qué jugamos hoy?</h1>
           <p className="text-lg text-soft">Cuántos somos, cuánto tiempo tenemos… y el resto lo decide el catálogo. O el dado.</p>
         </div>
-        <div className="flex w-full flex-col gap-3 sm:w-auto">
-          <Link href="/games?roll=1" className="btn-hot min-h-16 px-7 text-xl shadow-hard-lg">
-            <DiceIcon className="size-7" />
-            ¡Tira el dado!
-          </Link>
-          <div className="grid grid-cols-2 gap-3">
-            <Link href="/games" className="btn-secondary">
-              Elegir juego
-            </Link>
-            <Link href="/sessions/new" className="btn-primary">
-              Nueva sesión
-            </Link>
-          </div>
-        </div>
+        <Link href="/sessions/new" className="btn-primary shrink-0">
+          Añadir
+        </Link>
       </section>
+
+      <AutoSubmitForm key={JSON.stringify(params)} action="/" className="card space-y-5 p-4 sm:p-6" aria-label="A qué jugamos">
+        <div className="flex flex-wrap gap-x-10 gap-y-5">
+          <ChoiceGroup legend="¿Cuántos somos?" name="players" current={filters.players?.toString() ?? ""} options={PLAYER_CHOICES} />
+          <ChoiceGroup legend="¿Cuánto tiempo tenemos?" name="minutes" current={filters.maxMinutes?.toString() ?? ""} options={MINUTE_CHOICES} />
+          <ChoiceGroup legend="¿Juntos o a muerte?" name="mode" current={filters.mode ?? ""} options={MODE_CHOICES} />
+        </div>
+        <div className="border-t-2 border-dashed border-border pt-4">
+          {fits.length > 0 ? (
+            <SurpriseMe key={fits.map((g) => g.id).join()} games={fits.map((g) => ({ id: g.id, name: g.name }))} />
+          ) : (
+            <p className="text-soft">Ningún juego encaja con todo eso.</p>
+          )}
+        </div>
+      </AutoSubmitForm>
 
       {groups.pendingClose.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-lg text-coral">Pendientes de cerrar</h2>
+          <h2 className="text-lg text-danger">Pendientes de cerrar</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {groups.pendingClose.map((s) => (
               <SessionCard key={s.id} session={s} pendingClose />

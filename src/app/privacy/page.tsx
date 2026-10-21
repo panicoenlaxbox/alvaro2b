@@ -75,7 +75,7 @@ export default function PrivacyPage() {
       <section className="space-y-2">
         <h2 className="text-xl">Tus derechos</h2>
         <p>
-          Puedes pedir al administrador del grupo que corrija o borre tus datos, o que te dé una copia. También puedes
+          Puedes pedir al administrador del grupo que corrija o elimine tus datos, o que te dé una copia. También puedes
           revocar el acceso de alvaro2b en la configuración de seguridad de tu cuenta de Google en cualquier momento.
         </p>
       </section>

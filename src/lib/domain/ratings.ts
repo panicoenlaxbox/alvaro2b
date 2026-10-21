@@ -3,7 +3,7 @@ export type Rating = { playerId: string; stars: number };
 export type RatingSummary = {
   average: number | null;
   count: number;
-  /** One entry per Member who rated, highest first, then by name. */
+  /** One entry per Member who rated, by name: changing a rating never moves its row. */
   breakdown: { playerId: string; name: string; stars: number }[];
 };
 
@@ -13,7 +13,7 @@ export function summarizeRatings(ratings: Rating[], names: Map<string, string>):
   const total = ratings.reduce((sum, r) => sum + r.stars, 0);
   const breakdown = ratings
     .map((r) => ({ playerId: r.playerId, name: names.get(r.playerId) ?? "?", stars: r.stars }))
-    .sort((a, b) => b.stars - a.stars || a.name.localeCompare(b.name, "es"));
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
 
   return { average: Math.round((total / ratings.length) * 10) / 10, count: ratings.length, breakdown };
 }

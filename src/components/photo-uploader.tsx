@@ -62,8 +62,8 @@ export function PhotoUploader({ sessionId }: { sessionId: string | null }) {
           e.target.value = "";
         }}
       />
-      <button type="button" className="btn-secondary" disabled={pending} onClick={() => input.current?.click()}>
-        {pending ? "Subiendo…" : "+ Subir fotos"}
+      <button type="button" className="btn-primary" disabled={pending} onClick={() => input.current?.click()}>
+        {pending ? "Subiendo…" : "Añadir"}
       </button>
       {status && <p className="text-sm text-muted">{status}</p>}
       {error && <p className="text-sm font-medium text-danger">{error}</p>}

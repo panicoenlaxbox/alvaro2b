@@ -21,14 +21,13 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-3xl sm:text-4xl">Sesiones</h1>
         <Link href="/sessions/new" className="btn-primary">
-          Nueva sesión
+          Añadir
         </Link>
       </div>
 
       {groups.pendingClose.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-coral">Pendientes de cerrar</h2>
-          <p className="text-sm hint">Ya pasó la fecha: registra lo que se jugó o cancélala.</p>
+          <h2 className="text-danger">Pendientes de cerrar</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {groups.pendingClose.map((s) => (
               <SessionCard key={s.id} session={s} pendingClose />

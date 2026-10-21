@@ -72,6 +72,8 @@ export async function deleteMember(_prev: ActionState, formData: FormData): Prom
   return { ok: true };
 }
 
+const TAKEN_GUEST_NAME = "Ya hay un invitado con ese nombre.";
+
 function nameFrom(formData: FormData): string | null {
   const name = String(formData.get("display_name") ?? "").trim();
   return name.length >= 1 && name.length <= 60 ? name : null;
@@ -84,7 +86,7 @@ export async function addGuest(_prev: ActionState, formData: FormData): Promise<
 
   const supabase = await createClient();
   const { error } = await supabase.from("players").insert({ display_name: name });
-  if (error) return { error: errorMessage(error) };
+  if (error) return { error: error.code === "23505" ? TAKEN_GUEST_NAME : errorMessage(error) };
 
   revalidatePath("/admin");
   return { ok: true };
@@ -98,7 +100,7 @@ export async function renamePlayer(_prev: ActionState, formData: FormData): Prom
 
   const supabase = await createClient();
   const { error } = await supabase.from("players").update({ display_name: name }).eq("id", id).select("id").single();
-  if (error) return { error: errorMessage(error) };
+  if (error) return { error: error.code === "23505" ? TAKEN_GUEST_NAME : errorMessage(error) };
 
   revalidatePath("/admin");
   return { ok: true };

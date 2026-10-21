@@ -24,7 +24,7 @@ export default async function NewGamePage({ searchParams }: PageProps<"/games/ne
       {enabled && typeof bgg === "string" && !thing && (
         <p className="text-sm text-muted">No se ha podido leer ese juego de BoardGameGeek. Vuelve a intentarlo o añádelo a mano.</p>
       )}
-      <GameForm key={thing?.id ?? "manual"} action={createGame} owners={owners} submitLabel="Añadir juego" defaults={defaults} />
+      <GameForm key={thing?.id ?? "manual"} action={createGame} owners={owners} defaults={defaults} />
     </div>
   );
 }

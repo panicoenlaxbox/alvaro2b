@@ -369,7 +369,7 @@ export function PlayForm({
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <button type="submit" disabled={pending} className="btn-primary flex-1 py-3">
-          {pending ? "Guardando…" : "Guardar partida"}
+          {pending ? "Guardando…" : "Guardar"}
         </button>
         {!initial.id && (
           <button type="button" disabled={pending} onClick={() => submit(true)} className="btn-secondary flex-1 py-3">

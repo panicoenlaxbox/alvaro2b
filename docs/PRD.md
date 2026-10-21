@@ -45,7 +45,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Puede convertirse en Member enlazando una cuenta, y conserva su historial.
 - **Permisos**:
   - Cualquier Member puede crear y editar todo: Sessions, Plays, Games, Polls y Photos.
-  - Solo el autor o el Admin pueden borrar.
+  - Solo el autor o el Admin pueden eliminar.
 
 ## Funcionalidades
 
@@ -64,9 +64,9 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 - **Expansion**. Va vinculada a su Game base y, como el Game, puede tener uno o varios Owners. No cambia los filtros de jugadores ni de duración.
 - **Retired game**.
   - Un Game que ya no tenemos se retira: desaparece de la exploración y de las Suggestions, pero conserva su historial.
-  - Solo se puede borrar un Game que no tenga Plays.
+  - Solo se puede eliminar un Game que no tenga Plays.
 - **Carátula**. La imagen enlazada de BGG, o una imagen propia subida por nosotros que la sustituye.
-- **Ficheros y enlaces**. Cualquier Member puede adjuntar a un Game ficheros (un FAQ en PDF, una ayuda de juego: PDF, imagen, texto o documento, hasta 20 MB) y enlaces (una herramienta online), sin descripción. Solo el autor o el Admin pueden quitarlos.
+- **Ficheros y enlaces**. Cualquier Member puede adjuntar a un Game ficheros (un FAQ en PDF, una ayuda de juego: PDF, imagen, texto o documento, hasta 20 MB) y enlaces (una herramienta online), sin descripción. Solo el autor o el Admin pueden eliminarlos.
 - **Rating**.
   - Cada Member puede dar de 1 a 5 estrellas a cada Game y cambiarlas cuando quiera.
   - Se muestra la media y el desglose por Member ("Juanito ★★★").
@@ -91,7 +91,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - "no jugado desde hace X" y "nunca jugado";
   - Rating medio ≥ X y "a mí me gusta".
 - **Ordenación**, entre otros criterios, por Rating.
-- **Botón "¡Tira el dado!"**: elige un Game al azar entre los resultados, con unos segundos de suspense en los que van pasando nombres y frases. Inicio tiene el mismo botón, que tira sobre todo el catálogo.
+- **"¿A qué jugamos hoy?" en Inicio**: tres preguntas rápidas (cuántos somos, cuánto tiempo tenemos, cooperativo o competitivo) y el botón **"¡Tira el dado!"**, que elige al azar un Game de los que encajan, con unos segundos de suspense en los que van pasando nombres y frases. El resultado sale en la misma Inicio. El Catalog no tiene dado.
 - **Con una Session planificada**: los filtros pueden partir de sus Attendees, por ejemplo "juegos para 5" o "juegos con algún Owner que viene".
 
 ### 4. Sessions
@@ -102,7 +102,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Con fecha de hoy o futura, nace **planificada**. Es un paso opcional: muchas veces quedamos y se registra todo directamente, y la primera Play la pasa a celebrada.
   - De planificada se pasa a celebrada a mano ("¡Empezamos!") o al registrar la primera Play.
   - Una planificada puede **cancelarse**. Una celebrada no.
-  - Si una planificada queda en el pasado sin Plays, aparece como **pendiente de cerrar** para que alguien la registre o la cancele. No se borra sola.
+  - Si una planificada queda en el pasado sin Plays, aparece como **pendiente de cerrar** para que alguien la registre o la cancele. No se elimina sola.
 - **RSVP**. En una planificada, los Members confirman si asistirán.
 - **Compartir**. Un botón "Compartir por WhatsApp" genera el enlace de la Session o de su Poll.
 - **Listado**. Primero las pendientes de cerrar, luego las próximas y después las celebradas, de la más reciente a la más antigua y de 10 en 10. Las canceladas van plegadas al final.
@@ -143,6 +143,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 - **Ubicación**. Una Photo se asocia a una Session o al Album general.
 - **Compresión**. Las Photos se comprimen en el navegador antes de subirlas (lado largo de unos 2000 px, en WebP o JPEG, unos 300–500 KB) y se genera una miniatura para la galería. No se guardan los originales.
 - **Etiquetado** opcional de los Players que aparecen y de la Play.
+- **Galería**. Una sola página con todas las Photos: primero las del Album, donde se suben, y después las de cada Session, de la más reciente a la más antigua, con su fecha enlazada a la Session. En cada Photo, el pie va escrito a mano en el margen de la Polaroid, junto a los avatares de quienes salen.
 - **Acceso** solo para Members, mediante URLs firmadas.
 
 ### 8. Estadísticas

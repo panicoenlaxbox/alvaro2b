@@ -16,6 +16,7 @@
   --accent-soft: #3a3350;
   --coral: #ef6f4c;
   --teal: #3cc4b0;
+  --green: #8fd16a;
   --blue: #5b8def;
   --danger: #ff9a80;
   --paper: #f6f1e7;
@@ -35,11 +36,14 @@
   --color-accent-soft: var(--accent-soft);
   --color-coral: var(--coral);
   --color-teal: var(--teal);
+  --color-green: var(--green);
   --color-blue: var(--blue);
   --color-danger: var(--danger);
   --color-paper: var(--paper);
   --font-sans: var(--font-rubik);
   --font-display: var(--font-bungee);
+  /* Handwriting for Photo captions, as if written on the Polaroid. */
+  --font-hand: var(--font-caveat);
   --shadow-hard: 4px 4px 0 var(--ink);
   --shadow-hard-lg: 6px 6px 0 var(--ink);
 }
@@ -50,6 +54,11 @@ body {
 }
 
 @layer base {
+  /* Tailwind 4 gives buttons the default cursor; ours should invite a tap. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
   /* Bungee has a single weight: never let the browser fake a bold one. */
   h1,
   h2,

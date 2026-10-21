@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton } from "@/components/form";
+import { useLeavingAction } from "@/components/leave";
 import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState } from "@/lib/action-state";
 import { RSVP_LABELS, RSVP_RESPONSES, type RsvpResponse } from "@/lib/domain/session";
@@ -76,11 +77,11 @@ export function AttendeesEditor({
 }
 
 export function DeleteSessionButton({ sessionId }: { sessionId: string }) {
-  const [state, action] = useActionState(deleteSession, initialActionState);
+  const [state, action] = useLeavingAction(deleteSession);
   return (
     <form action={action} className="space-y-1">
       <input type="hidden" name="id" value={sessionId} />
-      <ConfirmSubmitButton confirmText="Sí, borrar">Borrar</ConfirmSubmitButton>
+      <ConfirmSubmitButton confirmText="Sí, eliminar">Eliminar</ConfirmSubmitButton>
       <FormMessage state={state} />
     </form>
   );

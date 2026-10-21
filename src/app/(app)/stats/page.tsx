@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireMember } from "@/lib/auth";
 import { FilterForm } from "@/components/auto-submit-form";
-import { Avatar } from "@/components/avatar";
 import { Dropdown } from "@/components/dropdown";
 import { loadStatsData } from "@/lib/data/stats";
 import { formatDuration } from "@/lib/domain/play";
@@ -21,9 +20,8 @@ function Stat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-type RankingEntry = { name: string; count: number; href?: string; avatarUrl?: string | null; items?: RankingItem[] };
+type RankingEntry = { name: string; count: number; href?: string; items?: RankingItem[] };
 
-/** Players get their avatar next to the name; pass `avatarUrl` (even null) to show it. */
 function Ranking({ title, rows, unit }: { title: string; rows: RankingEntry[]; unit: [string, string] }) {
   return (
     <section className="card space-y-2">
@@ -39,20 +37,13 @@ function Ranking({ title, rows, unit }: { title: string; rows: RankingEntry[]; u
               count={`${r.count} ${r.count === 1 ? unit[0] : unit[1]}`}
               items={r.items ?? []}
               name={
-                <>
-                  {r.avatarUrl !== undefined && (
-                    <span className="mr-2 inline-flex shrink-0">
-                      <Avatar name={r.name} url={r.avatarUrl} size={24} />
-                    </span>
-                  )}
-                  {r.href ? (
-                    <Link href={r.href} className="truncate underline">
-                      {r.name}
-                    </Link>
-                  ) : (
-                    <span className="truncate">{r.name}</span>
-                  )}
-                </>
+                r.href ? (
+                  <Link href={r.href} className="truncate underline">
+                    {r.name}
+                  </Link>
+                ) : (
+                  <span className="truncate">{r.name}</span>
+                )
               }
             />
           ))}
@@ -120,11 +111,11 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
         </label>
         <div className="flex items-end gap-3">
           <button type="submit" className="btn-primary">
-            Filtrar
+            Buscar
           </button>
           {q && (
             <Link href={clearHref} scroll={false} className="flex min-h-11 items-center text-sm text-muted underline">
-              Quitar filtros
+              Limpiar
             </Link>
           )}
         </div>
@@ -179,7 +170,6 @@ function GroupView({
   withRange: (extra: string) => string;
 }) {
   const stats = groupStats(data.sessions, data.plays, data.games, range);
-  const avatarUrl = new Map(data.players.map((p) => [p.id, p.avatarUrl]));
   return (
     <>
       <div className="grid grid-cols-3 gap-2">
@@ -204,7 +194,6 @@ function GroupView({
           name: playerName.get(a.id) ?? "?",
           count: a.count,
           href: withRange(`player=${a.id}`),
-          avatarUrl: avatarUrl.get(a.id) ?? null,
           items: a.items.map((s) => ({ href: `/sessions/${s.id}`, label: formatShortDate(s.date) })),
         }))}
       />
@@ -263,9 +252,6 @@ function PlayerView({
           <span className="text-muted">Némesis: </span>
           {stats.nemesis ? `${playerName.get(stats.nemesis.id)}, le ha ganado ${stats.nemesis.count} ${stats.nemesis.count === 1 ? "vez" : "veces"}` : "–"}
         </p>
-        <p className="text-xs hint">
-          Las victorias cuentan en todos los modos: el primer puesto en competitivo, el equipo ganador o todo el grupo cuando gana en cooperativo.
-        </p>
       </section>
     </>
   );
@@ -283,7 +269,6 @@ function GameView({
   playerName: Map<string, string>;
 }) {
   const stats = gameStats(game, data.plays, range);
-  const avatarUrl = new Map(data.players.map((p) => [p.id, p.avatarUrl]));
   return (
     <>
       <h2 className="text-xl">
@@ -299,7 +284,7 @@ function GameView({
         {stats.coopPlays > 0 && <Stat label={`Victorias del grupo (${stats.coopPlays})`} value={`${stats.coopWinRate} %`} />}
       </div>
       {stats.topWinners.length > 0 && (
-        <Ranking title="Quién gana más" unit={["victoria", "victorias"]} rows={stats.topWinners.map((w) => ({ name: playerName.get(w.id) ?? "?", count: w.count, avatarUrl: avatarUrl.get(w.id) ?? null }))} />
+        <Ranking title="Quién gana más" unit={["victoria", "victorias"]} rows={stats.topWinners.map((w) => ({ name: playerName.get(w.id) ?? "?", count: w.count }))} />
       )}
     </>
   );

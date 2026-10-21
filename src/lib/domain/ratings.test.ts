@@ -12,7 +12,7 @@ describe("summarizeRatings", () => {
     expect(summarizeRatings([], names)).toEqual({ average: null, count: 0, breakdown: [] });
   });
 
-  it("averages to one decimal and sorts the breakdown by stars, then name", () => {
+  it("averages to one decimal and sorts the breakdown by name, so changing a rating never moves its row", () => {
     const summary = summarizeRatings(
       [
         { playerId: "c", stars: 4 },
@@ -23,7 +23,7 @@ describe("summarizeRatings", () => {
     );
     expect(summary.average).toBe(4.3);
     expect(summary.count).toBe(3);
-    expect(summary.breakdown.map((r) => r.name)).toEqual(["Bruno", "Ana", "Carla"]);
+    expect(summary.breakdown.map((r) => r.name)).toEqual(["Ana", "Bruno", "Carla"]);
   });
 });
 
