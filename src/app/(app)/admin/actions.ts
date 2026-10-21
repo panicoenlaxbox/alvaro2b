@@ -16,10 +16,10 @@ export async function addAllowedEmail(_prev: ActionState, formData: FormData): P
 
   const supabase = await createClient();
   const { error } = await supabase.from("allowed_emails").insert({ email, player_id: guestId, is_admin: isAdmin });
-  if (error) return { error: error.code === "23505" ? "Ese email ya está autorizado." : errorMessage(error) };
+  if (error) return { error: error.code === "23505" ? "Ese email ya está en la lista de miembros." : errorMessage(error) };
 
   revalidatePath("/admin");
-  return { ok: true, message: `${email} autorizado. Pásale el enlace de la aplicación.` };
+  return { ok: true };
 }
 
 export async function setAdmin(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -57,7 +57,7 @@ export async function setMemberActive(_prev: ActionState, formData: FormData): P
   if (error) return { error: errorMessage(error) };
 
   revalidatePath("/admin");
-  return { ok: true, message: active ? "Reactivado." : "Desactivado: ya no puede entrar y no aparece al elegir jugadores." };
+  return { ok: true };
 }
 
 export async function deleteMember(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -67,6 +67,63 @@ export async function deleteMember(_prev: ActionState, formData: FormData): Prom
   const supabase = await createClient();
   const { error } = await supabase.rpc("delete_member", { target: playerId });
   if (error) return { error: error.code === "23503" ? "Tiene historial, así que no se puede eliminar. Desactívalo." : errorMessage(error) };
+
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+function nameFrom(formData: FormData): string | null {
+  const name = String(formData.get("display_name") ?? "").trim();
+  return name.length >= 1 && name.length <= 60 ? name : null;
+}
+
+export async function addGuest(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const name = nameFrom(formData);
+  if (!name) return { error: "Escribe un nombre (máximo 60 caracteres)." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("players").insert({ display_name: name });
+  if (error) return { error: errorMessage(error) };
+
+  revalidatePath("/admin");
+  return { ok: true, message: `${name} añadido como invitado.` };
+}
+
+export async function renamePlayer(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const name = nameFrom(formData);
+  if (!name) return { error: "Escribe un nombre (máximo 60 caracteres)." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("players").update({ display_name: name }).eq("id", id).select("id").single();
+  if (error) return { error: errorMessage(error) };
+
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function deleteGuest(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("players").delete().eq("id", id).is("user_id", null);
+  if (error) return { error: error.code === "23503" ? "Tiene historial, así que no se puede eliminar. Desactívalo." : errorMessage(error) };
+
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function setGuestActive(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const active = formData.get("active") === "true";
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_guest_active", { target: id, active });
+  if (error) return { error: errorMessage(error) };
 
   revalidatePath("/admin");
   return { ok: true };

@@ -106,7 +106,7 @@ function FileUploader({ gameId }: { gameId: string }) {
       <button type="button" className="btn-secondary" disabled={pending} onClick={() => input.current?.click()}>
         {pending ? "Subiendo…" : "📎 Subir fichero"}
       </button>
-      <p className="text-xs text-muted">PDF, imagen, texto o documento, hasta 20 MB.</p>
+      <p className="text-xs hint">PDF, imagen, texto o documento, hasta 20 MB.</p>
       {error && (
         <p role="alert" className="text-sm font-medium text-danger">
           {error}

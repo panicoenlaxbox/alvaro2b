@@ -172,7 +172,7 @@ function GroupView({
       />
       <section className="card space-y-2">
         <h2>La vergüenza de la estantería</h2>
-        <p className="text-xs text-muted">Juegos del catálogo por estrenar.</p>
+        <p className="text-xs hint">Juegos del catálogo por estrenar.</p>
         {stats.neverPlayed.length === 0 ? (
           <p className="text-sm text-muted">¡Ninguno! Hemos jugado a todo.</p>
         ) : (
@@ -226,7 +226,7 @@ function PlayerView({
           <span className="text-muted">Némesis: </span>
           {stats.nemesis ? `${playerName.get(stats.nemesis.id)}, le ha ganado ${stats.nemesis.count} ${stats.nemesis.count === 1 ? "vez" : "veces"}` : "–"}
         </p>
-        <p className="text-xs text-muted">
+        <p className="text-xs hint">
           Las victorias cuentan en todos los modos: el primer puesto en competitivo, el equipo ganador o todo el grupo cuando gana en cooperativo.
         </p>
       </section>

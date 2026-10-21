@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Los juegos de mesa del grupo: catálogo, sesiones, votaciones, partidas y fotos.",
   applicationName: "alvaro2b",
   appleWebApp: { capable: true, title: "alvaro2b", statusBarStyle: "black-translucent" },
-  icons: { apple: "/icons/180" },
+  icons: { icon: "/icon.svg", apple: "/icons/180" },
   robots: { index: false, follow: false },
 };
 

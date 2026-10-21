@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { startTransition, useActionState, useEffect, useId, useState } from "react";
 
 /**
  * A form for long inputs: unlike `<form action>`, React does not reset its fields after
@@ -25,7 +25,7 @@ export function ActionForm({
   );
 }
 import { useFormStatus } from "react-dom";
-import type { ActionState } from "@/lib/action-state";
+import { initialActionState, type ActionState } from "@/lib/action-state";
 
 export function SubmitButton({
   children,
@@ -41,7 +41,24 @@ export function SubmitButton({
   );
 }
 
-/** A submit button that asks for a second tap before submitting (no browser dialogs). */
+type RowAction = (prev: ActionState, formData: FormData) => Promise<ActionState>;
+
+/**
+ * One message for a group of forms (a row's buttons): each form runs through `run(action)`, so the
+ * group shows the result of its latest action only and a success clears an earlier error.
+ */
+export function useRowAction() {
+  const [state, dispatch] = useActionState((prev: ActionState, [action, formData]: [RowAction, FormData]) => action(prev, formData), initialActionState);
+  return [state, (action: RowAction) => (formData: FormData) => dispatch([action, formData])] as const;
+}
+
+/** Fired with the arming button's id so every other armed ConfirmSubmitButton collapses. */
+const CONFIRM_ARMED_EVENT = "confirm-submit-armed";
+
+/**
+ * A submit button that asks for a second tap before submitting (no browser dialogs).
+ * Only one is armed at a time on the page: arming one collapses the rest.
+ */
 export function ConfirmSubmitButton({
   children,
   confirmText = "¿Seguro? Pulsa otra vez",
@@ -51,12 +68,29 @@ export function ConfirmSubmitButton({
   confirmText?: string;
   className?: string;
 }) {
+  const id = useId();
   const [armed, setArmed] = useState(false);
   const { pending } = useFormStatus();
 
+  useEffect(() => {
+    if (!armed) return;
+    const onArmed = (e: Event) => {
+      if ((e as CustomEvent<string>).detail !== id) setArmed(false);
+    };
+    window.addEventListener(CONFIRM_ARMED_EVENT, onArmed);
+    return () => window.removeEventListener(CONFIRM_ARMED_EVENT, onArmed);
+  }, [armed, id]);
+
   if (!armed) {
     return (
-      <button type="button" className={className} onClick={() => setArmed(true)}>
+      <button
+        type="button"
+        className={className}
+        onClick={() => {
+          window.dispatchEvent(new CustomEvent(CONFIRM_ARMED_EVENT, { detail: id }));
+          setArmed(true);
+        }}
+      >
         {children}
       </button>
     );

@@ -141,6 +141,11 @@ body {
   @apply inline-flex items-center rounded-full border-2 border-border px-2.5 py-0.5 text-xs font-medium text-soft;
 }
 
+/* Help text that explains how something works: italic and dimmer than plain muted text. Size is set where used. */
+@utility hint {
+  @apply text-muted/80 italic;
+}
+
 /* A selectable pill: plain text on the card, yellow when on (aria-pressed, aria-current, or a checked peer before it). */
 @utility toggle {
   @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-border px-3.5 py-2 text-[0.9375rem] font-bold text-foreground transition-colors select-none hover:border-muted;
