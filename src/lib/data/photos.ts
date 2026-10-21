@@ -23,7 +23,10 @@ export type PhotoThumb = {
   tagged: { name: string; avatarUrl: string | null }[];
 };
 
-function photoSession(
+const byName = <T extends { name: string }>(people: T[]) => people.sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+/** Builds a PhotoSession from a `sessions(date, name, place, plays(created_at, games(id, name)), session_attendees(players(display_name, avatar_url)))` select. */
+export function photoSession(
   id: string,
   s: {
     date: string;
@@ -40,7 +43,7 @@ function photoSession(
     name: s.name,
     place: s.place,
     games: [...new Map(plays.flatMap((p) => (p.games ? [[p.games.id, p.games] as const] : []))).values()],
-    attendees: s.session_attendees.flatMap((a) => (a.players ? [{ name: a.players.display_name, avatarUrl: a.players.avatar_url }] : [])),
+    attendees: byName(s.session_attendees.flatMap((a) => (a.players ? [{ name: a.players.display_name, avatarUrl: a.players.avatar_url }] : []))),
   };
 }
 
@@ -57,6 +60,6 @@ export async function listPhotos(sessionId?: string | null, limit = 300): Promis
     thumbUrl: urls.get(p.thumb_path) ?? null,
     caption: p.caption,
     session: p.session_id && p.sessions ? photoSession(p.session_id, p.sessions) : null,
-    tagged: p.photo_tags.flatMap((t) => (t.players ? [{ name: t.players.display_name, avatarUrl: t.players.avatar_url }] : [])),
+    tagged: byName(p.photo_tags.flatMap((t) => (t.players ? [{ name: t.players.display_name, avatarUrl: t.players.avatar_url }] : []))),
   }));
 }

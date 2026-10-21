@@ -1,11 +1,11 @@
 /* eslint-disable @next/next/no-img-element -- full Photos are short-lived signed URLs */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar } from "@/components/avatar";
 import { requireMember } from "@/lib/auth";
+import { photoSession } from "@/lib/data/photos";
 import { listPlayers } from "@/lib/data/players";
-import { formatSessionDate } from "@/lib/domain/session";
+import { PhotoGroupHeader } from "@/components/photo-group-header";
 import { MEDIA_BUCKET } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import { DeletePhotoButton, PhotoEditor } from "./photo-forms";
@@ -20,7 +20,7 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
   const [{ data: photo }, players] = await Promise.all([
     supabase
       .from("photos")
-      .select("id, session_id, play_id, path, caption, width, height, uploaded_by, sessions(date, plays(id, games(name))), photo_tags(player_id)")
+      .select("id, session_id, play_id, path, caption, width, height, uploaded_by, sessions(date, name, place, plays(id, created_at, games(id, name)), session_attendees(players(display_name, avatar_url))), photo_tags(player_id)")
       .eq("id", id)
       .maybeSingle(),
     listPlayers(),
@@ -33,23 +33,13 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
   ]);
   const byId = new Map(players.map((p) => [p.id, p]));
   const tagged = photo.photo_tags.map((t) => t.player_id);
-  const taggedPlayers = tagged.flatMap((t) => byId.get(t) ?? []);
+  const taggedPlayers = tagged.flatMap((t) => byId.get(t) ?? []).sort((a, b) => a.display_name.localeCompare(b.display_name, "es"));
   const plays = photo.sessions?.plays.map((p) => ({ id: p.id, name: p.games?.name ?? "?" })) ?? [];
   const playName = plays.find((p) => p.id === photo.play_id)?.name;
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted">
-        {photo.session_id && photo.sessions ? (
-          <Link href={`/sessions/${photo.session_id}`} className="inline-block underline first-letter:uppercase">
-            {formatSessionDate(photo.sessions.date)}
-          </Link>
-        ) : (
-          <Link href="/photos" className="underline">
-            Álbum
-          </Link>
-        )}
-      </p>
+      <PhotoGroupHeader session={photo.session_id && photo.sessions ? photoSession(photo.session_id, photo.sessions) : null} />
 
       {view?.signedUrl && (
         <figure className="polaroid mx-auto max-w-3xl -rotate-1">
