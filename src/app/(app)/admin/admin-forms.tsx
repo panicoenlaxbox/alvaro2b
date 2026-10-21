@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Avatar } from "@/components/avatar";
-import { ConfirmSubmitButton, FormMessage, RequiredMark, SubmitButton, useRowAction } from "@/components/form";
+import { ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
 import { initialActionState } from "@/lib/action-state";
 import { whatsappUrl } from "@/lib/share";
 import { addAllowedEmail, addGuest, deleteGuest, deleteMember, removeAllowedEmail, renamePlayer, setAdmin, setGuestActive, setMemberActive } from "./actions";
@@ -34,7 +34,6 @@ export function AddEmailForm({ guests }: { guests: { id: string; display_name: s
       <div>
         <label htmlFor="email" className="label">
           Email de su cuenta de Google
-          <RequiredMark />
         </label>
         <input id="email" name="email" type="email" required className="input" autoComplete="off" />
       </div>
