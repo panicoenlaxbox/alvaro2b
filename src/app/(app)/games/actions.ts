@@ -20,6 +20,8 @@ function formValues(formData: FormData): GameFormValues {
   return values;
 }
 
+const TAKEN_GAME_NAME = "Ya hay un juego con ese nombre. Si está retirado, recupéralo.";
+
 export async function createGame(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireMember();
   const parsed = parseGameForm(formValues(formData));
@@ -32,7 +34,7 @@ export async function createGame(_prev: ActionState, formData: FormData): Promis
     .insert({ ...parsed.value, bgg_image_url: bggImage.startsWith("https://") ? bggImage : null })
     .select("id")
     .single();
-  if (error) return { error: errorMessage(error) };
+  if (error) return { error: error.code === "23505" ? TAKEN_GAME_NAME : errorMessage(error) };
   const owners = await supabase.rpc("set_game_owners", { game: data.id, owners: parseOwnerIds(formData.getAll("owner_id")) });
   if (owners.error) return { error: errorMessage(owners.error) };
 
@@ -48,7 +50,7 @@ export async function updateGame(_prev: ActionState, formData: FormData): Promis
 
   const supabase = await createClient();
   const { error } = await supabase.from("games").update(parsed.value).eq("id", id).select("id").single();
-  if (error) return { error: errorMessage(error) };
+  if (error) return { error: error.code === "23505" ? TAKEN_GAME_NAME : errorMessage(error) };
   const owners = await supabase.rpc("set_game_owners", { game: id, owners: parseOwnerIds(formData.getAll("owner_id")) });
   if (owners.error) return { error: errorMessage(owners.error) };
 
@@ -137,7 +139,7 @@ export async function addExpansion(_prev: ActionState, formData: FormData): Prom
 
   const supabase = await createClient();
   const { data, error } = await supabase.from("expansions").insert({ game_id: gameId, name }).select("id").single();
-  if (error) return { error: errorMessage(error) };
+  if (error) return { error: error.code === "23505" ? "Este juego ya tiene una expansión con ese nombre." : errorMessage(error) };
   if (ownerIds.length) {
     const owners = await supabase.from("expansion_owners").insert(ownerIds.map((player_id) => ({ expansion_id: data.id, player_id })));
     if (owners.error) return { error: errorMessage(owners.error) };
