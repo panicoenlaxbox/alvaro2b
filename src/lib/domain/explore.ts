@@ -43,7 +43,7 @@ export const SORT_LABELS: Record<GameSort, string> = {
   name: "Nombre",
   rating: "Valoración",
   "most-played": "Más jugados",
-  "least-recent": "Hace más que no se juega",
+  "least-recent": "Más tiempo sin jugar",
   complexity: "Complejidad",
   duration: "Duración",
 };

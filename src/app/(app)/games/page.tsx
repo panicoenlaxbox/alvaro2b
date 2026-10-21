@@ -70,7 +70,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
       <section className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-2">
           <h1 className="text-4xl sm:text-5xl">{showRetired ? "Juegos retirados" : "¿A qué jugamos?"}</h1>
-          {!showRetired && <p className="text-soft">Decid cuántos sois y cuánto tiempo tenéis. El resto lo filtra la mesa… o el dado.</p>}
+          {!showRetired && <p className="text-soft">Cuántos somos, cuánto tiempo tenemos… y el resto lo decide el catálogo. O el dado.</p>}
         </div>
         <Link href="/games/new" className="btn-primary shrink-0">
           <span>
@@ -193,7 +193,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
           {showRetired ? (
             "No hay juegos retirados."
           ) : games.some((g) => !g.retired) ? (
-            "Ningún juego cumple todo eso. Quitad algún filtro… o comprad uno nuevo."
+            "Ningún juego encaja con todo eso. Quita algún filtro… o habrá que comprar uno nuevo."
           ) : (
             <>
               La estantería está vacía.{" "}

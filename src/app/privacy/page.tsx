@@ -21,7 +21,7 @@ export default function PrivacyPage() {
       <section className="space-y-2">
         <h2 className="text-xl">Qué es alvaro2b</h2>
         <p>
-          alvaro2b es una aplicación privada y sin ánimo de lucro con la que un grupo de amigos organiza sus quedadas de
+          alvaro2b es una aplicación privada y sin ánimo de lucro con la que un grupo de amigos organiza sus sesiones de
           juegos de mesa. Solo pueden entrar las personas cuyo email ha autorizado el administrador del grupo. No hay
           registro público, publicidad ni cobros.
         </p>
@@ -36,7 +36,7 @@ export default function PrivacyPage() {
             contactos ni ningún otro dato de Google.
           </li>
           <li>
-            <strong>Lo que el grupo registra</strong>: quedadas, asistencia, partidas, resultados, puntuaciones,
+            <strong>Lo que el grupo registra</strong>: sesiones, asistencia, partidas, resultados, puntuaciones,
             valoraciones de juegos, votaciones, notas y fotos del grupo, con las personas etiquetadas en ellas.
           </li>
           <li>

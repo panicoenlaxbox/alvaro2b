@@ -99,7 +99,7 @@ export default async function PollPage({ params, searchParams }: PageProps<"/pol
       <section className="space-y-2">
         {ranked.length === 0 && <p className="text-muted">Aún no hay candidatos. ¡Propón alguno!</p>}
         {needsTieBreak(ranked) && !open && isCreator && (
-          <p className="alert">Hay empate en cabeza: marca los que vais a jugar.</p>
+          <p className="alert">Hay empate en cabeza: marca los que vamos a jugar.</p>
         )}
         {ranked.map((c) => {
           const mine = c.approvals.includes(member.playerId);

@@ -8,7 +8,7 @@ const bungee = Bungee({ variable: "--font-bungee", subsets: ["latin"], weight: "
 
 export const metadata: Metadata = {
   title: { default: "alvaro2b", template: "%s · alvaro2b" },
-  description: "Las quedadas de juegos de mesa del grupo: catálogo, votaciones, partidas y recuerdos.",
+  description: "Los juegos de mesa del grupo: catálogo, sesiones, votaciones, partidas y fotos.",
   applicationName: "alvaro2b",
   appleWebApp: { capable: true, title: "alvaro2b", statusBarStyle: "black-translucent" },
   icons: { apple: "/icons/180" },

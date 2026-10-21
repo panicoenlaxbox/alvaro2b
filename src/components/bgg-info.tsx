@@ -11,7 +11,7 @@ export async function BggInfo({ bggId }: { bggId: number }) {
   return (
     <section className="card space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h2>BGG info</h2>
+        <h2>Datos de BoardGameGeek</h2>
         <PoweredByBgg />
       </div>
       {!thing ? (

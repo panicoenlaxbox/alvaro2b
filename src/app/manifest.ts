@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "alvaro2b",
     short_name: "alvaro2b",
-    description: "Las quedadas de juegos de mesa del grupo.",
+    description: "Los juegos de mesa del grupo.",
     lang: "es",
     start_url: "/",
     scope: "/",
