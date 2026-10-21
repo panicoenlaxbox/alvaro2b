@@ -15,13 +15,13 @@ export function toOwners(rows: { players: { id: string; display_name: string; av
 }
 
 /** Every Game with the history and Ratings the explorer filters on. */
-export async function listCatalogGames(myPlayerId: string): Promise<CatalogGame[]> {
+export async function listCatalogGames(): Promise<CatalogGame[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("games")
     .select(
       "id, name, min_players, max_players, min_duration, max_duration, complexity, default_play_mode, retired_at, cover_path, bgg_image_url, " +
-        "game_owners(players(id, display_name, avatar_url)), ratings(player_id, stars), plays(sessions(date))",
+        "game_owners(players(id, display_name, avatar_url)), ratings(stars), plays(sessions(date))",
     )
     .order("name");
 
@@ -38,7 +38,7 @@ export async function listCatalogGames(myPlayerId: string): Promise<CatalogGame[
     cover_path: string | null;
     bgg_image_url: string | null;
     game_owners: { players: { id: string; display_name: string; avatar_url: string | null } | null }[];
-    ratings: { player_id: string; stars: number }[];
+    ratings: { stars: number }[];
     plays: { sessions: { date: string } | null }[];
   };
 
@@ -55,12 +55,10 @@ export async function listCatalogGames(myPlayerId: string): Promise<CatalogGame[
       maxDuration: g.max_duration,
       complexity: g.complexity === null ? null : Number(g.complexity),
       mode: g.default_play_mode,
-      ownerIds: owners.map((o) => o.id),
       retired: g.retired_at !== null,
       playCount: g.plays.length,
       lastPlayed: dates.at(-1) ?? null,
       averageRating: g.ratings.length ? Math.round((total / g.ratings.length) * 10) / 10 : null,
-      myRating: g.ratings.find((r) => r.player_id === myPlayerId)?.stars ?? null,
       coverPath: g.cover_path,
       bggImageUrl: g.bgg_image_url,
       owners,

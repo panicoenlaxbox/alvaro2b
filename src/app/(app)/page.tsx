@@ -12,11 +12,11 @@ import { SurpriseMe } from "@/components/surprise-me";
 export default async function HomePage({ searchParams }: PageProps<"/">) {
   const member = await requireMember();
   const today = todayIso();
-  const [sessions, games, params] = await Promise.all([listSessions(), listCatalogGames(member.playerId), searchParams]);
+  const [sessions, games, params] = await Promise.all([listSessions(), listCatalogGames(), searchParams]);
   const groups = groupSessions(sessions, today);
   // Only the three quick questions apply here; the rest of the filters live in the Catalog.
   const { filters } = parseFilters(params);
-  const fits = filterGames(games, { players: filters.players, maxMinutes: filters.maxMinutes, mode: filters.mode }, today);
+  const fits = filterGames(games, { players: filters.players, maxMinutes: filters.maxMinutes, mode: filters.mode });
   const [next, ...later] = groups.upcoming;
   const lastPast = groups.past[0];
 
@@ -31,6 +31,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           <span className="font-medium first-letter:uppercase">
             {next.name ? `${next.name} · ` : ""}
             {formatSessionDate(next.date)}
+            {next.time ? `, ${next.time}` : ""}
             {next.place ? ` · ${next.place}` : ""}
           </span>
           <span className="font-bold sm:ml-auto">

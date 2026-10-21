@@ -13,7 +13,7 @@ import { DeletePhotoButton, PhotoEditor } from "./photo-forms";
 export const metadata: Metadata = { title: "Foto" };
 
 export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
-  const member = await requireMember();
+  await requireMember();
   const { id } = await params;
   const supabase = await createClient();
 
@@ -75,7 +75,7 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
             Descargar
           </a>
         )}
-        {(member.isAdmin || photo.uploaded_by === member.userId) && <DeletePhotoButton photoId={photo.id} />}
+        <DeletePhotoButton photoId={photo.id} />
       </div>
     </div>
   );

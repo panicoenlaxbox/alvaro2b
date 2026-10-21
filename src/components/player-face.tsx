@@ -1,4 +1,5 @@
 import { Avatar } from "@/components/avatar";
+import { MaybeMark } from "@/components/owners";
 
 /**
  * A Player as a round face with the name underneath, for the Player pickers. The caller passes the
@@ -10,17 +11,20 @@ export function PlayerFace({
   isMember,
   faceClassName,
   nameClassName,
+  maybe = false,
 }: {
   name: string;
   avatarUrl: string | null;
   isMember: boolean;
   faceClassName: string;
   nameClassName: string;
+  maybe?: boolean;
 }) {
   return (
     <>
-      <span className={`block rounded-full ring-2 ring-offset-2 ring-offset-background transition ${faceClassName}`}>
+      <span className={`relative block rounded-full ring-2 ring-offset-2 ring-offset-background transition ${faceClassName}`}>
         <Avatar name={name} url={avatarUrl} size={44} />
+        {maybe && <MaybeMark />}
       </span>
       <span className={`mt-1 block max-w-16 truncate text-center text-xs ${nameClassName}`}>
         {name}

@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
 import { initialActionState } from "@/lib/action-state";
-import { closePoll, proposeCandidate, setVeto, toggleApproval, toggleChosen, withdrawCandidate } from "../actions";
+import { closePoll, proposeCandidate, toggleApproval, toggleChosen, withdrawCandidate } from "../actions";
 
 function Hidden({ pollId, candidateId }: { pollId: string; candidateId?: string }) {
   return (
@@ -19,7 +19,6 @@ export function CandidateActions({
   pollId,
   candidateId,
   approve,
-  veto,
   choose,
   withdraw,
 }: {
@@ -27,8 +26,6 @@ export function CandidateActions({
   candidateId: string;
   /** Whether the Member approves it now; absent when they cannot vote. */
   approve?: boolean;
-  /** Whether the Member vetoes it now; absent when vetoes are off or the poll is closed. */
-  veto?: boolean;
   /** Whether it is chosen; absent unless the creator can choose. */
   choose?: boolean;
   withdraw: boolean;
@@ -42,16 +39,7 @@ export function CandidateActions({
             <Hidden pollId={pollId} candidateId={candidateId} />
             <input type="hidden" name="approve" value={String(!approve)} />
             <SubmitButton className={approve ? "btn-primary" : "btn-secondary"} pendingText="…" aria-pressed={approve}>
-              {approve ? "👍 Me apetece" : "Me apetece"}
-            </SubmitButton>
-          </form>
-        )}
-        {veto !== undefined && (
-          <form action={run(setVeto)}>
-            <input type="hidden" name="poll_id" value={pollId} />
-            <input type="hidden" name="candidate_id" value={veto ? "" : candidateId} />
-            <SubmitButton className={veto ? "btn-danger bg-coral text-ink hover:bg-coral" : "btn-secondary"} pendingText="…" aria-pressed={veto}>
-              {veto ? "🚫 Vetado" : "Vetar"}
+              Me apetece
             </SubmitButton>
           </form>
         )}
@@ -92,26 +80,13 @@ export function ProposeForm({ pollId, games }: { pollId: string; games: { id: st
             </option>
           ))}
         </select>
-        <SubmitButton>Proponer</SubmitButton>
+        <SubmitButton>Añadir</SubmitButton>
       </div>
       <FormMessage state={state} />
     </form>
   );
 }
 
-export function SuggestButton({ pollId, gameId }: { pollId: string; gameId: string }) {
-  const [state, action] = useActionState(proposeCandidate, initialActionState);
-  return (
-    <form action={action}>
-      <Hidden pollId={pollId} />
-      <input type="hidden" name="game_id" value={gameId} />
-      <SubmitButton className="btn-secondary px-3 py-1 text-xs" pendingText="…">
-        Proponer
-      </SubmitButton>
-      <FormMessage state={state} />
-    </form>
-  );
-}
 
 export function ClosePollButton({ pollId }: { pollId: string }) {
   const [state, action] = useActionState(closePoll, initialActionState);

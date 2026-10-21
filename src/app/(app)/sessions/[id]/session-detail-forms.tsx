@@ -3,11 +3,10 @@
 import { useActionState } from "react";
 import { ActionForm, ConfirmSubmitButton, FormMessage } from "@/components/form";
 import { useLeavingAction } from "@/components/leave";
-import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState } from "@/lib/action-state";
 import { RSVP_LABELS, RSVP_RESPONSES, type RsvpResponse } from "@/lib/domain/session";
 import { openPoll } from "../../polls/actions";
-import { answerRsvp, deleteSession, setAttendees } from "../actions";
+import { answerRsvp, deleteSession } from "../actions";
 
 export function RsvpButtons({ sessionId, current }: { sessionId: string; current: RsvpResponse | null }) {
   const [state, action] = useActionState(answerRsvp, initialActionState);
@@ -33,28 +32,6 @@ export function RsvpButtons({ sessionId, current }: { sessionId: string; current
   );
 }
 
-export function AttendeesEditor({
-  sessionId,
-  players,
-  selected,
-}: {
-  sessionId: string;
-  players: { id: string; display_name: string; is_member: boolean }[];
-  selected: string[];
-}) {
-  const [state, action, pending] = useActionState(setAttendees, initialActionState);
-  return (
-    <ActionForm action={action} className="space-y-3">
-      <input type="hidden" name="id" value={sessionId} />
-      <PlayerPicker key={selected.join(",")} name="attendee" players={players} selected={selected} />
-      <button type="submit" disabled={pending} className="btn-secondary">
-        {pending ? "Guardando…" : "Guardar asistentes"}
-      </button>
-      <FormMessage state={state} />
-    </ActionForm>
-  );
-}
-
 export function DeleteSessionButton({ sessionId }: { sessionId: string }) {
   const [state, action] = useLeavingAction(deleteSession);
   return (
@@ -66,7 +43,8 @@ export function DeleteSessionButton({ sessionId }: { sessionId: string }) {
   );
 }
 
-export function OpenPollForm({ sessionId }: { sessionId: string }) {
+/** `latest`: the latest deadline allowed, the Session's start (see latestDeadline). */
+export function OpenPollForm({ sessionId, latest }: { sessionId: string; latest: string }) {
   const [state, action, pending] = useActionState(openPoll, initialActionState);
   return (
     <ActionForm action={action} className="space-y-3">
@@ -75,11 +53,8 @@ export function OpenPollForm({ sessionId }: { sessionId: string }) {
         <label htmlFor="closes_at" className="label">
           Fecha límite
         </label>
-        <input id="closes_at" name="closes_at" type="datetime-local" className="input" />
+        <input id="closes_at" name="closes_at" type="datetime-local" max={latest} className="input" />
       </div>
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="allow_veto" className="size-4" /> Permitir un veto por persona
-      </label>
       <button type="submit" disabled={pending} className="btn-primary">
         {pending ? "Abriendo…" : "Abrir votación"}
       </button>

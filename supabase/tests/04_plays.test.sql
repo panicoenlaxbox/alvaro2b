@@ -1,7 +1,7 @@
 -- save_play under a Member's RLS, and the Play rules on Sessions.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(10);
 
 create function pg_temp.act_as(user_id uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', user_id, 'role', 'authenticated')::text, true);
@@ -18,7 +18,10 @@ grant select on ids to authenticated;
 set local role authenticated;
 select pg_temp.act_as('33333333-3333-4333-8333-333333333333'); -- Carla
 
--- Competitive Play in an upcoming Session: Elena becomes an Attendee
+-- Competitive Play in an upcoming Session: Elena becomes an Attendee and Ana, a "maybe", goes for sure
+insert into public.session_attendees (session_id, player_id, maybe)
+  select 'b0000000-0000-4000-8000-000000000003', ana, true from ids
+  on conflict (session_id, player_id) do update set maybe = true;
 create temp table saved on commit drop as
 select public.save_play(jsonb_build_object(
   'session_id', 'b0000000-0000-4000-8000-000000000003',
@@ -34,6 +37,10 @@ select is((select count(*)::int from public.participants where play_id = (select
 select ok(
   exists (select 1 from public.session_attendees where session_id = 'b0000000-0000-4000-8000-000000000003' and player_id = (select elena from ids)),
   'a Participant becomes an Attendee'
+);
+select is(
+  (select maybe from public.session_attendees where session_id = 'b0000000-0000-4000-8000-000000000003' and player_id = (select ana from ids)),
+  false, 'a Participant who said maybe goes for sure'
 );
 
 -- Editing rewrites the parts: switch to a team Play
@@ -60,16 +67,13 @@ select throws_ok(
   'Every Participant needs a Team', 'team Participants need a Team'
 );
 
--- Any Member edits a Play; only its author or the Admin deletes it
+-- Any Member edits and deletes a Play
 select pg_temp.act_as('22222222-2222-4222-8222-222222222222'); -- Bruno
 select lives_ok(
   format($$select public.save_play('{"id": "%s", "game_id": "a0000000-0000-4000-8000-000000000002", "play_mode": "cooperative",
     "coop_won": true, "participants": [{"player_id": "%s"}]}')$$, (select id from saved), (select ana from ids)),
   'another Member edits the Play'
 );
-with d as (delete from public.plays where id = (select id from saved) returning 1)
-select is(count(*)::int, 0, 'another Member cannot delete the Play') from d;
-select pg_temp.act_as('33333333-3333-4333-8333-333333333333'); -- Carla again
 
 -- Games with Plays cannot be deleted
 reset role;
@@ -77,6 +81,11 @@ select throws_ok(
   $$delete from public.games where id = 'a0000000-0000-4000-8000-000000000001'$$,
   '23503', null, 'a Game with Plays cannot be deleted'
 );
+
+set local role authenticated;
+select pg_temp.act_as('22222222-2222-4222-8222-222222222222'); -- Bruno, who did not log it
+with d as (delete from public.plays where id = (select id from saved) returning 1)
+select is(count(*)::int, 1, 'another Member deletes the Play') from d;
 
 select * from finish();
 rollback;

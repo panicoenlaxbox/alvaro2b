@@ -5,6 +5,7 @@ import { ActionForm, ConfirmSubmitButton, FormMessage } from "@/components/form"
 import { useLeavingAction } from "@/components/leave";
 import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState } from "@/lib/action-state";
+import { PHOTO_CAPTION_MAX } from "@/lib/domain/photos";
 import { deletePhoto, updatePhoto } from "../actions";
 
 export function PhotoEditor({
@@ -30,7 +31,7 @@ export function PhotoEditor({
         <label htmlFor="caption" className="label">
           Pie de foto
         </label>
-        <input id="caption" name="caption" maxLength={500} defaultValue={caption ?? ""} className="input" />
+        <input id="caption" name="caption" maxLength={PHOTO_CAPTION_MAX} defaultValue={caption ?? ""} className="input" />
       </div>
       <fieldset>
         <legend className="label">¿Quién sale?</legend>

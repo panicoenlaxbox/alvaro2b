@@ -7,12 +7,10 @@ import { Faces } from "./owners";
 export function SessionCard({
   session,
 }: {
-  session: { id: string; date: string; name: string | null; place: string | null; playCount: number; attendees: Owner[] };
+  session: { id: string; date: string; time: string | null; name: string | null; place: string | null; attendees: (Owner & { maybe: boolean })[] };
 }) {
-  const details = [
-    session.place,
-    session.playCount ? `${session.playCount} ${session.playCount === 1 ? "partida" : "partidas"}` : null,
-  ].filter(Boolean);
+  // When, where and who: the date is on the tile, the time and place beside it, the Attendees below.
+  const details = [session.time, session.place].filter(Boolean);
 
   return (
     <Link

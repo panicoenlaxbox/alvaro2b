@@ -1,4 +1,4 @@
--- Photo rules: uploads in your name, tagged Play from the same Session, deletes by uploader or Admin.
+-- Photo rules: uploads in your name, tagged Play from the same Session, any Member deletes.
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(5);
@@ -29,9 +29,9 @@ select throws_ok(
 );
 
 select pg_temp.act_as('22222222-2222-4222-8222-222222222222'); -- Bruno
-with d as (delete from public.photos where path = 'photos/t.webp' returning 1)
-select is(count(*)::int, 0, 'another Member cannot delete the Photo') from d;
 select lives_ok($$update public.photos set caption = 'Hola' where path = 'photos/t.webp'$$, 'any Member edits the caption');
+with d as (delete from public.photos where path = 'photos/t.webp' returning 1)
+select is(count(*)::int, 1, 'another Member deletes the Photo') from d;
 
 reset role;
 set local role anon;

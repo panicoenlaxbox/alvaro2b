@@ -9,11 +9,13 @@ import { DateTile } from "@/components/date-tile";
 import { PhotoGrid } from "@/components/photo-grid";
 import { PhotoUploader } from "@/components/photo-uploader";
 import { PlayResult, playSummary } from "@/components/play-result";
-import { formatSessionDate, isUpcoming, RSVP_LABELS, todayIso } from "@/lib/domain/session";
-import { appUrl, whatsappUrl } from "@/lib/share";
+import { formatSessionDate, formatSessionTime, isUpcoming, todayIso } from "@/lib/domain/session";
+import { appUrl } from "@/lib/share";
+import { WhatsAppButton } from "@/components/whatsapp-button";
 import { createClient } from "@/lib/supabase/server";
-import { isPollOpen } from "@/lib/domain/poll";
-import { AttendeesEditor, DeleteSessionButton, OpenPollForm, RsvpButtons } from "./session-detail-forms";
+import { isPollOpen, latestDeadline } from "@/lib/domain/poll";
+import { Avatar } from "@/components/avatar";
+import { DeleteSessionButton, OpenPollForm, RsvpButtons } from "./session-detail-forms";
 
 export async function generateMetadata({ params }: PageProps<"/sessions/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -30,7 +32,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
   const [{ data: session }, players, plays, photos] = await Promise.all([
     supabase
       .from("sessions")
-      .select("*, session_attendees(player_id), rsvps(player_id, response), polls(id, closes_at, closed_at, candidates(count))")
+      .select("*, session_attendees(player_id, maybe), polls(id, closes_at, closed_at, candidates(count))")
       .eq("id", id)
       .maybeSingle(),
     listPlayers(),
@@ -39,12 +41,20 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
   ]);
   if (!session) notFound();
 
-  const names = new Map(players.map((p) => [p.id, p.display_name]));
-  const attendeeIds = session.session_attendees.map((a) => a.player_id);
-  const myRsvp = session.rsvps.find((r) => r.player_id === member.playerId)?.response ?? null;
+  const attendees = session.session_attendees
+    .flatMap((a) => {
+      const player = players.find((p) => p.id === a.player_id);
+      return player ? [{ ...player, maybe: a.maybe }] : [];
+    })
+    .sort((a, b) => a.display_name.localeCompare(b.display_name, "es"));
+  const mine = session.session_attendees.find((a) => a.player_id === member.playerId);
+  const myAnswer = mine ? (mine.maybe ? "maybe" : "yes") : null;
   const upcoming = isUpcoming(session.date, todayIso());
   const url = `${appUrl()}/sessions/${session.id}`;
-  const when = `el ${formatSessionDate(session.date)}${session.place ? ` en ${session.place}` : ""}`;
+  const time = formatSessionTime(session.start_time);
+  const when = `el ${formatSessionDate(session.date)}${time ? ` a las ${time}` : ""}${session.place ? ` en ${session.place}` : ""}`;
+  // Under the title: the date when a name took its place, and the time.
+  const subtitle = [session.name ? formatSessionDate(session.date) : null, time].filter(Boolean).join(", ");
   const shareText = `${session.name ? `«${session.name}», ${when}` : `Sesión de juegos ${when}`}. ¿Te vienes? ${url}`;
 
   return (
@@ -53,24 +63,29 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
         <DateTile date={session.date} size="lg" />
         <div className="min-w-0 space-y-2">
           <h1 className="text-2xl break-words first-letter:uppercase sm:text-4xl">{session.name ?? formatSessionDate(session.date)}</h1>
-          {session.name && <p className="font-medium text-soft first-letter:uppercase">{formatSessionDate(session.date)}</p>}
+          {subtitle && <p className="font-medium text-soft first-letter:uppercase">{subtitle}</p>}
           {session.place && <p className="text-soft">{session.place}</p>}
+          <div className="flex flex-wrap gap-2 pt-1">
+            <WhatsAppButton text={shareText} label="Compartir por WhatsApp" />
+            <Link href={`/sessions/${session.id}/edit`} className="btn-secondary">
+              Editar
+            </Link>
+            <DeleteSessionButton sessionId={session.id} />
+          </div>
         </div>
       </section>
-      {session.notes && <p className="whitespace-pre-line text-soft">{session.notes}</p>}
+      {/* Notes read like the flavour text of a card: serif italics, set apart by a thin rule. */}
+      {session.notes && <p className="max-w-prose border-l-2 border-muted/50 pl-4 font-serif text-lg whitespace-pre-line text-muted italic">{session.notes}</p>}
 
-      {/* One column on the phone (RSVP and the poll first); on wide screens the Plays and Photos sit beside the rest. */}
+      {/* One column on the phone (RSVP and the Attendees first); on wide screens the Plays and Photos sit beside the rest. */}
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
         <div className="contents lg:block lg:space-y-6">
-          <div className="order-4 empty:hidden lg:order-none">
-            <section className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-lg">Partidas ({plays.length})</h2>
-                <Link href={`/sessions/${session.id}/plays/new`} className="btn-primary">
-                  Registrar partida
-                </Link>
-              </div>
-              {plays.length === 0 && <p className="text-sm text-muted">Aún no hay partidas.</p>}
+          <div className="order-5 empty:hidden lg:order-none">
+            <section className="space-y-3">
+              <h2 className="text-lg">Partidas ({plays.length})</h2>
+              <Link href={`/sessions/${session.id}/plays/new`} className="btn-primary">
+                Añadir
+              </Link>
               {plays.map((play) => (
                 <Link key={play.id} href={`/plays/${play.id}`} className="card block space-y-2 p-3">
                   <div className="flex items-center justify-between gap-2">
@@ -99,21 +114,33 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
             {upcoming && (
               <section className="card space-y-3">
                 <h2>¿Vienes?</h2>
-                <RsvpButtons sessionId={session.id} current={myRsvp} />
-                {session.rsvps.length > 0 && (
-                  <ul className="space-y-1 text-sm">
-                    {session.rsvps.map((r) => (
-                      <li key={r.player_id} className="flex justify-between">
-                        <span>{names.get(r.player_id)}</span>
-                        <span className="text-muted">{RSVP_LABELS[r.response]}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <RsvpButtons sessionId={session.id} current={myAnswer} />
               </section>
             )}
           </div>
           <div className="order-3 empty:hidden lg:order-none">
+            <section className="card space-y-3">
+              <h2>Asistentes ({attendees.length})</h2>
+              {attendees.length > 0 ? (
+                <ul className="space-y-1.5">
+                  {attendees.map((p) => (
+                    <li key={p.id} className="flex items-center gap-2 text-sm">
+                      <span className={p.maybe ? "inline-flex opacity-40" : "inline-flex"}>
+                        <Avatar name={p.display_name} url={p.avatar_url} />
+                      </span>
+                      <span>
+                        {p.display_name}
+                        {p.maybe && <span className="text-muted"> (quizá)</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted">Aún no se ha apuntado nadie.</p>
+              )}
+            </section>
+          </div>
+          <div className="order-4 empty:hidden lg:order-none">
             {session.polls ? (
               <Link href={`/polls/${session.polls.id}`} className="card flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <span className="font-semibold">Votación: ¿a qué jugamos?</span>
@@ -125,35 +152,13 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
             ) : (
               upcoming && (
                 <details className="card">
-                  <summary className="cursor-pointer font-semibold">Abrir votación para decidir a qué jugar</summary>
+                  <summary className="cursor-pointer font-semibold">Abrir votación</summary>
                   <div className="mt-3">
-                    <OpenPollForm sessionId={session.id} />
+                    <OpenPollForm sessionId={session.id} latest={latestDeadline(session.date, time)} />
                   </div>
                 </details>
               )
             )}
-          </div>
-          <div className="order-5 empty:hidden lg:order-none">
-            <section className="card space-y-3">
-              <h2>Asistentes ({attendeeIds.length})</h2>
-              <AttendeesEditor sessionId={session.id} players={players} selected={attendeeIds} />
-            </section>
-          </div>
-          <div className="order-7 empty:hidden lg:order-none">
-            <section className="flex flex-wrap gap-2">
-              {upcoming && (
-                <Link href={`/games?session=${session.id}`} className="btn-secondary">
-                  Elegir juego para esta sesión
-                </Link>
-              )}
-              <a href={whatsappUrl(shareText)} target="_blank" rel="noreferrer" className="btn-secondary">
-                Compartir por WhatsApp
-              </a>
-              <Link href={`/sessions/${session.id}/edit`} className="btn-secondary">
-                Editar
-              </Link>
-              {(member.isAdmin || session.created_by === member.userId) && <DeleteSessionButton sessionId={session.id} />}
-            </section>
           </div>
         </aside>
       </div>

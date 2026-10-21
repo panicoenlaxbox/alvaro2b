@@ -10,6 +10,7 @@ import { PlayerPicker } from "@/components/player-picker";
 import type { Owner } from "@/lib/data/explore";
 import type { PlayerOption } from "@/lib/data/players";
 import { initialActionState } from "@/lib/action-state";
+import { GAME_TEXT_LIMITS } from "@/lib/domain/game-form";
 import { COVER_MAX_SIDE } from "@/lib/domain/image-size";
 import { compressImage } from "@/lib/image-client";
 import { createClient } from "@/lib/supabase/client";
@@ -144,7 +145,7 @@ export function CoverEditor({ gameId, url, name, hasOwnCover, className }: { gam
 
 const COVER_BUTTON = "absolute inline-flex size-9 items-center justify-center rounded-full border-[3px] border-ink bg-card text-foreground shadow-hard hover:bg-accent-soft disabled:opacity-50";
 
-type ExpansionItem = { id: string; name: string; retired: boolean; owners: Owner[]; canDelete: boolean };
+type ExpansionItem = { id: string; name: string; retired: boolean; owners: Owner[] };
 
 function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: ExpansionItem }) {
   const [state, run] = useRowAction();
@@ -165,15 +166,13 @@ function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: Expans
             </ConfirmSubmitButton>
           )}
         </form>
-        {expansion.canDelete && (
-          <form action={run(deleteExpansion)}>
-            <input type="hidden" name="id" value={expansion.id} />
-            <input type="hidden" name="game_id" value={gameId} />
-            <ConfirmSubmitButton confirmText="Sí, eliminar">
-              Eliminar
-            </ConfirmSubmitButton>
-          </form>
-        )}
+        <form action={run(deleteExpansion)}>
+          <input type="hidden" name="id" value={expansion.id} />
+          <input type="hidden" name="game_id" value={gameId} />
+          <ConfirmSubmitButton confirmText="Sí, eliminar">
+            Eliminar
+          </ConfirmSubmitButton>
+        </form>
       </div>
       <FormMessage state={state} />
     </li>
@@ -201,7 +200,7 @@ export function ExpansionList({
       )}
       <form action={action} className="space-y-3">
         <input type="hidden" name="game_id" value={gameId} />
-        <input name="name" required maxLength={120} placeholder="Nueva expansión" aria-label="Nombre de la expansión" className="input" />
+        <input name="name" required maxLength={GAME_TEXT_LIMITS.name} placeholder="Nueva expansión" aria-label="Nombre de la expansión" className="input" />
         <fieldset className="space-y-2">
           <legend className="text-sm text-muted">De quién es</legend>
           <PlayerPicker name="owner_id" players={owners} />

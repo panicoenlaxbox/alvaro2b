@@ -10,65 +10,52 @@ const game = (id: string, change: Partial<ExplorableGame> = {}): ExplorableGame 
   maxDuration: 60,
   complexity: 2,
   mode: "competitive",
-  ownerIds: [],
   retired: false,
   playCount: 0,
   lastPlayed: null,
   averageRating: null,
-  myRating: null,
   ...change,
 });
 
-const today = "2026-10-20";
 const ids = (games: ExplorableGame[]) => games.map((g) => g.id);
 
 describe("filterGames", () => {
   it("never shows retired games", () => {
-    expect(ids(filterGames([game("a"), game("b", { retired: true })], {}, today))).toEqual(["a"]);
+    expect(ids(filterGames([game("a"), game("b", { retired: true })], {}))).toEqual(["a"]);
   });
 
   it("filters by player count, treating a missing bound as open", () => {
     const games = [game("2-4"), game("5+", { minPlayers: 5, maxPlayers: null }), game("unknown", { minPlayers: null, maxPlayers: null })];
-    expect(ids(filterGames(games, { players: 5 }, today))).toEqual(["5+"]);
-    expect(ids(filterGames(games, { players: 3 }, today))).toEqual(["2-4"]);
+    expect(ids(filterGames(games, { players: 5 }))).toEqual(["5+"]);
+    expect(ids(filterGames(games, { players: 3 }))).toEqual(["2-4"]);
   });
 
   it("filters by the time available", () => {
     const games = [game("short", { minDuration: 15, maxDuration: 15 }), game("long", { minDuration: 90, maxDuration: 120 })];
-    expect(ids(filterGames(games, { maxMinutes: 45 }, today))).toEqual(["short"]);
+    expect(ids(filterGames(games, { maxMinutes: 45 }))).toEqual(["short"]);
   });
 
-  it("filters by complexity, mode and Owner", () => {
-    const games = [
-      game("light", { complexity: 1.2, ownerIds: ["ana"] }),
-      game("heavy", { complexity: 3.8, mode: "cooperative", ownerIds: ["bruno", "dani"] }),
-    ];
-    expect(ids(filterGames(games, { minComplexity: 3 }, today))).toEqual(["heavy"]);
-    expect(ids(filterGames(games, { maxComplexity: 2 }, today))).toEqual(["light"]);
-    expect(ids(filterGames(games, { mode: "cooperative" }, today))).toEqual(["heavy"]);
-    expect(ids(filterGames(games, { ownerIds: ["ana", "carla"] }, today))).toEqual(["light"]);
-    expect(ids(filterGames(games, { ownerIds: ["dani"] }, today))).toEqual(["heavy"]);
-    expect(ids(filterGames([game("nobody's")], { ownerIds: ["ana"] }, today))).toEqual([]);
+  it("filters by mode", () => {
+    const games = [game("versus"), game("coop", { mode: "cooperative" })];
+    expect(ids(filterGames(games, { mode: "cooperative" }))).toEqual(["coop"]);
   });
 
-  it("filters by history", () => {
+  it("filters the Games never played", () => {
     const games = [
       game("never"),
       game("recent", { playCount: 3, lastPlayed: "2026-10-10" }),
       game("old", { playCount: 1, lastPlayed: "2026-01-05" }),
     ];
-    expect(ids(filterGames(games, { neverPlayed: true }, today))).toEqual(["never"]);
-    expect(ids(filterGames(games, { notPlayedForDays: 30 }, today))).toEqual(["never", "old"]);
+    expect(ids(filterGames(games, { neverPlayed: true }))).toEqual(["never"]);
   });
 
-  it("filters by Rating and by what I like", () => {
-    const games = [game("loved", { averageRating: 4.5, myRating: 5 }), game("meh", { averageRating: 2.5, myRating: 3 }), game("unrated")];
-    expect(ids(filterGames(games, { minRating: 4 }, today))).toEqual(["loved"]);
-    expect(ids(filterGames(games, { iLikeIt: true }, today))).toEqual(["loved"]);
+  it("filters by Rating", () => {
+    const games = [game("loved", { averageRating: 4.5 }), game("meh", { averageRating: 2.5 }), game("unrated")];
+    expect(ids(filterGames(games, { minRating: 4 }))).toEqual(["loved"]);
   });
 
   it("searches by name ignoring case", () => {
-    expect(ids(filterGames([game("Azul"), game("Catan")], { query: "azu" }, today))).toEqual(["Azul"]);
+    expect(ids(filterGames([game("Azul"), game("Catan")], { query: "azu" }))).toEqual(["Azul"]);
   });
 });
 
@@ -96,9 +83,9 @@ describe("pickRandom", () => {
 
 describe("parseFilters", () => {
   it("reads valid params and ignores the rest", () => {
-    const { filters, sort } = parseFilters({ players: "5", minutes: "abc", cmin: "2,5", mode: "team", owner: ["a", "b"], never: "1", sort: "rating" });
+    const { filters, sort } = parseFilters({ players: "5", minutes: "abc", rating: "3,5", mode: "team", never: "1", sort: "rating" });
     expect(sort).toBe("rating");
-    expect(filters).toMatchObject({ players: 5, minComplexity: 2.5, mode: "team", ownerIds: ["a", "b"], neverPlayed: true });
+    expect(filters).toEqual({ players: 5, minRating: 3.5, mode: "team", neverPlayed: true });
     expect(filters.maxMinutes).toBeUndefined();
   });
 
@@ -110,8 +97,5 @@ describe("filterQuery", () => {
     expect(filterQuery([["players", "4"], ["minutes", ""], ["mode", ""], ["q", ""], ["sort", "name"]])).toBe("players=4");
     expect(filterQuery([["sort", "rating"], ["owner", "a"], ["owner", "b"]])).toBe("sort=rating&owner=a&owner=b");
     expect(filterQuery([])).toBe("");
-  });
-  it("keeps the empty fields it is told to", () => {
-    expect(filterQuery([["session", "s1"], ["players", ""], ["minutes", ""]], ["players"])).toBe("session=s1&players=");
   });
 });

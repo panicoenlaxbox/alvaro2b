@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { ActionForm, FormMessage, RequiredMark } from "@/components/form";
 import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState, type ActionState } from "@/lib/action-state";
-import { bggPageUrl, GAME_NUMBER_LIMITS, PLAY_MODE_LABELS, PLAY_MODES, type GameInput } from "@/lib/domain/game-form";
+import { bggPageUrl, GAME_NUMBER_LIMITS, GAME_TEXT_LIMITS, PLAY_MODE_LABELS, PLAY_MODES, type GameInput } from "@/lib/domain/game-form";
 
 export type GameFormDefaults = Partial<GameInput> & { id?: string; bgg_image_url?: string | null; owner_ids?: string[] };
 
@@ -40,7 +40,7 @@ export function GameForm({
           Nombre
           <RequiredMark />
         </label>
-        <input id="name" name="name" required maxLength={120} defaultValue={defaults.name ?? ""} className="input" />
+        <input id="name" name="name" required maxLength={GAME_TEXT_LIMITS.name} defaultValue={defaults.name ?? ""} className="input" />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -97,7 +97,7 @@ export function GameForm({
         <label htmlFor="notes" className="label">
           Notas
         </label>
-        <textarea id="notes" name="notes" rows={3} maxLength={4000} defaultValue={defaults.notes ?? ""} className="input" />
+        <textarea id="notes" name="notes" rows={3} maxLength={GAME_TEXT_LIMITS.notes} defaultValue={defaults.notes ?? ""} className="input" />
       </div>
 
       <FormMessage state={state} />

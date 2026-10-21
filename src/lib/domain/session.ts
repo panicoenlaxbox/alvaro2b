@@ -18,11 +18,35 @@ export function isUpcoming(date: string, today: string): boolean {
 
 export type SessionGroups<T> = { upcoming: T[]; past: T[] };
 
-/** Groups Sessions for the list: upcoming soonest first, past newest first. */
-export function groupSessions<T extends { date: string }>(sessions: T[], today: string): SessionGroups<T> {
-  const upcoming = sessions.filter((s) => isUpcoming(s.date, today)).sort((a, b) => a.date.localeCompare(b.date));
-  const past = sessions.filter((s) => !isUpcoming(s.date, today)).sort((a, b) => b.date.localeCompare(a.date));
+/** Groups Sessions for the list: upcoming soonest first, past newest first, by date and then time (none goes first). */
+export function groupSessions<T extends { date: string; time: string | null }>(sessions: T[], today: string): SessionGroups<T> {
+  const when = (s: T) => `${s.date} ${s.time ?? ""}`;
+  const upcoming = sessions.filter((s) => isUpcoming(s.date, today)).sort((a, b) => when(a).localeCompare(when(b)));
+  const past = sessions.filter((s) => !isUpcoming(s.date, today)).sort((a, b) => when(b).localeCompare(when(a)));
   return { upcoming, past };
+}
+
+/** Longest text each Session field takes; the form's inputs use it too. */
+export const SESSION_TEXT_LIMITS = { name: 60, place: 120, notes: 4000 } as const;
+
+/** The pattern the time input accepts natively, the same shapes parseSessionTime reads. */
+export const SESSION_TIME_PATTERN = String.raw`\d{1,2}([:.]?\d{2})?`;
+
+/** A Session's optional start time in 24-hour format: "20:30", "2030", "20.30" or "20" give "20:30" / "20:00". */
+export function parseSessionTime(text: string): string | null | "invalid" {
+  const trimmed = text.trim();
+  if (trimmed === "") return null;
+  const match = /^(\d{1,2})(?:[:.]?(\d{2}))?$/.exec(trimmed);
+  if (!match) return "invalid";
+  const hours = Number(match[1]);
+  const minutes = Number(match[2] ?? "0");
+  if (hours > 23 || minutes > 59) return "invalid";
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+/** "20:30" from the database's "20:30:00". */
+export function formatSessionTime(time: string | null): string | null {
+  return time ? time.slice(0, 5) : null;
 }
 
 /** "sábado, 24 de octubre de 2026" */

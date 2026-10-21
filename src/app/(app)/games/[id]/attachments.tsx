@@ -9,8 +9,8 @@ import { createClient } from "@/lib/supabase/client";
 import { addAttachmentLink, deleteAttachment, recordAttachmentFile } from "./attachment-actions";
 
 export type AttachmentItem =
-  | { id: string; kind: "link"; url: string; canDelete: boolean }
-  | { id: string; kind: "file"; url: string | null; fileName: string; sizeBytes: number; canDelete: boolean };
+  | { id: string; kind: "link"; url: string }
+  | { id: string; kind: "file"; url: string | null; fileName: string; sizeBytes: number };
 
 /** Files and links of a Game: a list to open them, plus forms to add a link or upload a file. */
 export function Attachments({ gameId, items }: { gameId: string; items: AttachmentItem[] }) {
@@ -55,14 +55,12 @@ function AttachmentRow({ item }: { item: AttachmentItem }) {
           <span className="min-w-0 flex-1 truncate">{item.kind === "file" ? item.fileName : ""}</span>
         )}
         {item.kind === "file" && <span className="shrink-0 text-xs text-muted">{formatBytes(item.sizeBytes)}</span>}
-        {item.canDelete && (
-          <form action={action}>
-            <input type="hidden" name="id" value={item.id} />
-            <ConfirmSubmitButton confirmText="Sí, eliminar">
-              Eliminar
-            </ConfirmSubmitButton>
-          </form>
-        )}
+        <form action={action}>
+          <input type="hidden" name="id" value={item.id} />
+          <ConfirmSubmitButton confirmText="Sí, eliminar">
+            Eliminar
+          </ConfirmSubmitButton>
+        </form>
       </div>
       <FormMessage state={state} />
     </li>

@@ -8,7 +8,8 @@ export function ownerNames(owners: { name: string }[]): string {
   return list.format(owners.map((o) => o.name));
 }
 
-type Face = { id?: string; name: string; avatarUrl: string | null };
+/** `maybe`: an Attendee who might come, shown faded (a "?" would hide under the next face). */
+type Face = { id?: string; name: string; avatarUrl: string | null; maybe?: boolean };
 
 const RING = { card: "ring-card", paper: "ring-paper", background: "ring-background" } as const;
 
@@ -18,13 +19,15 @@ const RING = { card: "ring-card", paper: "ring-paper", background: "ring-backgro
  */
 export function Faces({ people, prefix, on = "card", withNames = false }: { people: Face[]; prefix: string; on?: keyof typeof RING; withNames?: boolean }) {
   if (people.length === 0) return null;
-  const names = ownerNames(people);
+  const names = list.format(people.map((p) => (p.maybe ? `${p.name} (quizá)` : p.name)));
   return (
     <span className="inline-flex shrink-0 items-center gap-2" title={`${prefix} ${names}`}>
       <span className="flex -space-x-2" aria-hidden={withNames}>
         {people.map((p) => (
           <span key={p.id ?? p.name} className={`inline-flex rounded-full ring-2 ${RING[on]}`}>
-            <Avatar name={p.name} url={p.avatarUrl} />
+            <span className={p.maybe ? "inline-flex opacity-40" : "inline-flex"}>
+              <Avatar name={p.name} url={p.avatarUrl} />
+            </span>
           </span>
         ))}
       </span>
@@ -37,6 +40,18 @@ export function Faces({ people, prefix, on = "card", withNames = false }: { peop
           {prefix} {names}
         </span>
       )}
+    </span>
+  );
+}
+
+/** The "?" on the face of an Attendee who might come, in the Player picker, where faded means not picked. */
+export function MaybeMark() {
+  return (
+    <span
+      aria-hidden
+      className="absolute -right-1 -bottom-1 inline-flex size-5 items-center justify-center rounded-full border-2 border-ink bg-accent font-display text-xs leading-none text-ink"
+    >
+      ?
     </span>
   );
 }

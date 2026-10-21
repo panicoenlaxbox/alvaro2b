@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import type { FormHTMLAttributes } from "react";
 import { filterQuery } from "@/lib/domain/explore";
 
-type FilterFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "action" | "onSubmit"> & { action: string; keepEmpty?: string[] };
+type FilterFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "action" | "onSubmit"> & { action: string };
 
 /** A GET filters form that navigates to `action` with only the fields that filter something (see `filterQuery`). */
-export function FilterForm({ action, keepEmpty, ...rest }: FilterFormProps) {
+export function FilterForm({ action, ...rest }: FilterFormProps) {
   const router = useRouter();
 
   return (
@@ -16,7 +16,7 @@ export function FilterForm({ action, keepEmpty, ...rest }: FilterFormProps) {
       onSubmit={(event) => {
         event.preventDefault();
         const entries = [...new FormData(event.currentTarget)].map(([key, value]) => [key, String(value)] as [string, string]);
-        const query = filterQuery(entries, keepEmpty);
+        const query = filterQuery(entries);
         router.push(query ? `${action}?${query}` : action, { scroll: false });
       }}
     />

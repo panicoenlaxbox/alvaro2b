@@ -46,23 +46,20 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
     signedUrls((attachments ?? []).map((a) => a.path), ATTACHMENTS_BUCKET),
   ]);
   const attachmentItems: AttachmentItem[] = (attachments ?? []).map((a) => {
-    const canDelete = member.isAdmin || a.created_by === member.userId;
     return a.kind === "link"
-      ? { id: a.id, kind: "link", url: a.url!, canDelete }
-      : { id: a.id, kind: "file", url: attachmentUrls.get(a.path!) ?? null, fileName: a.file_name!, sizeBytes: a.size_bytes!, canDelete };
+      ? { id: a.id, kind: "link", url: a.url! }
+      : { id: a.id, kind: "file", url: attachmentUrls.get(a.path!) ?? null, fileName: a.file_name!, sizeBytes: a.size_bytes! };
   });
   const names = new Map(members.map((m) => [m.id, m.display_name]));
   const avatars = new Map(members.map((m) => [m.id, m.avatar_url]));
   const ratings = summarizeRatings(game.ratings.map((r) => ({ playerId: r.player_id, stars: r.stars })), names);
   const myStars = game.ratings.find((r) => r.player_id === member.playerId)?.stars ?? 0;
-  const canDelete = member.isAdmin || game.created_by === member.userId;
   const owners = toOwners(game.game_owners);
 
   const stats = [
     { label: "Jugadores", value: playersText(game.min_players, game.max_players)?.replace(" jugadores", "") },
     { label: "Duración", value: durationText(game.min_duration, game.max_duration) },
     { label: "Complejidad", value: game.complexity !== null ? `${Number(game.complexity).toLocaleString("es-ES")}/5` : null },
-    { label: "Año", value: game.year ? String(game.year) : null },
   ].filter((f) => f.value);
 
   return (
@@ -92,7 +89,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
               Editar
             </Link>
             <RetireGameButton gameId={game.id} retired={game.retired_at !== null} />
-            {canDelete && <DeleteGameButton gameId={game.id} />}
+            <DeleteGameButton gameId={game.id} />
           </div>
         </div>
       </section>
@@ -151,7 +148,6 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
                 name: e.name,
                 retired: e.retired_at !== null,
                 owners: toOwners(e.expansion_owners),
-                canDelete: member.isAdmin || e.created_by === member.userId,
               }))}
             />
           </section>

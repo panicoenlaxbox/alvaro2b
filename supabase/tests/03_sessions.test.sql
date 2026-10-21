@@ -1,4 +1,4 @@
--- Sessions have no status: RSVPs are for upcoming ones (dated today or later).
+-- Sessions have no status; Attendees go or maybe go.
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(8);
@@ -20,30 +20,29 @@ create temp table ids on commit drop as
 
 select hasnt_column('public', 'sessions', 'status', 'Sessions have no status');
 
--- RSVP "yes" adds the Member as Attendee; "no" removes them
-insert into public.rsvps (session_id, response) select upcoming, 'yes' from ids;
-select ok(
-  exists (select 1 from public.session_attendees a join public.players p on p.id = a.player_id
-          where a.session_id = (select upcoming from ids) and p.display_name = 'Bruno'),
-  'RSVP yes makes the Member an Attendee'
+-- Answering "¿Vienes?": "Voy" and "Quizá" are Attendee rows, "No voy" deletes the row
+insert into public.session_attendees (session_id, player_id, maybe)
+  select upcoming, private.current_player_id(), true from ids;
+select is(
+  (select maybe from public.session_attendees where session_id = (select upcoming from ids) and player_id = private.current_player_id()),
+  true, 'a Member says maybe'
 );
-update public.rsvps set response = 'no' where session_id = (select upcoming from ids);
+select lives_ok(
+  $$update public.session_attendees set maybe = false
+    where session_id = (select upcoming from ids) and player_id = private.current_player_id()$$,
+  'a Member changes maybe to going'
+);
+delete from public.session_attendees where session_id = (select upcoming from ids) and player_id = private.current_player_id();
 select is(
   (select count(*)::int from public.session_attendees where session_id = (select upcoming from ids)),
-  0, 'RSVP no removes the Attendee'
+  0, 'a Member who is not going leaves the Attendees'
 );
+select hasnt_table('public', 'rsvps', 'RSVPs are folded into Attendees');
 
+-- Optional start time
 select lives_ok(
-  $$insert into public.rsvps (session_id, response) select today, 'yes' from ids$$,
-  'a Session dated today takes RSVPs'
-);
-select throws_ok(
-  $$insert into public.rsvps (session_id, response) select past, 'yes' from ids$$,
-  '42501', null, 'past Sessions take no RSVPs'
-);
-select throws_ok(
-  $$update public.rsvps set session_id = (select past from ids) where session_id = (select today from ids)$$,
-  '42501', null, 'an RSVP cannot move to a past Session'
+  $$update public.sessions set start_time = '20:30' where id = (select upcoming from ids)$$,
+  'a Member sets the start time'
 );
 
 -- Optional name

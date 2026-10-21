@@ -31,11 +31,11 @@ Una Session es *próxima* si su fecha es hoy o futura y *pasada* si es anterior.
 _Evitar_: planificada, celebrada, cancelada, estado
 
 **Attendee**:
-Player que asiste o ha confirmado que asistirá a una Session.
+Player apuntado a una Session: va o *quizá* va. Quien no va no es Attendee.
 _Evitar_: asistente confirmado, participante (reservado para Play)
 
 **RSVP**:
-Respuesta de un Member sobre si asistirá a una Session próxima.
+Respuesta de un Member sobre si asistirá a una Session próxima: "Voy" y "Quizá" lo apuntan como Attendee (que va o que quizá va) y "No voy" lo quita. No se guarda aparte.
 _Evitar_: confirmación, inscripción
 
 **Play**:
@@ -102,17 +102,9 @@ _Evitar_: encuesta, votación vinculante
 Game propuesto por un Member como opción en un Poll.
 _Evitar_: opción, propuesta
 
-**Suggestion**:
-Game del Catalog que la aplicación recomienda proponer en un Poll; solo es Candidate si un Member lo añade.
-_Evitar_: candidato automático
-
 **Approval**:
 Voto de un Member a favor de un Candidate; cada Member puede aprobar varios.
 _Evitar_: voto único, like
-
-**Veto**:
-Rechazo de un Member a un Candidate, si el Poll lo permite.
-_Evitar_: voto negativo, bloqueo
 
 ## Recuerdos
 

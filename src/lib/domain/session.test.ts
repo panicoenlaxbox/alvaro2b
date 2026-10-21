@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatSessionDate, formatShortDate, groupSessions, isUpcoming, todayIso } from "./session";
+import { formatSessionDate, formatSessionTime, formatShortDate, groupSessions, isUpcoming, parseSessionTime, todayIso } from "./session";
 
 describe("todayIso", () => {
   it("uses the group's time zone, not UTC", () => {
@@ -18,15 +18,44 @@ describe("isUpcoming", () => {
 });
 
 describe("groupSessions", () => {
-  it("splits upcoming, soonest first, from past, newest first", () => {
-    const s = (id: string, date: string) => ({ id, date });
+  it("splits upcoming, soonest first, from past, newest first, by date and then time", () => {
+    const s = (id: string, date: string, time: string | null = null) => ({ id, date, time });
     const groups = groupSessions(
-      [s("old", "2026-09-01"), s("recent", "2026-10-15"), s("next", "2026-10-24"), s("today", "2026-10-20"), s("soon", "2026-10-21")],
+      [
+        s("old", "2026-09-01"),
+        s("recent-early", "2026-10-15", "10:00"),
+        s("recent-late", "2026-10-15", "21:00"),
+        s("next", "2026-10-24"),
+        s("today-late", "2026-10-20", "21:00"),
+        s("today-early", "2026-10-20", "17:30"),
+        s("soon", "2026-10-21"),
+      ],
       "2026-10-20",
     );
-    expect(groups.upcoming.map((x) => x.id)).toEqual(["today", "soon", "next"]);
-    expect(groups.past.map((x) => x.id)).toEqual(["recent", "old"]);
+    expect(groups.upcoming.map((x) => x.id)).toEqual(["today-early", "today-late", "soon", "next"]);
+    expect(groups.past.map((x) => x.id)).toEqual(["recent-late", "recent-early", "old"]);
   });
+});
+
+describe("parseSessionTime", () => {
+  it.each([
+    ["20:30", "20:30"],
+    ["9:05", "09:05"],
+    ["2030", "20:30"],
+    ["20.30", "20:30"],
+    ["20", "20:00"],
+    [" 7 ", "07:00"],
+    ["00:00", "00:00"],
+  ])("reads %o as %o", (text, expected) => expect(parseSessionTime(text)).toBe(expected));
+
+  it("is empty for no time", () => expect(parseSessionTime("  ")).toBeNull());
+
+  it.each(["24:00", "20:60", "8pm", "20:3", "abc"])("rejects %o", (text) => expect(parseSessionTime(text)).toBe("invalid"));
+});
+
+describe("formatSessionTime", () => {
+  it("drops the seconds the database adds", () => expect(formatSessionTime("20:30:00")).toBe("20:30"));
+  it("is null without a time", () => expect(formatSessionTime(null)).toBeNull());
 });
 
 describe("formatSessionDate", () => {

@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: PageProps<"/plays/[id]">): Pr
 }
 
 export default async function PlayPage({ params }: PageProps<"/plays/[id]">) {
-  const member = await requireMember();
+  await requireMember();
   const play = await getPlay((await params).id);
   if (!play) notFound();
 
@@ -55,7 +55,7 @@ export default async function PlayPage({ params }: PageProps<"/plays/[id]">) {
         <Link href={`/sessions/${play.sessionId}/plays/new?game=${play.game.id}`} className="btn-secondary">
           Otra partida a este juego
         </Link>
-        {(member.isAdmin || play.createdBy === member.userId) && <DeletePlayButton playId={play.id} />}
+        <DeletePlayButton playId={play.id} />
       </section>
     </div>
   );

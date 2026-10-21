@@ -1,7 +1,7 @@
--- Catalog rules: Ratings belong to their Member, only the author or the Admin deletes.
+-- Catalog rules: Ratings belong to their Member, any Member deletes a Game.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(6);
+select plan(5);
 
 create function pg_temp.act_as(user_id uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', user_id, 'role', 'authenticated')::text, true);
@@ -22,13 +22,11 @@ select throws_ok(
 );
 with d as (delete from public.ratings where game_id = 'a0000000-0000-4000-8000-000000000001' and stars = 5 returning 1) select is(count(*)::int, 0, 'a Member cannot delete another Member''s Rating') from d;
 
--- A Game added by Ana: Bruno cannot delete it, Ana (Admin and author) can
+-- A Game added by Ana: Bruno, another Member, deletes it
 select pg_temp.act_as('11111111-1111-4111-8111-111111111111');
 insert into public.games (name) values ('Test game');
 select pg_temp.act_as('22222222-2222-4222-8222-222222222222');
-with d as (delete from public.games where name = 'Test game' returning 1) select is(count(*)::int, 0, 'only the author or the Admin deletes a Game') from d;
-select pg_temp.act_as('11111111-1111-4111-8111-111111111111');
-with d as (delete from public.games where name = 'Test game' returning 1) select is(count(*)::int, 1, 'the author deletes a Game without Plays') from d;
+with d as (delete from public.games where name = 'Test game' returning 1) select is(count(*)::int, 1, 'any Member deletes a Game without Plays') from d;
 
 -- Signed-out visitors see nothing
 reset role;

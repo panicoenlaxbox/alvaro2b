@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { isPollOpen, localDateTimeToIso, needsTieBreak, rankCandidates, type CandidateTally } from "./poll";
+import { isPollOpen, latestDeadline, localDateTimeToIso, needsTieBreak, rankCandidates, type CandidateTally } from "./poll";
 
-const c = (name: string, approvals: string[], vetoes: string[] = [], chosen = false): CandidateTally => ({
-  id: name,
-  gameId: name,
-  name,
-  approvals,
-  vetoes,
-  chosen,
-});
+const c = (name: string, approvals: string[], chosen = false): CandidateTally => ({ id: name, gameId: name, name, approvals, chosen });
 
 describe("isPollOpen", () => {
   const now = new Date("2026-10-20T12:00:00Z");
@@ -31,21 +24,12 @@ describe("rankCandidates", () => {
     expect(needsTieBreak(ranked)).toBe(true);
   });
 
-  it("puts vetoed Candidates last and never leading", () => {
-    const ranked = rankCandidates([c("Azul", ["a", "b", "c"], ["d"]), c("Catan", ["a"])]);
-    expect(ranked.map((r) => [r.name, r.vetoed, r.leading])).toEqual([
-      ["Catan", false, true],
-      ["Azul", true, false],
-    ]);
-    expect(needsTieBreak(ranked)).toBe(false);
-  });
-
   it("has no leader without Approvals", () => {
     expect(rankCandidates([c("Azul", []), c("Catan", [])]).some((r) => r.leading)).toBe(false);
   });
 
-  it("stops asking for a tie-break once the creator chose", () => {
-    expect(needsTieBreak(rankCandidates([c("Azul", ["a"], [], true), c("Catan", ["b"])]))).toBe(false);
+  it("stops asking for a tie-break once someone chose", () => {
+    expect(needsTieBreak(rankCandidates([c("Azul", ["a"], true), c("Catan", ["b"])]))).toBe(false);
   });
 });
 
@@ -53,4 +37,9 @@ describe("localDateTimeToIso", () => {
   it("reads Madrid summer time (UTC+2)", () => expect(localDateTimeToIso("2026-10-20T20:00")).toBe("2026-10-20T18:00:00.000Z"));
   it("reads Madrid winter time (UTC+1)", () => expect(localDateTimeToIso("2026-11-20T20:00")).toBe("2026-11-20T19:00:00.000Z"));
   it("rejects other formats", () => expect(localDateTimeToIso("20/10/2026")).toBeNull());
+});
+
+describe("latestDeadline", () => {
+  it("is the Session's start time", () => expect(latestDeadline("2026-10-24", "20:30")).toBe("2026-10-24T20:30"));
+  it("is the end of the Session's day when it has no time", () => expect(latestDeadline("2026-10-24", null)).toBe("2026-10-24T23:59"));
 });

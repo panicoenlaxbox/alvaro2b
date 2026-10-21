@@ -8,7 +8,7 @@ const TILTS = ["-rotate-2", "rotate-1", "-rotate-1", "rotate-2", "rotate-[0.5deg
 
 /** Caption and tagged Players go in the Polaroid's bottom margin, so every Photo keeps the same size. */
 export function PhotoGrid({ photos }: { photos: Pick<PhotoThumb, "id" | "thumbUrl" | "caption" | "tagged">[] }) {
-  if (photos.length === 0) return <p className="text-sm text-muted">Aún no hay fotos.</p>;
+  if (photos.length === 0) return null;
   return (
     <ul className="grid grid-cols-2 gap-x-4 gap-y-5 py-2 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-8 lg:grid-cols-4">
       {photos.map((p, i) => (

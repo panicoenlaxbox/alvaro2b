@@ -373,14 +373,14 @@ isOneToOne: false
                   ]
                 },"polls": {
                   Row: {
-                    "allow_veto": boolean,"closed_at": string | null,"closes_at": string | null,"created_at": string,"created_by": string | null,"id": string,"session_id": string
+                    "closed_at": string | null,"closes_at": string | null,"created_at": string,"created_by": string | null,"id": string,"session_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "allow_veto"?: boolean,"closed_at"?: string | null,"closes_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"session_id": string
+                    "closed_at"?: string | null,"closes_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"session_id": string
                   }
                   Update: {
-                    "allow_veto"?: boolean,"closed_at"?: string | null,"closes_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"session_id"?: string
+                    "closed_at"?: string | null,"closes_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"session_id"?: string
                   }
                   Relationships: [
                     {
@@ -417,42 +417,16 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"rsvps": {
-                  Row: {
-                    "player_id": string,"response": Database["public"]['Enums']["rsvp_response"],"session_id": string,"updated_at": string
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "player_id"?: string,"response": Database["public"]['Enums']["rsvp_response"],"session_id": string,"updated_at"?: string
-                  }
-                  Update: {
-                    "player_id"?: string,"response"?: Database["public"]['Enums']["rsvp_response"],"session_id"?: string,"updated_at"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "rsvps_player_id_fkey"
-      columns: ["player_id"]
-isOneToOne: false
-      referencedRelation: "players"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "rsvps_session_id_fkey"
-      columns: ["session_id"]
-isOneToOne: false
-      referencedRelation: "sessions"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"session_attendees": {
                   Row: {
-                    "created_at": string,"player_id": string,"session_id": string
+                    "created_at": string,"maybe": boolean,"player_id": string,"session_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"player_id": string,"session_id": string
+                    "created_at"?: string,"maybe"?: boolean,"player_id": string,"session_id": string
                   }
                   Update: {
-                    "created_at"?: string,"player_id"?: string,"session_id"?: string
+                    "created_at"?: string,"maybe"?: boolean,"player_id"?: string,"session_id"?: string
                   }
                   Relationships: [
                     {
@@ -471,14 +445,14 @@ isOneToOne: false
                   ]
                 },"sessions": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"date": string,"id": string,"name": string | null,"notes": string | null,"place": string | null,"updated_at": string
+                    "created_at": string,"created_by": string | null,"date": string,"id": string,"name": string | null,"notes": string | null,"place": string | null,"start_time": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"date": string,"id"?: string,"name"?: string | null,"notes"?: string | null,"place"?: string | null,"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"date": string,"id"?: string,"name"?: string | null,"notes"?: string | null,"place"?: string | null,"start_time"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"date"?: string,"id"?: string,"name"?: string | null,"notes"?: string | null,"place"?: string | null,"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"date"?: string,"id"?: string,"name"?: string | null,"notes"?: string | null,"place"?: string | null,"start_time"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -500,38 +474,6 @@ isOneToOne: false
       columns: ["play_id"]
 isOneToOne: false
       referencedRelation: "plays"
-      referencedColumns: ["id"]
-    }
-                  ]
-                },"vetoes": {
-                  Row: {
-                    "candidate_id": string,"created_at": string,"player_id": string,"poll_id": string
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "candidate_id": string,"created_at"?: string,"player_id"?: string,"poll_id": string
-                  }
-                  Update: {
-                    "candidate_id"?: string,"created_at"?: string,"player_id"?: string,"poll_id"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "vetoes_candidate_id_fkey"
-      columns: ["candidate_id"]
-isOneToOne: false
-      referencedRelation: "candidates"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "vetoes_player_id_fkey"
-      columns: ["player_id"]
-isOneToOne: false
-      referencedRelation: "players"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "vetoes_poll_id_fkey"
-      columns: ["poll_id"]
-isOneToOne: false
-      referencedRelation: "polls"
       referencedColumns: ["id"]
     }
                   ]
@@ -558,7 +500,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "attachment_kind": "file"|"link","play_mode": "competitive"|"cooperative"|"team","rsvp_response": "yes"|"maybe"|"no"
+            "attachment_kind": "file"|"link","play_mode": "competitive"|"cooperative"|"team"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -678,7 +620,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "attachment_kind": ["file", "link"],"play_mode": ["competitive", "cooperative", "team"],"rsvp_response": ["yes", "maybe", "no"]
+            "attachment_kind": ["file", "link"],"play_mode": ["competitive", "cooperative", "team"]
           }
         }
 } as const
