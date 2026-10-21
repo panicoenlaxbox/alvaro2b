@@ -17,7 +17,7 @@ export async function loadStatsData(): Promise<StatsData> {
     supabase
       .from("plays")
       .select("id, session_id, game_id, play_mode, duration_minutes, coop_won, sessions(date), participants(player_id, rank, team_id), teams(id, won)"),
-    supabase.from("sessions").select("id, date, status, session_attendees(player_id)"),
+    supabase.from("sessions").select("id, date, session_attendees(player_id)"),
     supabase.from("games").select("id, name, retired_at, min_duration, max_duration").order("name"),
     supabase.from("players").select("id, display_name, user_id").order("display_name"),
   ]);
@@ -37,7 +37,6 @@ export async function loadStatsData(): Promise<StatsData> {
     sessions: (sessions.data ?? []).map((s) => ({
       id: s.id,
       date: s.date,
-      status: s.status,
       attendees: s.session_attendees.map((a) => a.player_id),
     })),
     games: (games.data ?? []).map((g) => ({

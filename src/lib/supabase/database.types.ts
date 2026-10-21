@@ -471,14 +471,14 @@ isOneToOne: false
                   ]
                 },"sessions": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"date": string,"id": string,"name": string | null,"notes": string | null,"place": string | null,"status": Database["public"]['Enums']["session_status"],"updated_at": string
+                    "created_at": string,"created_by": string | null,"date": string,"id": string,"name": string | null,"notes": string | null,"place": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"date": string,"id"?: string,"name"?: string | null,"notes"?: string | null,"place"?: string | null,"status"?: Database["public"]['Enums']["session_status"],"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"date": string,"id"?: string,"name"?: string | null,"notes"?: string | null,"place"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"date"?: string,"id"?: string,"name"?: string | null,"notes"?: string | null,"place"?: string | null,"status"?: Database["public"]['Enums']["session_status"],"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"date"?: string,"id"?: string,"name"?: string | null,"notes"?: string | null,"place"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -558,7 +558,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "attachment_kind": "file"|"link","play_mode": "competitive"|"cooperative"|"team","rsvp_response": "yes"|"maybe"|"no","session_status": "planned"|"held"|"cancelled"
+            "attachment_kind": "file"|"link","play_mode": "competitive"|"cooperative"|"team","rsvp_response": "yes"|"maybe"|"no"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -678,7 +678,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "attachment_kind": ["file", "link"],"play_mode": ["competitive", "cooperative", "team"],"rsvp_response": ["yes", "maybe", "no"],"session_status": ["planned", "held", "cancelled"]
+            "attachment_kind": ["file", "link"],"play_mode": ["competitive", "cooperative", "team"],"rsvp_response": ["yes", "maybe", "no"]
           }
         }
 } as const

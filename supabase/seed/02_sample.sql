@@ -44,15 +44,12 @@ from (values
 ) as r (game_id, name, stars)
 join public.players p on p.display_name = r.name;
 
--- Sessions relative to the reset date, so the seed always has past, future and pending ones.
+-- Sessions relative to the reset date, so the seed always has past and upcoming ones, one past without Plays.
 insert into public.sessions (id, date, place, created_by) values
   ('b0000000-0000-4000-8000-000000000001', private.today() - 30, 'Casa de Ana', '11111111-1111-4111-8111-111111111111'),
-  ('b0000000-0000-4000-8000-000000000002', private.today() - 9, 'Bar La Partida', '22222222-2222-4222-8222-222222222222');
--- Planned Sessions are created in the future; one is then moved to the past to be pending close.
-insert into public.sessions (id, date, place, created_by) values
+  ('b0000000-0000-4000-8000-000000000002', private.today() - 9, 'Bar La Partida', '22222222-2222-4222-8222-222222222222'),
   ('b0000000-0000-4000-8000-000000000003', private.today() + 4, 'Casa de Carla', '33333333-3333-4333-8333-333333333333'),
-  ('b0000000-0000-4000-8000-000000000004', private.today() + 1, null, '11111111-1111-4111-8111-111111111111');
-update public.sessions set date = private.today() - 2 where id = 'b0000000-0000-4000-8000-000000000004';
+  ('b0000000-0000-4000-8000-000000000004', private.today() - 2, null, '11111111-1111-4111-8111-111111111111');
 
 insert into public.session_attendees (session_id, player_id)
 select s.session_id, p.id
@@ -69,7 +66,7 @@ select 'b0000000-0000-4000-8000-000000000003', p.id, r.response::public.rsvp_res
 from (values ('Carla', 'yes'), ('Bruno', 'maybe')) as r (name, response)
 join public.players p on p.display_name = r.name;
 
--- Plays in the held Sessions, one per Play mode plus a tie.
+-- Plays in the past Sessions, one per Play mode plus a tie.
 do $$
 declare
   p_ana uuid := (select id from public.players where display_name = 'Ana');
@@ -107,7 +104,7 @@ begin
 end;
 $$;
 
--- A planned Session with an open Poll. It is created after the Plays above, so it stays planned.
+-- An upcoming Session with an open Poll.
 insert into public.sessions (id, date, place, created_by)
 values ('b0000000-0000-4000-8000-000000000005', private.today() + 6, 'Casa de Ana', '11111111-1111-4111-8111-111111111111');
 insert into public.session_attendees (session_id, player_id)

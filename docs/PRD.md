@@ -92,20 +92,16 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Rating medio ≥ X y "a mí me gusta".
 - **Ordenación**, entre otros criterios, por Rating.
 - **"¿A qué jugamos hoy?" en Inicio**: tres preguntas rápidas (cuántos somos, cuánto tiempo tenemos, cooperativo o competitivo) y el botón **"¡Tira el dado!"**, que elige al azar un Game de los que encajan, con unos segundos de suspense en los que van pasando nombres y frases. El resultado sale en la misma Inicio. El Catalog no tiene dado.
-- **Con una Session planificada**: los filtros pueden partir de sus Attendees, por ejemplo "juegos para 5" o "juegos con algún Owner que viene".
+- **Con una Session próxima**: los filtros pueden partir de sus Attendees, por ejemplo "juegos para 5" o "juegos con algún Owner que viene".
 
 ### 4. Sessions
 
 - **Datos**: fecha, nombre (opcional, por ejemplo "Sábado de mazmorreo", se muestra junto a la fecha), lugar (opcional), Attendees, notas y Photos.
-- **Ciclo de vida**:
-  - Con fecha pasada, la Session nace **celebrada**: se está registrando algo que ya ocurrió.
-  - Con fecha de hoy o futura, nace **planificada**. Es un paso opcional: muchas veces quedamos y se registra todo directamente, y la primera Play la pasa a celebrada.
-  - De planificada se pasa a celebrada a mano ("¡Empezamos!") o al registrar la primera Play.
-  - Una planificada puede **cancelarse**. Una celebrada no.
-  - Si una planificada queda en el pasado sin Plays, aparece como **pendiente de cerrar** para que alguien la registre o la cancele. No se elimina sola.
-- **RSVP**. En una planificada, los Members confirman si asistirán.
+- **Sin estados**. Una Session no tiene estado: es **próxima** si su fecha es hoy o futura y **pasada** si es anterior. Siempre admite Plays y Photos.
+- **Si no se celebra, se elimina.** No hay cancelación.
+- **RSVP**. En una próxima, los Members confirman si asistirán.
 - **Compartir**. Un botón "Compartir por WhatsApp" genera el enlace de la Session o de su Poll.
-- **Listado**. Primero las pendientes de cerrar, luego las próximas, después las celebradas, de la más reciente a la más antigua y de 10 en 10, y al final las canceladas. Cada grupo muestra cuántas tiene y se puede plegar; las celebradas y las canceladas empiezan plegadas.
+- **Listado**. Primero las próximas, de la más cercana a la más lejana, y después las pasadas, de la más reciente a la más antigua y de 10 en 10. Cada grupo muestra cuántas tiene y se puede plegar; las pasadas empiezan plegadas.
 
 ### 5. Plays
 
@@ -125,7 +121,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 
 ### 6. Polls
 
-- **Asociación**. Un Poll pertenece siempre a una Session planificada.
+- **Asociación**. Un Poll pertenece siempre a una Session próxima.
 - **Candidates**.
   - Cualquier Member puede añadir Candidates mientras el Poll está abierto.
   - La aplicación muestra Suggestions del Catalog, filtradas por número de Attendees, duración y Rating. Una Suggestion solo pasa a ser Candidate si un Member la añade.
@@ -151,10 +147,10 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 Todas son filtrables por año o rango de fechas. En los rankings, los Players llevan su avatar, y el número de Plays o Sessions lleva a ellas: directamente si es una, o desplegando la lista con sus fechas si son varias.
 
 - **Grupo**:
-  - Sessions y Plays totales, y horas jugadas.
+  - Sessions con al menos una Play, Plays totales y horas jugadas.
   - Games más jugados.
   - Games del Catalog nunca jugados ("la vergüenza de la estantería").
-  - Asistencia por Member.
+  - Asistencia por Member, contando las Sessions con al menos una Play.
 - **Player**:
   - Plays y victorias.
   - Porcentaje de victorias en Plays competitivas.

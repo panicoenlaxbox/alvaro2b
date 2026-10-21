@@ -18,7 +18,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   const { filters } = parseFilters(params);
   const fits = filterGames(games, { players: filters.players, maxMinutes: filters.maxMinutes, mode: filters.mode }, today);
   const [next, ...later] = groups.upcoming;
-  const lastHeld = groups.held[0];
+  const lastPast = groups.past[0];
 
   return (
     <div className="space-y-8">
@@ -65,17 +65,6 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         </div>
       </AutoSubmitForm>
 
-      {groups.pendingClose.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-lg text-danger">Pendientes de cerrar</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {groups.pendingClose.map((s) => (
-              <SessionCard key={s.id} session={s} pendingClose />
-            ))}
-          </div>
-        </section>
-      )}
-
       <section className="space-y-3">
         <h2 className="text-lg">Próximas sesiones</h2>
         {groups.upcoming.length ? (
@@ -86,7 +75,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           </div>
         ) : (
           <div className="rounded-2xl border-[3px] border-dashed border-border p-6 text-center text-soft">
-            No hay ninguna planificada.{" "}
+            No hay ninguna.{" "}
             <Link href="/sessions/new" className="font-bold text-accent underline">
               ¿Montamos una?
             </Link>
@@ -94,11 +83,11 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         )}
       </section>
 
-      {lastHeld && (
+      {lastPast && (
         <section className="space-y-3">
           <h2 className="text-lg">Última sesión</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <SessionCard session={lastHeld} />
+            <SessionCard session={lastPast} />
           </div>
         </section>
       )}

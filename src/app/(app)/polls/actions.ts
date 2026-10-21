@@ -28,7 +28,7 @@ export async function openPoll(_prev: ActionState, formData: FormData): Promise<
     .single();
   if (error) {
     if (error.code === "23505") return { error: "Esta sesión ya tiene votación." };
-    if (error.code === "42501") return { error: "Solo se puede abrir una votación en una sesión planificada." };
+    if (error.code === "42501") return { error: "Solo se puede abrir una votación en una sesión de hoy o futura." };
     return { error: errorMessage(error) };
   }
 

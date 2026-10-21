@@ -1,34 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton } from "@/components/form";
+import { ActionForm, ConfirmSubmitButton, FormMessage } from "@/components/form";
 import { useLeavingAction } from "@/components/leave";
 import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState } from "@/lib/action-state";
 import { RSVP_LABELS, RSVP_RESPONSES, type RsvpResponse } from "@/lib/domain/session";
 import { openPoll } from "../../polls/actions";
-import { answerRsvp, deleteSession, setAttendees, setSessionStatus } from "../actions";
-
-export function StatusButtons({ sessionId }: { sessionId: string }) {
-  const [state, action] = useActionState(setSessionStatus, initialActionState);
-  return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-2">
-        <form action={action}>
-          <input type="hidden" name="id" value={sessionId} />
-          <input type="hidden" name="status" value="held" />
-          <SubmitButton>¡Empezamos!</SubmitButton>
-        </form>
-        <form action={action}>
-          <input type="hidden" name="id" value={sessionId} />
-          <input type="hidden" name="status" value="cancelled" />
-          <ConfirmSubmitButton confirmText="Sí, cancelar">Cancelar sesión</ConfirmSubmitButton>
-        </form>
-      </div>
-      <FormMessage state={state} />
-    </div>
-  );
-}
+import { answerRsvp, deleteSession, setAttendees } from "../actions";
 
 export function RsvpButtons({ sessionId, current }: { sessionId: string; current: RsvpResponse | null }) {
   const [state, action] = useActionState(answerRsvp, initialActionState);

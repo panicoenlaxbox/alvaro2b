@@ -50,10 +50,7 @@ export async function savePlay(json: string, start = false): Promise<ActionState
   const { data: playId, error } = await supabase.rpc("save_play", {
     play: toSavePlayPayload(input, game.lower_score_wins) as unknown as Json,
   });
-  if (error) {
-    if (error.message === "Cannot add Plays to a cancelled Session") return { error: "La sesión está cancelada." };
-    return { error: errorMessage(error) };
-  }
+  if (error) return { error: errorMessage(error) };
 
   revalidatePlay(input.sessionId, playId);
   redirect(`/plays/${playId}`, RedirectType.replace);

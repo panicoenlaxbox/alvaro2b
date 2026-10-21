@@ -28,11 +28,11 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
     listCatalogGames(member.playerId),
     listMembers(),
     sessionId
-      ? supabase.from("sessions").select("id, date, status, session_attendees(player_id)").eq("id", sessionId).maybeSingle()
+      ? supabase.from("sessions").select("id, date, session_attendees(player_id)").eq("id", sessionId).maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
 
-  // With a planned Session, filters start from its Attendees (PRD 3).
+  // With a Session, filters start from its Attendees (PRD 3).
   const attendeeIds = session?.session_attendees.map((a) => a.player_id) ?? [];
   const { filters, sort } = parseFilters(params);
   if (session && params.players === undefined && attendeeIds.length) filters.players = attendeeIds.length;

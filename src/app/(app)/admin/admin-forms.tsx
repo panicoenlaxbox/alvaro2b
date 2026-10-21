@@ -16,7 +16,7 @@ function WhatsAppIcon() {
   );
 }
 
-/** Same colours as the Session status chips: soft red needs action, green is live, dashed is off. */
+/** Soft red needs action, green is live, dashed is off. */
 const STATUS_CHIP = {
   Pendiente: "border-danger text-danger",
   Activo: "border-green text-green",

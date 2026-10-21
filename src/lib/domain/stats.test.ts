@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { gameStats, groupStats, parseRange, playerStats, type StatsGame, type StatsPlay, type StatsSession } from "./stats";
 
+// The Session of the fixture below on that day, if any.
+const sessionOn = (date: string) => ({ "2025-12-20": "s1", "2026-01-10": "s2", "2026-03-15": "s3" })[date] ?? `s-${date}`;
+
 const comp = (id: string, date: string, gameId: string, ranks: Record<string, number | null>, minutes: number | null = 30): StatsPlay => ({
   id,
-  sessionId: `s-${date}`,
+  sessionId: sessionOn(date),
   date,
   gameId,
   mode: "competitive",
@@ -15,7 +18,7 @@ const comp = (id: string, date: string, gameId: string, ranks: Record<string, nu
 
 const coop = (id: string, date: string, gameId: string, players: string[], won: boolean | null): StatsPlay => ({
   id,
-  sessionId: `s-${date}`,
+  sessionId: sessionOn(date),
   date,
   gameId,
   mode: "cooperative",
@@ -27,7 +30,7 @@ const coop = (id: string, date: string, gameId: string, players: string[], won: 
 
 const team = (id: string, date: string, gameId: string, red: string[], blue: string[], redWon: boolean): StatsPlay => ({
   id,
-  sessionId: `s-${date}`,
+  sessionId: sessionOn(date),
   date,
   gameId,
   mode: "team",
@@ -60,10 +63,10 @@ const games: StatsGame[] = [
 ];
 
 const sessions: StatsSession[] = [
-  { id: "s1", date: "2025-12-20", status: "held", attendees: ["ana", "bruno", "carla"] },
-  { id: "s2", date: "2026-01-10", status: "held", attendees: ["ana", "bruno", "carla", "dani"] },
-  { id: "s3", date: "2026-03-15", status: "held", attendees: ["ana", "bruno", "carla"] },
-  { id: "s4", date: "2026-05-01", status: "cancelled", attendees: ["ana"] },
+  { id: "s1", date: "2025-12-20", attendees: ["ana", "bruno", "carla"] },
+  { id: "s2", date: "2026-01-10", attendees: ["ana", "bruno", "carla", "dani"] },
+  { id: "s3", date: "2026-03-15", attendees: ["ana", "bruno", "carla"] },
+  { id: "s4", date: "2026-05-01", attendees: ["ana"] }, // no Plays
 ];
 
 describe("parseRange", () => {
@@ -72,7 +75,7 @@ describe("parseRange", () => {
 });
 
 describe("groupStats", () => {
-  it("counts held Sessions, Plays, hours, most played, shelf of shame and attendance", () => {
+  it("counts Sessions with Plays, Plays, hours, most played, shelf of shame and attendance", () => {
     const stats = groupStats(sessions, plays, games, {});
     expect(stats.sessions).toBe(3);
     expect(stats.plays).toBe(7);

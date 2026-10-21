@@ -1,4 +1,4 @@
--- Poll rules: planned Sessions only, Members vote for themselves while open, Vetoes, creator rights.
+-- Poll rules: upcoming Sessions only, Members vote for themselves while open, Vetoes, creator rights.
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(9);
@@ -12,7 +12,7 @@ select pg_temp.act_as('22222222-2222-4222-8222-222222222222'); -- Bruno
 
 select throws_ok(
   $$insert into public.polls (session_id) values ('b0000000-0000-4000-8000-000000000001')$$,
-  '42501', null, 'held Sessions cannot get a Poll'
+  '42501', null, 'past Sessions cannot get a Poll'
 );
 
 select lives_ok(

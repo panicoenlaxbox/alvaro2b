@@ -1,5 +1,4 @@
 import "server-only";
-import type { SessionStatus } from "@/lib/domain/session";
 import { createClient } from "@/lib/supabase/server";
 import { toOwners, type Owner } from "./explore";
 
@@ -8,7 +7,6 @@ export type SessionListItem = {
   date: string;
   name: string | null;
   place: string | null;
-  status: SessionStatus;
   playCount: number;
   attendeeCount: number;
   attendees: Owner[];
@@ -18,7 +16,7 @@ export async function listSessions(): Promise<SessionListItem[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("sessions")
-    .select("id, date, name, place, status, session_attendees(players(id, display_name, avatar_url)), plays(count)")
+    .select("id, date, name, place, session_attendees(players(id, display_name, avatar_url)), plays(count)")
     .order("date", { ascending: false });
 
   return (data ?? []).map((s) => ({
@@ -26,7 +24,6 @@ export async function listSessions(): Promise<SessionListItem[]> {
     date: s.date,
     name: s.name,
     place: s.place,
-    status: s.status,
     playCount: s.plays[0]?.count ?? 0,
     attendeeCount: s.session_attendees.length,
     attendees: toOwners(s.session_attendees),

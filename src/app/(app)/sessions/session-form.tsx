@@ -27,7 +27,6 @@ export function SessionForm({
           <RequiredMark />
         </label>
         <input id="date" name="date" type="date" required defaultValue={defaults?.date ?? today} className="input" />
-        <p className="mt-1 text-xs hint">Antes de hoy: se registra como celebrada. Hoy o más adelante: queda planificada.</p>
       </div>
       <div>
         <label htmlFor="name" className="label">

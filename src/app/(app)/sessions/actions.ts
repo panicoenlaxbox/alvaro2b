@@ -62,19 +62,6 @@ export async function updateSession(_prev: ActionState, formData: FormData): Pro
   redirect(`/sessions/${id}`, RedirectType.replace);
 }
 
-export async function setSessionStatus(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireMember();
-  const id = String(formData.get("id"));
-  const status = formData.get("status") === "cancelled" ? "cancelled" : "held";
-
-  const supabase = await createClient();
-  const { error } = await supabase.from("sessions").update({ status }).eq("id", id).select("id").single();
-  if (error) return { error: errorMessage(error) };
-
-  revalidateSession(id);
-  return { ok: true };
-}
-
 export async function deleteSession(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireMember();
   const id = String(formData.get("id"));

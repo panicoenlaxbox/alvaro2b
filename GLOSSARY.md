@@ -26,16 +26,16 @@ _Evitar_: moderador, propietario del grupo
 Una quedada del grupo en una fecha concreta, en la que se juegan cero o más Plays.
 _Evitar_: quedada, evento, partida, noche de juegos
 
-**Session status**:
-Situación de una Session: *planificada* (fecha de hoy o futura, opcional), *celebrada* o *cancelada* (solo desde planificada). Una Session planificada cuya fecha ya ha pasado sin Plays está *pendiente de cerrar*, que es una condición y no un estado.
-_Evitar_: fase, etapa
+**Upcoming / past Session**:
+Una Session es *próxima* si su fecha es hoy o futura y *pasada* si es anterior. Se deduce de la fecha: una Session no tiene estado.
+_Evitar_: planificada, celebrada, cancelada, estado
 
 **Attendee**:
 Player que asiste o ha confirmado que asistirá a una Session.
 _Evitar_: asistente confirmado, participante (reservado para Play)
 
 **RSVP**:
-Respuesta de un Member sobre si asistirá a una Session planificada.
+Respuesta de un Member sobre si asistirá a una Session próxima.
 _Evitar_: confirmación, inscripción
 
 **Play**:
@@ -95,7 +95,7 @@ _Evitar_: ficha BGG, datos importados
 ## Votación
 
 **Poll**:
-Votación orientativa, asociada a una Session planificada, para decidir a qué Games jugar.
+Votación orientativa, asociada a una Session próxima, para decidir a qué Games jugar.
 _Evitar_: encuesta, votación vinculante
 
 **Candidate**:
