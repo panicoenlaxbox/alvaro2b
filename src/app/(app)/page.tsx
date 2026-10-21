@@ -54,7 +54,7 @@ export default async function HomePage() {
 
       {groups.pendingClose.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-lg text-coral">Pendientes de cerrar</h2>
+          <h2 className="text-lg text-danger">Pendientes de cerrar</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {groups.pendingClose.map((s) => (
               <SessionCard key={s.id} session={s} pendingClose />

@@ -62,7 +62,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
       <section className="flex items-start gap-4">
         <DateTile date={session.date} size="lg" />
         <div className="min-w-0 space-y-2">
-          <span className={`chip ${pending ? "border-coral text-coral" : STATUS_CHIP[session.status]}`}>
+          <span className={`chip ${pending ? "border-danger text-danger" : STATUS_CHIP[session.status]}`}>
             {pending ? "Pendiente de cerrar" : SESSION_STATUS_LABELS[session.status]}
           </span>
           <h1 className="text-2xl break-words first-letter:uppercase sm:text-4xl">{session.name ?? formatSessionDate(session.date)}</h1>

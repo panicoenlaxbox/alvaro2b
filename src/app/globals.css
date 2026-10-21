@@ -16,6 +16,7 @@
   --accent-soft: #3a3350;
   --coral: #ef6f4c;
   --teal: #3cc4b0;
+  --green: #8fd16a;
   --blue: #5b8def;
   --danger: #ff9a80;
   --paper: #f6f1e7;
@@ -35,6 +36,7 @@
   --color-accent-soft: var(--accent-soft);
   --color-coral: var(--coral);
   --color-teal: var(--teal);
+  --color-green: var(--green);
   --color-blue: var(--blue);
   --color-danger: var(--danger);
   --color-paper: var(--paper);

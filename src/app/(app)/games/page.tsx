@@ -253,7 +253,7 @@ function Check({ name, checked, children }: { name: string; checked?: boolean; c
 }
 
 const MODE_TAG: Record<PlayMode, { label: string; className: string }> = {
-  competitive: { label: "Versus", className: "text-coral" },
+  competitive: { label: "Versus", className: "text-danger" },
   cooperative: { label: "Coop", className: "text-teal" },
   team: { label: "Equipos", className: "text-blue" },
 };

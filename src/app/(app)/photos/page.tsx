@@ -17,7 +17,6 @@ export default async function PhotosPage() {
     <div className="space-y-5">
       <h1 className="text-3xl sm:text-4xl">Fotos</h1>
       <PhotoUploader sessionId={null} />
-      {groups.length === 0 && <p className="text-sm text-muted">Aún no hay fotos.</p>}
       {groups.map((g) => (
         <section key={g.session?.id ?? "album"} className="space-y-2">
           <h2 className="text-lg">
