@@ -37,7 +37,7 @@ export default async function HomePage() {
           <p className="text-lg text-soft">Decid cuántos sois y cuánto tiempo tenéis. El resto lo filtra el catálogo… o el dado.</p>
         </div>
         <div className="flex w-full flex-col gap-3 sm:w-auto">
-          <Link href="/games?dado=1" className="btn-hot min-h-16 px-7 text-xl shadow-hard-lg">
+          <Link href="/games?roll=1" className="btn-hot min-h-16 px-7 text-xl shadow-hard-lg">
             <DiceIcon className="size-7" />
             ¡Tira el dado!
           </Link>
