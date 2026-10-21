@@ -44,7 +44,6 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       <section className="max-w-2xl space-y-3">
         <p className="font-display text-lg text-soft">¡Hola, {member.displayName.split(" ")[0]}!</p>
         <h1 className="text-[2.75rem] sm:text-6xl">¿A qué jugamos hoy?</h1>
-        <p className="text-lg text-soft">Cuántos somos, cuánto tiempo tenemos… y el resto lo decide el catálogo. O el dado.</p>
       </section>
 
       <AutoSubmitForm key={JSON.stringify(params)} action="/" className="card space-y-5 p-4 sm:p-6" aria-label="A qué jugamos">
