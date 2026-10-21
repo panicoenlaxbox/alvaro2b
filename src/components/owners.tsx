@@ -24,7 +24,7 @@ export function Faces({ people, prefix, on = "card", withNames = false }: { peop
       <span className="flex -space-x-2" aria-hidden={withNames}>
         {people.map((p) => (
           <span key={p.id ?? p.name} className={`inline-flex rounded-full ring-2 ${RING[on]}`}>
-            <Avatar name={p.name} url={p.avatarUrl} size={28} />
+            <Avatar name={p.name} url={p.avatarUrl} />
           </span>
         ))}
       </span>

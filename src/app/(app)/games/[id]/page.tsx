@@ -129,7 +129,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
                 {ratings.breakdown.map((r) => (
                   <li key={r.playerId} className="flex items-center justify-between gap-2">
                     <span className="flex min-w-0 items-center gap-2">
-                      <Avatar name={r.name} url={avatars.get(r.playerId) ?? null} size={24} />
+                      <Avatar name={r.name} url={avatars.get(r.playerId) ?? null} />
                       <span className="truncate">{r.name}</span>
                     </span>
                     <span className="text-accent" aria-label={`${r.stars} estrellas`}>
