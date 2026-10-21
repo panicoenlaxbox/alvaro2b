@@ -47,7 +47,7 @@ export default async function PlayPage({ params }: PageProps<"/plays/[id]">) {
 
       {play.notes && <FlavorText>{play.notes}</FlavorText>}
 
-      <section className="flex flex-wrap gap-2">
+      <section className="actions">
         <Link href={`/plays/${play.id}/edit`} className="btn-secondary">
           Editar
         </Link>

@@ -97,7 +97,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 - **Attendees**. Se eligen al crear o editar la Session. En el detalle solo se ven; quien "quizá" va sale con la cara atenuada; en el selector de Editar lleva un "?".
 - **RSVP**. En una próxima, cualquier Member responde "Voy", "Quizá" o "No voy", esté o no entre los Attendees; la respuesta se guarda al momento en la lista de Attendees. Quien juega una Play deja de ser "quizá".
 - **Compartir**. Un botón con el logo de WhatsApp, en la cabecera junto a "Editar" y "Eliminar", genera el enlace de la Session o de su Poll.
-- **En Inicio**: un aviso con la próxima Session, su tarjeta en "Próxima sesión" (o "Añadir sesión" si no hay ninguna) y la "Última sesión", si la hay.
+- **En Inicio**: arriba, un aviso con la próxima Session (o, si no hay ninguna, otro que lleva a añadirla), y abajo la "Última sesión", si la hay.
 - **Listado**. Primero las próximas, de la más cercana a la más lejana, y después las pasadas, de la más reciente a la más antigua y de 10 en 10. Cada grupo muestra cuántas tiene y se puede plegar; las pasadas empiezan plegadas. Cada Session muestra cuándo es, dónde y quién va.
 
 ### 5. Plays
@@ -160,7 +160,10 @@ Todas son filtrables por año o rango de fechas. En los rankings, los Players ll
 
 ## Requisitos no funcionales
 
-- **PWA instalable**, con diseño pensado primero para móvil.
+- **PWA instalable**, con diseño pensado primero para móvil:
+  - Ninguna pantalla se desborda a lo ancho y todo lo que se toca mide al menos unos 40 px.
+  - En el móvil, los botones de una fila se reparten el ancho.
+  - Las acciones que no se deshacen (eliminar, retirar, desactivar…) piden un segundo toque en el mismo botón. Su texto cambia ("Sí, eliminar") sin que se mueva nada, y vuelve a su estado si se toca fuera, se pulsa Escape o pasan 5 segundos.
 - **Seguridad**:
   - RLS en todas las tablas.
   - Ningún secreto en el repositorio, que es público y con licencia MIT.

@@ -60,19 +60,20 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
 
   return (
     <div className="space-y-6">
-      <section className="flex items-start gap-4">
-        <DateTile date={session.date} size="lg" />
+      {/* The buttons take the whole width under the header on a phone, and sit under the title from `sm` up. */}
+      <section className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 gap-y-4 sm:gap-y-3">
+        <DateTile date={session.date} size="lg" className="sm:row-span-2" />
         <div className="min-w-0 space-y-2">
           <h1 className="text-2xl break-words first-letter:uppercase sm:text-4xl">{session.name ?? formatSessionDate(session.date)}</h1>
           {subtitle && <p className="font-medium text-soft first-letter:uppercase">{subtitle}</p>}
           {session.place && <p className="text-soft">{session.place}</p>}
-          <div className="flex flex-wrap gap-2 pt-1">
-            <WhatsAppButton text={shareText} label="Compartir por WhatsApp" />
-            <Link href={`/sessions/${session.id}/edit`} className="btn-secondary">
-              Editar
-            </Link>
-            <DeleteSessionButton sessionId={session.id} />
-          </div>
+        </div>
+        <div className="actions col-span-2 sm:col-span-1 sm:col-start-2">
+          <WhatsAppButton text={shareText} label="Compartir por WhatsApp" className="flex-none" />
+          <Link href={`/sessions/${session.id}/edit`} className="btn-secondary">
+            Editar
+          </Link>
+          <DeleteSessionButton sessionId={session.id} />
         </div>
       </section>
       {session.notes && <FlavorText>{session.notes}</FlavorText>}

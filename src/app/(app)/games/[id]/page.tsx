@@ -64,33 +64,36 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
 
   return (
     <div className="space-y-6">
-      <section className="flex items-center gap-4 sm:gap-8">
-        <CoverEditor gameId={game.id} url={coverUrl(game, signed)} name={game.name} hasOwnCover={Boolean(game.cover_path)} className="size-28 text-5xl shadow-hard-lg sm:size-48 sm:text-7xl" />
-        <div className="min-w-0 flex-1 space-y-3">
+      {/* The buttons take the whole width under the header on a phone, and sit beside the cover from `sm` up. */}
+      <section className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-4 sm:gap-x-8">
+        <div className="sm:row-span-2">
+          <CoverEditor gameId={game.id} url={coverUrl(game, signed)} name={game.name} hasOwnCover={Boolean(game.cover_path)} className="size-28 text-5xl shadow-hard-lg sm:size-48 sm:text-7xl" />
+        </div>
+        <div className="min-w-0 space-y-3 sm:self-end">
           <div className="flex flex-wrap gap-2">
             <span className="rounded-md bg-ink px-2.5 py-0.5 font-display text-xs text-teal">{PLAY_MODE_LABELS[game.default_play_mode]}</span>
             {game.retired_at && <span className="chip border-dashed text-muted">Retirado</span>}
             {game.lower_score_wins && <span className="chip">Gana la puntuación más baja</span>}
           </div>
           <h1 className="text-3xl break-words sm:text-5xl">{game.name}</h1>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-soft">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-soft">
             <OwnerFaces owners={owners} withNames on="background" />
             {ratings.average !== null && (
               <span>
                 <span className="font-bold text-accent">★ {ratings.average.toLocaleString("es-ES")}</span> <span className="text-muted">({ratings.count})</span>
               </span>
             )}
-            <Link href={`/stats?game=${game.id}`} aria-label="Estadísticas" title="Estadísticas" className="inline-flex size-9 items-center justify-center rounded-full text-muted hover:bg-accent-soft hover:text-foreground">
+            <Link href={`/stats?game=${game.id}`} aria-label="Estadísticas" title="Estadísticas" className="-ml-2 inline-flex size-11 items-center justify-center rounded-full text-muted hover:bg-accent-soft hover:text-foreground">
               <Icon d={CHART} className="size-5" />
             </Link>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href={`/games/${game.id}/edit`} className="btn-secondary">
-              Editar
-            </Link>
-            <RetireGameButton gameId={game.id} retired={game.retired_at !== null} />
-            <DeleteGameButton gameId={game.id} />
-          </div>
+        </div>
+        <div className="actions col-span-2 sm:col-span-1 sm:col-start-2 sm:self-start">
+          <Link href={`/games/${game.id}/edit`} className="btn-secondary">
+            Editar
+          </Link>
+          <RetireGameButton gameId={game.id} retired={game.retired_at !== null} />
+          <DeleteGameButton gameId={game.id} />
         </div>
       </section>
 
@@ -105,7 +108,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
         </dl>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
         <div className="space-y-6">
           {game.notes && <p className="text-lg whitespace-pre-line text-soft">{game.notes}</p>}
 

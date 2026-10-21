@@ -29,7 +29,7 @@ function Ranking({ title, rows, unit }: { title: string; rows: RankingEntry[]; u
       {rows.length === 0 ? (
         <p className="text-sm text-muted">Sin datos.</p>
       ) : (
-        <ol className="space-y-1 text-sm">
+        <ol className="text-[0.9375rem]">
           {[...rows].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "es")).map((r, i) => (
             <RankingRow
               key={r.name + i}
@@ -38,7 +38,7 @@ function Ranking({ title, rows, unit }: { title: string; rows: RankingEntry[]; u
               items={r.items ?? []}
               name={
                 r.href ? (
-                  <Link href={r.href} className="truncate underline">
+                  <Link href={r.href} className="block min-w-0 truncate py-2.5 leading-5 underline">
                     {r.name}
                   </Link>
                 ) : (
@@ -87,7 +87,7 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
     <div className="space-y-5">
       <h1 className="text-3xl sm:text-4xl">Estadísticas</h1>
 
-      <FilterForm key={JSON.stringify(params)} action="/stats" className="card grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <FilterForm key={JSON.stringify(params)} action="/stats" className="card grid grid-cols-1 gap-2 sm:grid-cols-4">
         {player && <input type="hidden" name="player" value={player.id} />}
         {game && <input type="hidden" name="game" value={game.id} />}
         <label className="text-sm">
@@ -126,10 +126,10 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
           Grupo
         </Link>
         <Dropdown group="stats-filter" summaryClassName={player ? "btn-primary" : "btn-secondary"} summary={`${player ? player.name : "Jugador"} ▾`}>
-          <ul className="card absolute z-10 mt-1 max-h-64 w-48 space-y-1 overflow-auto p-2">
+          <ul className="card absolute z-10 mt-1 max-h-72 w-48 overflow-auto p-2">
             {data.players.map((p) => (
               <li key={p.id}>
-                <Link href={withRange(`player=${p.id}`)} className="block rounded px-2 py-1 hover:bg-accent-soft">
+                <Link href={withRange(`player=${p.id}`)} className="block rounded-lg px-3 py-2.5 hover:bg-accent-soft">
                   {p.name}
                 </Link>
               </li>
@@ -137,10 +137,10 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
           </ul>
         </Dropdown>
         <Dropdown group="stats-filter" summaryClassName={game ? "btn-primary" : "btn-secondary"} summary={`${game ? game.name : "Juego"} ▾`}>
-          <ul className="card absolute z-10 mt-1 max-h-64 w-56 space-y-1 overflow-auto p-2">
+          <ul className="card absolute right-0 z-10 mt-1 max-h-72 w-56 overflow-auto p-2">
             {data.games.map((g) => (
               <li key={g.id}>
-                <Link href={withRange(`game=${g.id}`)} className="block rounded px-2 py-1 hover:bg-accent-soft">
+                <Link href={withRange(`game=${g.id}`)} className="block rounded-lg px-3 py-2.5 hover:bg-accent-soft">
                   {g.name}
                 </Link>
               </li>
@@ -202,10 +202,10 @@ function GroupView({
         {stats.neverPlayed.length === 0 ? (
           <p className="text-sm text-muted">¡Ninguno! Hemos jugado a todo.</p>
         ) : (
-          <ul className="space-y-1 text-sm">
+          <ul className="text-[0.9375rem]">
             {stats.neverPlayed.map((id) => (
               <li key={id}>
-                <Link href={`/games/${id}`} className="underline">
+                <Link href={`/games/${id}`} className="inline-flex min-h-10 items-center underline">
                   {gameName.get(id)}
                 </Link>
               </li>

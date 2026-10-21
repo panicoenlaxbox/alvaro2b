@@ -10,9 +10,9 @@ export function WhatsAppIcon() {
 }
 
 /** Shares `text` on WhatsApp: a button with the logo only, named by `label` for screen readers and on hover. */
-export function WhatsAppButton({ text, label }: { text: string; label: string }) {
+export function WhatsAppButton({ text, label, className = "" }: { text: string; label: string; className?: string }) {
   return (
-    <a href={whatsappUrl(text)} target="_blank" rel="noreferrer" aria-label={label} title={label} className="btn-secondary">
+    <a href={whatsappUrl(text)} target="_blank" rel="noreferrer" aria-label={label} title={label} className={`btn-secondary ${className}`}>
       <WhatsAppIcon />
     </a>
   );

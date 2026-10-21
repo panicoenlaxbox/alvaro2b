@@ -26,7 +26,7 @@ export function Attachments({ gameId, items }: { gameId: string; items: Attachme
         </ul>
       )}
 
-      <form action={linkAction} className="flex gap-2">
+      <form action={linkAction} className="flex flex-col gap-2 sm:flex-row">
         <input type="hidden" name="game_id" value={gameId} />
         <input name="url" type="url" inputMode="url" required placeholder="https://…" aria-label="Enlace" className="input" />
         <SubmitButton className="btn-secondary shrink-0" pendingText="…">
@@ -99,7 +99,7 @@ function FileUploader({ gameId }: { gameId: string }) {
           if (file) upload(file);
         }}
       />
-      <button type="button" className="btn-secondary" disabled={pending} onClick={() => input.current?.click()}>
+      <button type="button" className="btn-secondary w-full sm:w-auto" disabled={pending} onClick={() => input.current?.click()}>
         {pending ? (
           "Subiendo…"
         ) : (

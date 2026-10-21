@@ -32,7 +32,7 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
           <h2 className="inline">Próximas ({groups.upcoming.length})</h2>
         </summary>
         {groups.upcoming.length ? (
-          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {groups.upcoming.map((s) => (
               <SessionCard key={s.id} session={s} />
             ))}
@@ -47,7 +47,7 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
           <h2 className="inline">Pasadas ({groups.past.length})</h2>
         </summary>
         {past.items.length ? (
-          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {past.items.map((s) => (
               <SessionCard key={s.id} session={s} />
             ))}

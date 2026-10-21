@@ -23,7 +23,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
 
   return (
     <div className="space-y-8">
-      {next && (
+      {next ? (
         <Link
           href={`/sessions/${next.id}`}
           className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-2xl border-[3px] border-accent bg-card px-4 py-3 shadow-hard transition-transform hover:-translate-y-0.5"
@@ -38,6 +38,14 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           <span className="flex items-center gap-2 font-bold sm:ml-auto">
             <Faces people={next.attendees} prefix="Con" />→
           </span>
+        </Link>
+      ) : (
+        <Link
+          href="/sessions/new"
+          className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-2xl border-[3px] border-dashed border-border px-4 py-3 transition-transform hover:-translate-y-0.5"
+        >
+          <span className="text-soft">No hay ninguna sesión a la vista.</span>
+          <span className="font-bold text-accent sm:ml-auto">Añadir sesión →</span>
         </Link>
       )}
 
@@ -62,23 +70,10 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         </div>
       </AutoSubmitForm>
 
-      <section className="space-y-3">
-        <h2 className="text-lg">Próxima sesión</h2>
-        {next ? (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <SessionCard session={next} />
-          </div>
-        ) : (
-          <Link href="/sessions/new" className="btn-primary">
-            Añadir sesión
-          </Link>
-        )}
-      </section>
-
       {lastPast && (
         <section className="space-y-3">
           <h2 className="text-lg">Última sesión</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <SessionCard session={lastPast} />
           </div>
         </section>

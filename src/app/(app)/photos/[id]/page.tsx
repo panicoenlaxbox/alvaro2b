@@ -69,7 +69,7 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
         </div>
       </details>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="actions">
         {download?.signedUrl && (
           <a href={download.signedUrl} className="btn-secondary">
             Descargar
