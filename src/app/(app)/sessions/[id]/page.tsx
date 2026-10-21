@@ -15,6 +15,7 @@ import { WhatsAppButton } from "@/components/whatsapp-button";
 import { createClient } from "@/lib/supabase/server";
 import { isPollOpen, latestDeadline } from "@/lib/domain/poll";
 import { Avatar } from "@/components/avatar";
+import { FlavorText } from "@/components/flavor-text";
 import { DeleteSessionButton, OpenPollForm, RsvpButtons } from "./session-detail-forms";
 
 export async function generateMetadata({ params }: PageProps<"/sessions/[id]">): Promise<Metadata> {
@@ -59,23 +60,23 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
 
   return (
     <div className="space-y-6">
-      <section className="flex items-start gap-4">
-        <DateTile date={session.date} size="lg" />
+      {/* The buttons take the whole width under the header on a phone, and sit under the title from `sm` up. */}
+      <section className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 gap-y-4 sm:gap-y-3">
+        <DateTile date={session.date} size="lg" className="sm:row-span-2" />
         <div className="min-w-0 space-y-2">
           <h1 className="text-2xl break-words first-letter:uppercase sm:text-4xl">{session.name ?? formatSessionDate(session.date)}</h1>
           {subtitle && <p className="font-medium text-soft first-letter:uppercase">{subtitle}</p>}
           {session.place && <p className="text-soft">{session.place}</p>}
-          <div className="flex flex-wrap gap-2 pt-1">
-            <WhatsAppButton text={shareText} label="Compartir por WhatsApp" />
-            <Link href={`/sessions/${session.id}/edit`} className="btn-secondary">
-              Editar
-            </Link>
-            <DeleteSessionButton sessionId={session.id} />
-          </div>
+        </div>
+        <div className="actions col-span-2 sm:col-span-1 sm:col-start-2">
+          <WhatsAppButton text={shareText} label="Compartir por WhatsApp" className="flex-none" />
+          <Link href={`/sessions/${session.id}/edit`} className="btn-secondary">
+            Editar
+          </Link>
+          <DeleteSessionButton sessionId={session.id} />
         </div>
       </section>
-      {/* Notes read like the flavour text of a card: serif italics, set apart by a thin rule. */}
-      {session.notes && <p className="max-w-prose border-l-2 border-muted/50 pl-4 font-serif text-lg whitespace-pre-line text-muted italic">{session.notes}</p>}
+      {session.notes && <FlavorText>{session.notes}</FlavorText>}
 
       {/* One column on the phone (RSVP and the Attendees first); on wide screens the Plays and Photos sit beside the rest. */}
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
@@ -90,11 +91,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
                 <Link key={play.id} href={`/plays/${play.id}`} className="card block space-y-2 p-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-semibold">{play.game.name}</p>
-                    {play.startedAt && !play.endedAt ? (
-                      <span className="chip border-accent bg-accent font-bold text-ink">En juego</span>
-                    ) : (
-                      <span className="text-xs text-muted">{playSummary(play)}</span>
-                    )}
+                    <span className="text-xs text-muted">{playSummary(play)}</span>
                   </div>
                   <PlayResult play={play} compact />
                 </Link>
@@ -128,10 +125,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
                       <span className={p.maybe ? "inline-flex opacity-40" : "inline-flex"}>
                         <Avatar name={p.display_name} url={p.avatar_url} />
                       </span>
-                      <span>
-                        {p.display_name}
-                        {p.maybe && <span className="text-muted"> (quizá)</span>}
-                      </span>
+                      <span>{p.display_name}</span>
                     </li>
                   ))}
                 </ul>

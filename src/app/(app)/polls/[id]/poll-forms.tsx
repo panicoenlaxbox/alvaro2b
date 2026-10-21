@@ -33,7 +33,7 @@ export function CandidateActions({
   const [state, run] = useRowAction();
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap gap-2">
+      <div className="actions">
         {approve !== undefined && (
           <form action={run(toggleApproval)}>
             <Hidden pollId={pollId} candidateId={candidateId} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useEffect, useId, useState } from "react";
+import { startTransition, useActionState, useEffect, useId, useRef, useState } from "react";
 
 /**
  * A form for long inputs: unlike `<form action>`, React does not reset its fields after
@@ -55,9 +55,14 @@ export function useRowAction() {
 /** Fired with the arming button's id so every other armed ConfirmSubmitButton collapses. */
 const CONFIRM_ARMED_EVENT = "confirm-submit-armed";
 
+/** How long an armed ConfirmSubmitButton waits for the second tap. */
+const CONFIRM_TIMEOUT_MS = 5000;
+
 /**
  * A submit button that asks for a second tap before submitting (no browser dialogs).
- * Only one is armed at a time on the page: arming one collapses the rest.
+ * The first tap turns it into the confirmation in place: it keeps its size, so nothing around it
+ * moves on a phone. Tapping anywhere else, Escape or a few seconds without a tap disarm it, and
+ * arming one collapses the rest.
  */
 export function ConfirmSubmitButton({
   children,
@@ -69,41 +74,58 @@ export function ConfirmSubmitButton({
   className?: string;
 }) {
   const id = useId();
+  const ref = useRef<HTMLButtonElement>(null);
   const [armed, setArmed] = useState(false);
   const { pending } = useFormStatus();
 
   useEffect(() => {
-    if (!armed) return;
+    // While the action runs the label must stay put, so nothing disarms it.
+    if (!armed || pending) return;
+    const disarm = () => setArmed(false);
     const onArmed = (e: Event) => {
-      if ((e as CustomEvent<string>).detail !== id) setArmed(false);
+      if ((e as CustomEvent<string>).detail !== id) disarm();
     };
+    const onPointerDown = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) disarm();
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") disarm();
+    };
+    const timer = window.setTimeout(disarm, CONFIRM_TIMEOUT_MS);
     window.addEventListener(CONFIRM_ARMED_EVENT, onArmed);
-    return () => window.removeEventListener(CONFIRM_ARMED_EVENT, onArmed);
-  }, [armed, id]);
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(CONFIRM_ARMED_EVENT, onArmed);
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [armed, pending, id]);
 
-  if (!armed) {
-    return (
-      <button
-        type="button"
-        className={className}
-        onClick={() => {
-          window.dispatchEvent(new CustomEvent(CONFIRM_ARMED_EVENT, { detail: id }));
-          setArmed(true);
-        }}
-      >
-        {children}
-      </button>
-    );
-  }
   return (
-    <span className="inline-flex gap-2">
-      <button type="submit" disabled={pending} className={className}>
-        {pending ? "…" : confirmText}
-      </button>
-      <button type="button" className="btn-secondary" onClick={() => setArmed(false)}>
-        Cancelar
-      </button>
-    </span>
+    <button
+      ref={ref}
+      // Never a submit button: React would switch the type before the browser handles the first
+      // tap, and that tap would submit. The second tap submits the form itself.
+      type="button"
+      disabled={pending}
+      aria-live="polite"
+      className={`${className} ${armed ? "!bg-danger !text-ink" : ""}`}
+      onClick={(event) => {
+        if (armed) return event.currentTarget.form?.requestSubmit();
+        window.dispatchEvent(new CustomEvent(CONFIRM_ARMED_EVENT, { detail: id }));
+        setArmed(true);
+      }}
+    >
+      {/* Both labels share one grid cell, so the button is as wide as the longer one in either state. */}
+      <span className="grid">
+        <span className={`col-start-1 row-start-1 ${armed ? "invisible" : ""}`}>{children}</span>
+        <span className={`col-start-1 row-start-1 ${armed ? "" : "invisible"}`} aria-hidden={!armed}>
+          {pending ? "…" : confirmText}
+        </span>
+      </span>
+    </button>
   );
 }
 

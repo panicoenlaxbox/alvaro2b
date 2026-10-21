@@ -20,8 +20,6 @@ export type PlayInput = {
   teams: TeamInput[];
   coopWon: boolean | null;
   durationMinutes: number | null;
-  startedAt: string | null;
-  endedAt: string | null;
   notes: string | null;
 };
 
@@ -131,11 +129,6 @@ export function validatePlay(play: PlayInput): ValidationResult {
   }
 }
 
-/** Whole minutes between two instants, at least one. */
-export function minutesBetween(startedAt: string, endedAt: string): number {
-  return Math.max(1, Math.round((Date.parse(endedAt) - Date.parse(startedAt)) / 60000));
-}
-
 /** "1 h 25 min", "40 min". */
 export function formatDuration(minutes: number | null): string | null {
   if (minutes === null) return null;
@@ -184,8 +177,6 @@ export function parsePlayInput(raw: unknown): PlayInput | null {
     }),
     coopWon: r.coopWon === true ? true : r.coopWon === false ? false : null,
     durationMinutes: num(r.durationMinutes),
-    startedAt: str(r.startedAt),
-    endedAt: str(r.endedAt),
     notes: str(r.notes),
   };
 }
@@ -198,8 +189,6 @@ export function toSavePlayPayload(play: PlayInput, lowerScoreWins: boolean) {
     session_id: play.sessionId,
     game_id: play.gameId,
     play_mode: play.mode,
-    started_at: play.startedAt,
-    ended_at: play.endedAt,
     duration_minutes: play.durationMinutes,
     notes: play.notes,
     coop_won: play.mode === "cooperative" ? play.coopWon : null,

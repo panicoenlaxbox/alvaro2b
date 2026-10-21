@@ -10,7 +10,6 @@ export type SessionListItem = {
   time: string | null;
   name: string | null;
   place: string | null;
-  attendeeCount: number;
   attendees: (Owner & { maybe: boolean })[];
 };
 
@@ -27,7 +26,6 @@ export async function listSessions(): Promise<SessionListItem[]> {
     time: formatSessionTime(s.start_time),
     name: s.name,
     place: s.place,
-    attendeeCount: s.session_attendees.length,
     // By name, as toOwners sorts them.
     attendees: toOwners(s.session_attendees).map((o) => ({ ...o, maybe: s.session_attendees.some((a) => a.maybe && a.players?.id === o.id) })),
   }));

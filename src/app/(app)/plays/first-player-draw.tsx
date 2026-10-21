@@ -1,5 +1,6 @@
 "use client";
 
+import { DiceIcon } from "@/components/dice-icon";
 import { useDraw } from "@/components/use-draw";
 
 const PHRASES = [
@@ -18,7 +19,8 @@ export function FirstPlayerDraw({ names }: { names: string[] }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <button type="button" className="btn-secondary" disabled={phase === "drawing"} onClick={start}>
-        {phase === "drawing" ? "🎲 Sorteando…" : "🎲 ¿Quién empieza?"}
+        <DiceIcon className={`size-5 ${phase === "drawing" ? "animate-spin [animation-duration:700ms]" : ""}`} />
+        {phase === "drawing" ? "Sorteando…" : "¿Quién empieza?"}
       </button>
       <p className="text-sm" aria-live="polite">
         {phase === "drawing" && (

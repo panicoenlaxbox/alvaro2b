@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { useState, useTransition } from "react";
 import { DiceIcon } from "@/components/dice-icon";
 import { useDraw } from "@/components/use-draw";
+import { startToday } from "@/app/(app)/sessions/actions";
 
 const PHRASES = [
   "Barajando el catálogo…",
@@ -18,6 +19,8 @@ const PHRASES = [
 /** "¡Tira el dado!": a random Game among the given ones. */
 export function SurpriseMe({ games }: { games: { id: string; name: string }[] }) {
   const { phase, shown, phrase, start } = useDraw(games, PHRASES);
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <div className="space-y-4">
@@ -38,14 +41,20 @@ export function SurpriseMe({ games }: { games: { id: string; name: string }[] })
           </div>
           {phase === "done" && shown && (
             <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:flex-col">
-              <Link href={`/games/${shown.id}`} className="btn flex-1 bg-ink text-accent">
-                Ver ficha
-              </Link>
-              <button type="button" className="btn flex-1 bg-accent text-ink" onClick={start}>
+              <button
+                type="button"
+                disabled={pending}
+                className="btn flex-1 bg-ink text-accent"
+                onClick={() => startTransition(async () => setError((await startToday(shown.id)).error))}
+              >
+                {pending ? "Preparando…" : "Empezar"}
+              </button>
+              <button type="button" disabled={pending} className="btn flex-1 bg-accent text-ink" onClick={start}>
                 Otra tirada
               </button>
             </div>
           )}
+          {error && <p className="w-full text-sm font-bold">{error}</p>}
         </section>
       )}
     </div>

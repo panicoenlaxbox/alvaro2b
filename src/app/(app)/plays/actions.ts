@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
-import { minutesBetween, parsePlayInput, toSavePlayPayload, validatePlay } from "@/lib/domain/play";
+import { parsePlayInput, toSavePlayPayload, validatePlay } from "@/lib/domain/play";
 import type { Json } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,11 +15,8 @@ function revalidatePlay(sessionId: string, playId?: string) {
   if (playId) revalidatePath(`/plays/${playId}`);
 }
 
-/**
- * Saves a Play from the form's JSON. With `start`, it only records who plays what and starts the
- * timer now; results are added when the Play ends.
- */
-export async function savePlay(json: string, start = false): Promise<ActionState> {
+/** Saves a Play from the form's JSON. */
+export async function savePlay(json: string): Promise<ActionState> {
   await requireMember();
   let raw: unknown;
   try {
@@ -29,15 +26,6 @@ export async function savePlay(json: string, start = false): Promise<ActionState
   }
   const input = parsePlayInput(raw);
   if (!input) return { error: "Datos no válidos." };
-  if (start) {
-    input.startedAt = new Date().toISOString();
-    input.endedAt = null;
-    input.durationMinutes = null;
-    // Teams are known at the start; results are not.
-    input.coopWon = null;
-    input.teams = input.teams.map((t) => ({ ...t, won: false }));
-    input.participants = input.participants.map((p) => ({ ...p, score: null, rank: null }));
-  }
 
   const validation = validatePlay(input);
   if (!validation.ok) return { error: validation.error };
@@ -54,27 +42,6 @@ export async function savePlay(json: string, start = false): Promise<ActionState
 
   revalidatePlay(input.sessionId, playId);
   redirect(`/plays/${playId}`, RedirectType.replace);
-}
-
-export async function finishPlay(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireMember();
-  const id = String(formData.get("id"));
-
-  const supabase = await createClient();
-  const { data: play } = await supabase.from("plays").select("session_id, started_at").eq("id", id).maybeSingle();
-  if (!play?.started_at) return { error: "La partida no tiene cronómetro en marcha." };
-
-  const endedAt = new Date().toISOString();
-  const { error } = await supabase
-    .from("plays")
-    .update({ ended_at: endedAt, duration_minutes: Math.min(6000, minutesBetween(play.started_at, endedAt)) })
-    .eq("id", id)
-    .select("id")
-    .single();
-  if (error) return { error: errorMessage(error) };
-
-  revalidatePlay(play.session_id, id);
-  redirect(`/plays/${id}/edit`, RedirectType.replace);
 }
 
 export async function deletePlay(_prev: ActionState, formData: FormData): Promise<ActionState> {

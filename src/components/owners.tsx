@@ -21,8 +21,9 @@ export function Faces({ people, prefix, on = "card", withNames = false }: { peop
   if (people.length === 0) return null;
   const names = list.format(people.map((p) => (p.maybe ? `${p.name} (quizá)` : p.name)));
   return (
-    <span className="inline-flex shrink-0 items-center gap-2" title={`${prefix} ${names}`}>
-      <span className="flex -space-x-2" aria-hidden={withNames}>
+    // With names the text may wrap; the faces never shrink.
+    <span className={`inline-flex items-center gap-2 ${withNames ? "min-w-0" : "shrink-0"}`} title={`${prefix} ${names}`}>
+      <span className="flex shrink-0 -space-x-2" aria-hidden={withNames}>
         {people.map((p) => (
           <span key={p.id ?? p.name} className={`inline-flex rounded-full ring-2 ${RING[on]}`}>
             <span className={p.maybe ? "inline-flex opacity-40" : "inline-flex"}>

@@ -63,14 +63,17 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
                 ))}
               </select>
             </label>
+            {/* Beside the mode, so the filters take less of a phone's screen before the results. */}
+            <div className="flex items-end">
+              <Check name="never" checked={filters.neverPlayed}>
+                Por estrenar
+              </Check>
+            </div>
           </div>
           <fieldset>
             <legend className="label">Valoración mínima</legend>
             <StarFilter name="rating" stars={filters.minRating ?? 0} />
           </fieldset>
-          <Check name="never" checked={filters.neverPlayed}>
-            Por estrenar
-          </Check>
           <div className="flex flex-wrap gap-3">
             <button type="submit" className="btn-primary">
               Buscar
@@ -91,7 +94,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
       )}
 
       {results.length > 0 ? (
-        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((g) => (
             <li key={g.id}>
               <GameCard

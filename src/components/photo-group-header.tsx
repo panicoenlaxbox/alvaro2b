@@ -18,7 +18,8 @@ export function PhotoGroupHeader({ session }: { session: PhotoSession | null }) 
       </h2>
       {session && (
         <>
-          <p className="min-w-0 flex-1 text-sm text-muted">
+          {/* Wraps under the date on a phone instead of squeezing into a narrow column beside it. */}
+          <p className="min-w-0 flex-[1_1_12rem] text-sm text-muted">
             {[session.name, session.place].filter(Boolean).join(" · ")}
             {(session.name || session.place) && session.games.length > 0 && " · "}
             {session.games.map((game, i) => (

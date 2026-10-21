@@ -8,28 +8,24 @@ export type PlayDetail = {
   sessionDate: string;
   game: { id: string; name: string; lowerScoreWins: boolean };
   mode: PlayMode;
-  startedAt: string | null;
-  endedAt: string | null;
   durationMinutes: number | null;
   notes: string | null;
   coopWon: boolean | null;
   createdBy: string | null;
   expansions: { id: string; name: string }[];
   teams: { id: string; name: string; won: boolean }[];
-  participants: { playerId: string; name: string; score: number | null; rank: number | null; teamId: string | null }[];
+  participants: { playerId: string; name: string; avatarUrl: string | null; score: number | null; rank: number | null; teamId: string | null }[];
 };
 
 const PLAY_SELECT =
-  "id, session_id, play_mode, started_at, ended_at, duration_minutes, notes, coop_won, created_by, created_at, " +
+  "id, session_id, play_mode, duration_minutes, notes, coop_won, created_by, created_at, " +
   "sessions(date), games(id, name, lower_score_wins), play_expansions(expansions(id, name)), teams(id, name, won), " +
-  "participants(player_id, score, rank, team_id, players(display_name))";
+  "participants(player_id, score, rank, team_id, players(display_name, avatar_url))";
 
 type PlayRow = {
   id: string;
   session_id: string;
   play_mode: PlayMode;
-  started_at: string | null;
-  ended_at: string | null;
   duration_minutes: number | null;
   notes: string | null;
   coop_won: boolean | null;
@@ -39,7 +35,7 @@ type PlayRow = {
   games: { id: string; name: string; lower_score_wins: boolean } | null;
   play_expansions: { expansions: { id: string; name: string } | null }[];
   teams: { id: string; name: string; won: boolean }[];
-  participants: { player_id: string; score: number | null; rank: number | null; team_id: string | null; players: { display_name: string } | null }[];
+  participants: { player_id: string; score: number | null; rank: number | null; team_id: string | null; players: { display_name: string; avatar_url: string | null } | null }[];
 };
 
 function toDetail(row: PlayRow): PlayDetail {
@@ -49,8 +45,6 @@ function toDetail(row: PlayRow): PlayDetail {
     sessionDate: row.sessions?.date ?? "",
     game: { id: row.games?.id ?? "", name: row.games?.name ?? "?", lowerScoreWins: row.games?.lower_score_wins ?? false },
     mode: row.play_mode,
-    startedAt: row.started_at,
-    endedAt: row.ended_at,
     durationMinutes: row.duration_minutes,
     notes: row.notes,
     coopWon: row.coop_won,
@@ -61,6 +55,7 @@ function toDetail(row: PlayRow): PlayDetail {
       .map((p) => ({
         playerId: p.player_id,
         name: p.players?.display_name ?? "?",
+        avatarUrl: p.players?.avatar_url ?? null,
         score: p.score === null ? null : Number(p.score),
         rank: p.rank,
         teamId: p.team_id,

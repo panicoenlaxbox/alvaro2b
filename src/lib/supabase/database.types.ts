@@ -347,14 +347,14 @@ isOneToOne: false
                   ]
                 },"plays": {
                   Row: {
-                    "coop_won": boolean | null,"created_at": string,"created_by": string | null,"duration_minutes": number | null,"ended_at": string | null,"game_id": string,"id": string,"notes": string | null,"play_mode": Database["public"]['Enums']["play_mode"],"session_id": string,"started_at": string | null,"updated_at": string
+                    "coop_won": boolean | null,"created_at": string,"created_by": string | null,"duration_minutes": number | null,"game_id": string,"id": string,"notes": string | null,"play_mode": Database["public"]['Enums']["play_mode"],"session_id": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "coop_won"?: boolean | null,"created_at"?: string,"created_by"?: string | null,"duration_minutes"?: number | null,"ended_at"?: string | null,"game_id": string,"id"?: string,"notes"?: string | null,"play_mode": Database["public"]['Enums']["play_mode"],"session_id": string,"started_at"?: string | null,"updated_at"?: string
+                    "coop_won"?: boolean | null,"created_at"?: string,"created_by"?: string | null,"duration_minutes"?: number | null,"game_id": string,"id"?: string,"notes"?: string | null,"play_mode": Database["public"]['Enums']["play_mode"],"session_id": string,"updated_at"?: string
                   }
                   Update: {
-                    "coop_won"?: boolean | null,"created_at"?: string,"created_by"?: string | null,"duration_minutes"?: number | null,"ended_at"?: string | null,"game_id"?: string,"id"?: string,"notes"?: string | null,"play_mode"?: Database["public"]['Enums']["play_mode"],"session_id"?: string,"started_at"?: string | null,"updated_at"?: string
+                    "coop_won"?: boolean | null,"created_at"?: string,"created_by"?: string | null,"duration_minutes"?: number | null,"game_id"?: string,"id"?: string,"notes"?: string | null,"play_mode"?: Database["public"]['Enums']["play_mode"],"session_id"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {

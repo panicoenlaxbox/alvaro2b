@@ -38,7 +38,7 @@ export function RatingPicker({ gameId, stars }: { gameId: string; stars: number 
             value={n === stars ? 0 : n}
             aria-label={`${n} ${n === 1 ? "estrella" : "estrellas"}`}
             aria-pressed={n <= stars}
-            className={`text-3xl leading-none ${n <= stars ? "text-accent" : "text-border"}`}
+            className={`-mx-1 inline-flex size-11 items-center justify-center text-3xl leading-none ${n <= stars ? "text-accent" : "text-border"}`}
           >
             ★
           </button>
@@ -143,17 +143,19 @@ export function CoverEditor({ gameId, url, name, hasOwnCover, className }: { gam
   );
 }
 
-const COVER_BUTTON = "absolute inline-flex size-9 items-center justify-center rounded-full border-[3px] border-ink bg-card text-foreground shadow-hard hover:bg-accent-soft disabled:opacity-50";
+const COVER_BUTTON = "absolute inline-flex size-10 items-center justify-center rounded-full border-[3px] border-ink bg-card text-foreground shadow-hard hover:bg-accent-soft disabled:opacity-50";
 
 type ExpansionItem = { id: string; name: string; retired: boolean; owners: Owner[] };
 
 function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: ExpansionItem }) {
   const [state, run] = useRowAction();
   return (
-    <li className="space-y-1 py-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className={`flex-1 ${expansion.retired ? "text-muted line-through" : ""}`}>{expansion.name}</span>
+    <li className="space-y-2 py-2">
+      <div className="flex items-center gap-2">
+        <span className={`min-w-0 flex-1 break-words ${expansion.retired ? "text-muted line-through" : ""}`}>{expansion.name}</span>
         <OwnerFaces owners={expansion.owners} />
+      </div>
+      <div className="actions">
         <form action={run(setExpansionRetired)}>
           <input type="hidden" name="id" value={expansion.id} />
           <input type="hidden" name="game_id" value={gameId} />

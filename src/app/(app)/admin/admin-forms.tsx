@@ -79,22 +79,24 @@ export function AllowedEmailRow({
 
   return (
     <li className={`space-y-2 px-4 py-3 ${deactivated ? "opacity-70" : ""}`}>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
         {playerId && playerName ? (
           <>
-            <Avatar name={playerName} url={avatarUrl} />
+            <FaceSlot>
+              <Avatar name={playerName} url={avatarUrl} />
+            </FaceSlot>
             <PlayerEditor id={playerId} name={playerName} />
           </>
         ) : (
-          <span className="min-w-0 flex-1 truncate font-medium">{email}</span>
+          <span className="min-w-0 flex-1 self-center truncate font-medium">{email}</span>
         )}
-        {isAdmin && <span className="chip border-accent text-accent">Admin</span>}
-        <span className={`chip ${STATUS_CHIP[status]}`}>{status}</span>
+        {isAdmin && <span className="chip self-center border-accent text-accent">Admin</span>}
+        <span className={`chip self-center ${STATUS_CHIP[status]}`}>{status}</span>
       </div>
       {playerName && <p className="truncate text-sm text-muted">{email}</p>}
-      <div className="flex flex-wrap gap-2">
+      <div className="actions">
         {!signedUp && (
-          <WhatsAppButton text={inviteText(appUrl, email)} label="Enviar el enlace por WhatsApp" />
+          <WhatsAppButton text={inviteText(appUrl, email)} label="Enviar el enlace por WhatsApp" className="flex-none" />
         )}
         {!deactivated && (
           <form action={run(setAdmin)}>
@@ -149,12 +151,14 @@ export function GuestRow({ id, name, deactivated }: { id: string; name: string; 
   const [state, run] = useRowAction();
   return (
     <li className={`space-y-2 px-4 py-3 ${deactivated ? "opacity-70" : ""}`}>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <Avatar name={name} />
+      <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
+        <FaceSlot>
+          <Avatar name={name} />
+        </FaceSlot>
         <PlayerEditor id={id} name={name} />
-        <span className={`chip ${STATUS_CHIP[deactivated ? "Desactivado" : "Activo"]}`}>{deactivated ? "Desactivado" : "Activo"}</span>
+        <span className={`chip self-center ${STATUS_CHIP[deactivated ? "Desactivado" : "Activo"]}`}>{deactivated ? "Desactivado" : "Activo"}</span>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="actions">
         <form action={run(setGuestActive)}>
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="active" value={String(deactivated)} />
@@ -172,6 +176,11 @@ export function GuestRow({ id, name, deactivated }: { id: string; name: string; 
       <FormMessage state={state} />
     </li>
   );
+}
+
+/** The face beside a name, centred on the name's line (as tall as the name input) even while editing. */
+function FaceSlot({ children }: { children: React.ReactNode }) {
+  return <span className="flex h-[3.125rem] shrink-0 items-center">{children}</span>;
 }
 
 function PencilIcon() {
@@ -196,7 +205,7 @@ function PlayerEditor({ id, name }: { id: string; name: string }) {
         <span className="truncate font-medium">{name}</span>
         <button
           type="button"
-          className="flex size-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-accent-soft hover:text-foreground"
+          className="flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-accent-soft hover:text-foreground"
           aria-label={`Cambiar el nombre de ${name}`}
           onClick={() => setEditing(true)}
         >
@@ -207,18 +216,17 @@ function PlayerEditor({ id, name }: { id: string; name: string }) {
   }
 
   return (
-    <div className="min-w-0 flex-1 basis-full space-y-2 sm:basis-auto">
-      <div className="flex flex-wrap gap-2">
-        <form action={renameAction} className="flex min-w-48 flex-1 gap-2">
-          <input type="hidden" name="id" value={id} />
-          <input name="display_name" defaultValue={name} required maxLength={PLAYER_NAME_MAX} className="input" aria-label="Nombre" autoFocus />
-          <SubmitButton>Guardar</SubmitButton>
-        </form>
-        <button type="button" className="btn-secondary" onClick={() => setEditing(false)}>
+    // The rest of the row beside the face; the chips wrap under it.
+    <form action={renameAction} className="min-w-0 flex-1 basis-[calc(100%-3rem)] space-y-2">
+      <input type="hidden" name="id" value={id} />
+      <input name="display_name" defaultValue={name} required maxLength={PLAYER_NAME_MAX} className="input" aria-label="Nombre" autoFocus />
+      <div className="flex gap-2">
+        <SubmitButton className="btn-primary flex-1 sm:flex-none">Guardar</SubmitButton>
+        <button type="button" className="btn-secondary flex-1 sm:flex-none" onClick={() => setEditing(false)}>
           Cancelar
         </button>
       </div>
       <FormMessage state={renameState} />
-    </div>
+    </form>
   );
 }

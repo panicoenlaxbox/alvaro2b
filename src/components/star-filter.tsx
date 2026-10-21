@@ -15,7 +15,7 @@ export function StarFilter({ name, stars }: { name: string; stars: number }) {
           onClick={() => setValue(n === value ? 0 : n)}
           aria-label={`${n} ${n === 1 ? "estrella" : "estrellas"} o más`}
           aria-pressed={n <= value}
-          className={`text-3xl leading-none ${n <= value ? "text-accent" : "text-border"}`}
+          className={`-mx-1 inline-flex size-11 items-center justify-center text-3xl leading-none ${n <= value ? "text-accent" : "text-border"}`}
         >
           ★
         </button>

@@ -43,8 +43,6 @@ export default async function NewPlayPage({ params, searchParams }: PageProps<"/
           teams: [],
           coopWon: null,
           durationMinutes: null,
-          startedAt: null,
-          endedAt: null,
           notes: null,
         }}
       />

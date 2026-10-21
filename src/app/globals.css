@@ -178,6 +178,30 @@ body {
 }
 
 @layer components {
+  /*
+   * A row of buttons. On a phone they share each row evenly, so they are big, line up, and a
+   * ConfirmSubmitButton (which keeps its size) moves nothing. From `sm` up they sit at their own width.
+   * `flex-none` keeps a button (an icon) at its own width on a phone too.
+   */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .actions > :not(.flex-none) {
+    flex: 1 1 auto;
+  }
+  .actions > form > button {
+    width: 100%;
+  }
+  @media (width >= 40rem) {
+    .actions > :not(.flex-none) {
+      flex: none;
+    }
+    .actions > form > button {
+      width: auto;
+    }
+  }
   /* Section titles inside a card stand out in yellow, as in the board-game box look. */
   .card h2 {
     color: var(--accent);
