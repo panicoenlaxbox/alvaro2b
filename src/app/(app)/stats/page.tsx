@@ -263,9 +263,6 @@ function PlayerView({
           <span className="text-muted">Némesis: </span>
           {stats.nemesis ? `${playerName.get(stats.nemesis.id)}, le ha ganado ${stats.nemesis.count} ${stats.nemesis.count === 1 ? "vez" : "veces"}` : "–"}
         </p>
-        <p className="text-xs hint">
-          Las victorias cuentan en todos los modos: el primer puesto en competitivo, el equipo ganador o todo el grupo cuando gana en cooperativo.
-        </p>
       </section>
     </>
   );
