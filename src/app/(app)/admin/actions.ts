@@ -57,7 +57,7 @@ export async function setMemberActive(_prev: ActionState, formData: FormData): P
   if (error) return { error: errorMessage(error) };
 
   revalidatePath("/admin");
-  return { ok: true, message: active ? "Reactivado." : "Desactivado: ya no puede entrar y no aparece al elegir jugadores." };
+  return { ok: true, message: active ? "Reactivado." : undefined };
 }
 
 export async function deleteMember(_prev: ActionState, formData: FormData): Promise<ActionState> {

@@ -115,11 +115,8 @@ export function AllowedEmailRow({
           </>
         )}
       </div>
-      {signedUp && !isSelf && !isAdmin && (
-        <p className="text-xs hint">
-          {!deactivated && "Desactivar conserva su historial. "}
-          Eliminar solo es posible si no ha jugado ni creado nada.
-        </p>
+      {signedUp && !deactivated && !isSelf && !isAdmin && (
+        <p className="text-xs hint">Desactivar conserva su historial. Eliminar solo es posible si no ha jugado ni creado nada.</p>
       )}
       <FormMessage state={adminState} />
       <FormMessage state={removeState} />
