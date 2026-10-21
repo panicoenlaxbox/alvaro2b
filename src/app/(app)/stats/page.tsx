@@ -81,10 +81,16 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
   const gameName = new Map(data.games.map((g) => [g.id, g.name]));
   const years = [...new Set([...data.sessions.map((s) => s.date.slice(0, 4))])].sort().reverse();
   const q = rangeQuery(range, year);
-  const withRange = (extra: string) => `/stats?${[extra, q].filter(Boolean).join("&")}`;
+  const withQuery = (...parts: string[]) => {
+    const query = parts.filter(Boolean).join("&");
+    return query ? `/stats?${query}` : "/stats";
+  };
+  const withRange = (extra: string) => withQuery(extra, q);
 
   const player = playerId ? data.players.find((p) => p.id === playerId) : undefined;
   const game = gameId ? data.games.find((g) => g.id === gameId) : undefined;
+  // Clears the dates only: the player or game view stays, and "Grupo" leaves it.
+  const clearHref = withQuery(player ? `player=${player.id}` : "", game ? `game=${game.id}` : "");
 
   return (
     <div className="space-y-5">
@@ -112,9 +118,16 @@ export default async function StatsPage({ searchParams }: PageProps<"/stats">) {
           <span className="label">Hasta</span>
           <input type="date" name="to" defaultValue={year ? "" : (range.to ?? "")} className="input" />
         </label>
-        <button type="submit" className="btn-primary self-end">
-          Filtrar
-        </button>
+        <div className="flex items-end gap-3">
+          <button type="submit" className="btn-primary">
+            Filtrar
+          </button>
+          {q && (
+            <Link href={clearHref} scroll={false} className="flex min-h-11 items-center text-sm text-muted underline">
+              Quitar filtros
+            </Link>
+          )}
+        </div>
       </FilterForm>
 
       <nav className="flex flex-wrap gap-2" aria-label="Qué estadísticas ver">
