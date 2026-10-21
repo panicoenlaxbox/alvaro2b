@@ -6,6 +6,7 @@ import { filterGames, parseFilters } from "@/lib/domain/explore";
 import { formatSessionDate, groupSessions, todayIso } from "@/lib/domain/session";
 import { AutoSubmitForm } from "@/components/auto-submit-form";
 import { ChoiceGroup, MINUTE_CHOICES, MODE_CHOICES, PLAYER_CHOICES } from "@/components/game-choices";
+import { Faces } from "@/components/owners";
 import { SessionCard } from "@/components/session-card";
 import { SurpriseMe } from "@/components/surprise-me";
 
@@ -17,7 +18,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   // Only the three quick questions apply here; the rest of the filters live in the Catalog.
   const { filters } = parseFilters(params);
   const fits = filterGames(games, { players: filters.players, maxMinutes: filters.maxMinutes, mode: filters.mode });
-  const [next, ...later] = groups.upcoming;
+  const next = groups.upcoming[0];
   const lastPast = groups.past[0];
 
   return (
@@ -25,30 +26,25 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       {next && (
         <Link
           href={`/sessions/${next.id}`}
-          className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-2xl border-[3px] border-ink bg-teal px-4 py-3 text-ink shadow-hard transition-transform hover:-translate-y-0.5"
+          className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-2xl border-[3px] border-accent bg-card px-4 py-3 shadow-hard transition-transform hover:-translate-y-0.5"
         >
-          <span className="font-display text-sm">Próxima sesión</span>
+          <span className="font-display text-sm text-accent">Próxima sesión</span>
           <span className="font-medium first-letter:uppercase">
             {next.name ? `${next.name} · ` : ""}
             {formatSessionDate(next.date)}
             {next.time ? `, ${next.time}` : ""}
             {next.place ? ` · ${next.place}` : ""}
           </span>
-          <span className="font-bold sm:ml-auto">
-            {next.attendeeCount ? `${next.attendeeCount} ${next.attendeeCount === 1 ? "asistente" : "asistentes"} →` : "Ver sesión →"}
+          <span className="flex items-center gap-2 font-bold sm:ml-auto">
+            <Faces people={next.attendees} prefix="Con" />→
           </span>
         </Link>
       )}
 
-      <section className="flex flex-wrap items-end justify-between gap-6">
-        <div className="max-w-2xl space-y-3">
-          <p className="font-display text-lg text-soft">¡Hola, {member.displayName.split(" ")[0]}!</p>
-          <h1 className="text-[2.75rem] sm:text-6xl">¿A qué jugamos hoy?</h1>
-          <p className="text-lg text-soft">Cuántos somos, cuánto tiempo tenemos… y el resto lo decide el catálogo. O el dado.</p>
-        </div>
-        <Link href="/sessions/new" className="btn-primary shrink-0">
-          Añadir
-        </Link>
+      <section className="max-w-2xl space-y-3">
+        <p className="font-display text-lg text-soft">¡Hola, {member.displayName.split(" ")[0]}!</p>
+        <h1 className="text-[2.75rem] sm:text-6xl">¿A qué jugamos hoy?</h1>
+        <p className="text-lg text-soft">Cuántos somos, cuánto tiempo tenemos… y el resto lo decide el catálogo. O el dado.</p>
       </section>
 
       <AutoSubmitForm key={JSON.stringify(params)} action="/" className="card space-y-5 p-4 sm:p-6" aria-label="A qué jugamos">
@@ -67,20 +63,15 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       </AutoSubmitForm>
 
       <section className="space-y-3">
-        <h2 className="text-lg">Próximas sesiones</h2>
-        {groups.upcoming.length ? (
+        <h2 className="text-lg">Próxima sesión</h2>
+        {next ? (
           <div className="grid gap-4 sm:grid-cols-2">
-            {[next!, ...later].slice(0, 4).map((s) => (
-              <SessionCard key={s.id} session={s} />
-            ))}
+            <SessionCard session={next} />
           </div>
         ) : (
-          <div className="rounded-2xl border-[3px] border-dashed border-border p-6 text-center text-soft">
-            No hay ninguna.{" "}
-            <Link href="/sessions/new" className="font-bold text-accent underline">
-              ¿Montamos una?
-            </Link>
-          </div>
+          <Link href="/sessions/new" className="btn-primary">
+            Añadir sesión
+          </Link>
         )}
       </section>
 

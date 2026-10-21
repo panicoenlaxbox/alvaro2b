@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
-import { parseSessionTime, RSVP_RESPONSES, SESSION_TEXT_LIMITS, type RsvpResponse } from "@/lib/domain/session";
+import { parseSessionTime, RSVP_RESPONSES, SESSION_TEXT_LIMITS, todayIso, type RsvpResponse } from "@/lib/domain/session";
 import { createClient } from "@/lib/supabase/server";
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -124,4 +124,37 @@ export async function answerRsvp(_prev: ActionState, formData: FormData): Promis
 
   revalidateSession(id);
   return { ok: true };
+}
+
+/**
+ * "Empezar" after the dice: plays the Game today without asking. Uses today's Session (the latest
+ * one if there are several) or creates it, adds the Member as an Attendee and opens the Play form
+ * with the Game picked.
+ */
+export async function startToday(gameId: string): Promise<{ error: string }> {
+  const member = await requireMember();
+  const today = todayIso();
+
+  const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("sessions")
+    .select("id")
+    .eq("date", today)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  let sessionId = existing?.id;
+  if (!sessionId) {
+    const { data, error } = await supabase.from("sessions").insert({ date: today }).select("id").single();
+    if (error) return { error: errorMessage(error) };
+    sessionId = data.id;
+  }
+
+  const { error } = await supabase
+    .from("session_attendees")
+    .upsert({ session_id: sessionId, player_id: member.playerId }, { ignoreDuplicates: true });
+  if (error) return { error: errorMessage(error) };
+
+  revalidateSession(sessionId);
+  redirect(`/sessions/${sessionId}/plays/new?game=${encodeURIComponent(gameId)}`);
 }

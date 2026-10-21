@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeRanking, formatDuration, minutesBetween, parsePlayInput, toSavePlayPayload, validatePlay, winnersOf, type PlayInput } from "./play";
+import { computeRanking, formatDuration, parsePlayInput, toSavePlayPayload, validatePlay, winnersOf, type PlayInput } from "./play";
 
 const p = (playerId: string, score: number | null = null, rank: number | null = null, teamKey: string | null = null) => ({
   playerId,
@@ -76,8 +76,6 @@ describe("validatePlay", () => {
     teams: [],
     coopWon: null,
     durationMinutes: 45,
-    startedAt: null,
-    endedAt: null,
     notes: null,
   };
 
@@ -137,10 +135,6 @@ describe("validatePlay", () => {
 });
 
 describe("durations", () => {
-  it("rounds minutes and never returns zero", () => {
-    expect(minutesBetween("2026-10-20T18:00:00Z", "2026-10-20T19:24:40Z")).toBe(85);
-    expect(minutesBetween("2026-10-20T18:00:00Z", "2026-10-20T18:00:10Z")).toBe(1);
-  });
   it("formats", () => {
     expect(formatDuration(85)).toBe("1 h 25 min");
     expect(formatDuration(40)).toBe("40 min");

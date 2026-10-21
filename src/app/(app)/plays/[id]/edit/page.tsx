@@ -37,8 +37,6 @@ export default async function EditPlayPage({ params }: PageProps<"/plays/[id]/ed
           teams: play.teams.map((t) => ({ key: t.id, name: t.name, won: t.won })),
           coopWon: play.coopWon,
           durationMinutes: play.durationMinutes,
-          startedAt: play.startedAt,
-          endedAt: play.endedAt,
           notes: play.notes,
         }}
       />

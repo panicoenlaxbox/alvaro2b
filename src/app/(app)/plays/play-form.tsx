@@ -5,6 +5,7 @@ import { PLAY_MODE_LABELS, PLAY_MODES, type PlayMode } from "@/lib/domain/game-f
 import { PLAY_LIMITS, type ParticipantInput, type PlayInput, type TeamInput } from "@/lib/domain/play";
 import type { PlayFormGame } from "@/lib/data/play-form";
 import { RequiredMark } from "@/components/form";
+import { CROSS, Icon } from "@/components/icon";
 import { FACE_OFF, FACE_ON, NAME_OFF, NAME_ON, PlayerFace } from "@/components/player-face";
 import { savePlay } from "./actions";
 import { FirstPlayerDraw } from "./first-player-draw";
@@ -22,8 +23,6 @@ export type PlayFormInitial = {
   teams: TeamInput[];
   coopWon: boolean | null;
   durationMinutes: number | null;
-  startedAt: string | null;
-  endedAt: string | null;
   notes: string | null;
 };
 
@@ -85,7 +84,7 @@ export function PlayForm({
     setRows((current) => current.map((r) => (r.playerId === playerId ? { ...r, ...change } : r)));
   }
 
-  function submit(start: boolean) {
+  function submit() {
     setError(null);
     const participants: ParticipantInput[] = rows.map((r) => ({
       playerId: r.playerId,
@@ -103,12 +102,10 @@ export function PlayForm({
       teams: mode === "team" ? teams : [],
       coopWon: mode === "cooperative" ? coopWon : null,
       durationMinutes: duration.trim() === "" ? null : Number(duration),
-      startedAt: initial.startedAt,
-      endedAt: initial.endedAt,
       notes: notes.trim() || null,
     };
     startTransition(async () => {
-      const result = await savePlay(JSON.stringify(payload), start);
+      const result = await savePlay(JSON.stringify(payload));
       if (result?.error) setError(result.error);
     });
   }
@@ -118,7 +115,7 @@ export function PlayForm({
       className="space-y-5"
       onSubmit={(e) => {
         e.preventDefault();
-        submit(false);
+        submit();
       }}
     >
       <div>
@@ -297,10 +294,10 @@ export function PlayForm({
                   <button
                     type="button"
                     aria-label={`Quitar ${t.name}`}
-                    className="text-muted"
+                    className="inline-flex size-9 items-center justify-center rounded-full text-muted hover:bg-accent-soft hover:text-foreground"
                     onClick={() => setTeams((ts) => ts.filter((x) => x.key !== t.key))}
                   >
-                    ✕
+                    <Icon d={CROSS} className="size-4" />
                   </button>
                 )}
               </div>
@@ -369,16 +366,9 @@ export function PlayForm({
         </p>
       )}
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <button type="submit" disabled={pending} className="btn-primary flex-1 py-3">
-          {pending ? "Guardando…" : "Guardar"}
-        </button>
-        {!initial.id && (
-          <button type="button" disabled={pending} onClick={() => submit(true)} className="btn-secondary flex-1 py-3">
-            Empezar con cronómetro
-          </button>
-        )}
-      </div>
+      <button type="submit" disabled={pending} className="btn-primary w-full py-3">
+        {pending ? "Guardando…" : "Guardar"}
+      </button>
     </form>
   );
 }

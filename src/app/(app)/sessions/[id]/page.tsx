@@ -15,6 +15,7 @@ import { WhatsAppButton } from "@/components/whatsapp-button";
 import { createClient } from "@/lib/supabase/server";
 import { isPollOpen, latestDeadline } from "@/lib/domain/poll";
 import { Avatar } from "@/components/avatar";
+import { FlavorText } from "@/components/flavor-text";
 import { DeleteSessionButton, OpenPollForm, RsvpButtons } from "./session-detail-forms";
 
 export async function generateMetadata({ params }: PageProps<"/sessions/[id]">): Promise<Metadata> {
@@ -74,8 +75,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           </div>
         </div>
       </section>
-      {/* Notes read like the flavour text of a card: serif italics, set apart by a thin rule. */}
-      {session.notes && <p className="max-w-prose border-l-2 border-muted/50 pl-4 font-serif text-lg whitespace-pre-line text-muted italic">{session.notes}</p>}
+      {session.notes && <FlavorText>{session.notes}</FlavorText>}
 
       {/* One column on the phone (RSVP and the Attendees first); on wide screens the Plays and Photos sit beside the rest. */}
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
@@ -90,11 +90,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
                 <Link key={play.id} href={`/plays/${play.id}`} className="card block space-y-2 p-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-semibold">{play.game.name}</p>
-                    {play.startedAt && !play.endedAt ? (
-                      <span className="chip border-accent bg-accent font-bold text-ink">En juego</span>
-                    ) : (
-                      <span className="text-xs text-muted">{playSummary(play)}</span>
-                    )}
+                    <span className="text-xs text-muted">{playSummary(play)}</span>
                   </div>
                   <PlayResult play={play} compact />
                 </Link>
@@ -128,10 +124,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
                       <span className={p.maybe ? "inline-flex opacity-40" : "inline-flex"}>
                         <Avatar name={p.display_name} url={p.avatar_url} />
                       </span>
-                      <span>
-                        {p.display_name}
-                        {p.maybe && <span className="text-muted"> (quizá)</span>}
-                      </span>
+                      <span>{p.display_name}</span>
                     </li>
                   ))}
                 </ul>

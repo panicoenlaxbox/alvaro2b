@@ -87,16 +87,17 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 
 - **Búsqueda**, sobria, con "Buscar" y "Limpiar": nombre, Play mode, Rating medio mínimo (con estrellas) y "Por estrenar".
 - **Ordenación** de los resultados, encima de la lista, entre otros criterios por Rating.
-- **"¿A qué jugamos hoy?" en Inicio**: tres preguntas rápidas (cuántos somos, cuánto tiempo tenemos, cooperativo o competitivo) y el botón **"¡Tira el dado!"**, que elige al azar un Game de los que encajan, con unos segundos de suspense en los que van pasando nombres y frases. El resultado sale en la misma Inicio. El Catalog no tiene dado.
+- **"¿A qué jugamos hoy?" en Inicio**: tres preguntas rápidas (cuántos somos, cuánto tiempo tenemos, cooperativo o competitivo) y el botón **"¡Tira el dado!"**, que elige al azar un Game de los que encajan, con unos segundos de suspense en los que van pasando nombres y frases. El resultado sale en la misma Inicio, con **"Empezar"**: sin preguntar, usa la Session de hoy (o la crea), apunta al Member y abre el registro de la Play con ese Game elegido. El Catalog no tiene dado.
 
 ### 4. Sessions
 
 - **Datos**: fecha, hora (opcional, en formato 24 horas), nombre (opcional, por ejemplo "Sábado de mazmorreo", se muestra junto a la fecha), lugar (opcional), Attendees, notas y Photos.
 - **Sin estados**. Una Session no tiene estado: es **próxima** si su fecha es hoy o futura y **pasada** si es anterior. Siempre admite Plays y Photos.
 - **Si no se celebra, se elimina.** No hay cancelación.
-- **Attendees**. Se eligen al crear o editar la Session. En el detalle solo se ven; quien "quizá" va lleva un "?" en su cara, también en las tarjetas.
+- **Attendees**. Se eligen al crear o editar la Session. En el detalle solo se ven; quien "quizá" va sale con la cara atenuada; en el selector de Editar lleva un "?".
 - **RSVP**. En una próxima, cualquier Member responde "Voy", "Quizá" o "No voy", esté o no entre los Attendees; la respuesta se guarda al momento en la lista de Attendees. Quien juega una Play deja de ser "quizá".
 - **Compartir**. Un botón con el logo de WhatsApp, en la cabecera junto a "Editar" y "Eliminar", genera el enlace de la Session o de su Poll.
+- **En Inicio**: un aviso con la próxima Session, su tarjeta en "Próxima sesión" (o "Añadir sesión" si no hay ninguna) y la "Última sesión", si la hay.
 - **Listado**. Primero las próximas, de la más cercana a la más lejana, y después las pasadas, de la más reciente a la más antigua y de 10 en 10. Cada grupo muestra cuántas tiene y se puede plegar; las pasadas empiezan plegadas. Cada Session muestra cuándo es, dónde y quién va.
 
 ### 5. Plays
@@ -104,7 +105,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 - **Participants**. Se preseleccionan con los Attendees de la Session y son editables. Si se añade a alguien que no estaba en la Session, también se añade a ella.
 - **¿Quién empieza?** Al registrar una Play con dos o más Participants, un botón sortea quién empieza, con unos segundos de suspense. Es solo una ayuda en la mesa: no se guarda.
 - **Game y Expansions** usadas.
-- **Duración**. Se puede medir con el cronómetro de la aplicación (iniciar y terminar) o introducirla a mano. Siempre se puede corregir.
+- **Duración**. Se introduce a mano, en minutos, y siempre se puede corregir.
 - **Notas**.
 - **Resultado según el Play mode** (por defecto el del Game, pero se puede cambiar en la Play; ver [ADR 0003](./adr/0003-three-play-modes.md)):
   - **Competitivo**:
