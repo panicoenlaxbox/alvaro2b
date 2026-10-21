@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Faces } from "@/components/owners";
-import type { PhotoSession } from "@/lib/data/photos";
+import type { SessionSummary } from "@/lib/data/photos";
 import { formatSessionDate } from "@/lib/domain/session";
 
-/** Heads a Session's Photos: its date, name, place, Games and Attendees. No Session means the Album. */
-export function PhotoGroupHeader({ session }: { session: PhotoSession | null }) {
+/** Heads what belongs to a Session (its Photos, a Play, a Poll): its date, name, place, Games and Attendees. No Session means the Album. */
+export function SessionHeader({ session }: { session: SessionSummary | null }) {
   return (
     <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b-2 border-dashed border-border pb-2">
       <h2 className="text-lg">

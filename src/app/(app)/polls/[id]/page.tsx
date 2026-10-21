@@ -11,8 +11,8 @@ import { WhatsAppButton } from "@/components/whatsapp-button";
 import { createClient } from "@/lib/supabase/server";
 import { Faces } from "@/components/owners";
 import { CHECK, Icon } from "@/components/icon";
-import { PhotoGroupHeader } from "@/components/photo-group-header";
-import { photoSession } from "@/lib/data/photos";
+import { SessionHeader } from "@/components/session-header";
+import { sessionSummary } from "@/lib/data/photos";
 import { CandidateActions, ClosePollButton, ProposeForm } from "./poll-forms";
 
 export const metadata: Metadata = { title: "Votación" };
@@ -78,7 +78,7 @@ export default async function PollPage({ params }: PageProps<"/polls/[id]">) {
 
   return (
     <div className="space-y-6">
-      {p.sessions && <PhotoGroupHeader session={photoSession(p.session_id, p.sessions)} />}
+      {p.sessions && <SessionHeader session={sessionSummary(p.session_id, p.sessions)} />}
       <section className="space-y-1">
         <h1 className="text-4xl">¿A qué jugamos?</h1>
         <p className="text-sm text-muted">

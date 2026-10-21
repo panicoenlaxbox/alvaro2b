@@ -97,7 +97,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 - **Attendees**. Se eligen al crear o editar la Session. En el detalle solo se ven; quien "quizá" va sale con la cara atenuada; en el selector de Editar lleva un "?".
 - **RSVP**. En una próxima, cualquier Member responde "Voy", "Quizá" o "No voy", esté o no entre los Attendees; la respuesta se guarda al momento en la lista de Attendees. Quien juega una Play deja de ser "quizá".
 - **Compartir**. Un botón con el logo de WhatsApp, en la cabecera junto a "Editar" y "Eliminar", genera el enlace de la Session o de su Poll.
-- **En Inicio**: arriba, un aviso con la próxima Session (o, si no hay ninguna, otro que lleva a añadirla), y abajo la "Última sesión", si la hay.
+- **En Inicio**: arriba, un aviso con la próxima Session, si la hay, y abajo la "Última sesión", si la hay.
 - **Listado**. Primero las próximas, de la más cercana a la más lejana, y después las pasadas, de la más reciente a la más antigua y de 10 en 10. Cada grupo muestra cuántas tiene y se puede plegar; las pasadas empiezan plegadas. Cada Session muestra cuándo es, dónde y quién va.
 
 ### 5. Plays
@@ -139,7 +139,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 
 ### 8. Estadísticas
 
-Todas son filtrables por año o rango de fechas. En los rankings, los Players llevan su avatar, y el número de Plays o Sessions lleva a ellas: directamente si es una, o desplegando la lista con sus fechas si son varias.
+Todas son filtrables por año o rango de fechas. En los rankings, el número de Plays o Sessions lleva a ellas: directamente si es una, o desplegando la lista con sus fechas si son varias.
 
 - **Grupo**:
   - Sessions con al menos una Play, Plays totales y horas jugadas.
