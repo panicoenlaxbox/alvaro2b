@@ -255,7 +255,7 @@ function GameCard({
         <h2 className="font-sans text-lg leading-snug font-bold">{game.name}</h2>
         {details && <p className="text-soft">{details}</p>}
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1 text-sm text-muted">
-          <OwnerFaces owners={owners} size={28} />
+          <OwnerFaces owners={owners} />
           <span className="ml-auto">
             {game.playCount === 0 ? "Por estrenar" : `${game.playCount} ${game.playCount === 1 ? "partida" : "partidas"} · ${formatShortDate(game.lastPlayed!)}`}
           </span>

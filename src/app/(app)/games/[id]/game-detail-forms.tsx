@@ -152,7 +152,7 @@ function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: Expans
     <li className="space-y-1 py-2">
       <div className="flex flex-wrap items-center gap-2">
         <span className={`flex-1 ${expansion.retired ? "text-muted line-through" : ""}`}>{expansion.name}</span>
-        <OwnerFaces owners={expansion.owners} size={24} />
+        <OwnerFaces owners={expansion.owners} />
         <form action={run(setExpansionRetired)}>
           <input type="hidden" name="id" value={expansion.id} />
           <input type="hidden" name="game_id" value={gameId} />

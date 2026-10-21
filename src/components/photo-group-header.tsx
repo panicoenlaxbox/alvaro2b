@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Avatar } from "@/components/avatar";
+import { Faces } from "@/components/owners";
 import type { PhotoSession } from "@/lib/data/photos";
 import { formatSessionDate } from "@/lib/domain/session";
 
@@ -30,16 +30,7 @@ export function PhotoGroupHeader({ session }: { session: PhotoSession | null }) 
               </span>
             ))}
           </p>
-          {session.attendees.length > 0 && (
-            <span className="flex shrink-0 -space-x-1.5">
-              <span className="sr-only">Asistentes: {session.attendees.map((a) => a.name).join(", ")}</span>
-              {session.attendees.map((a) => (
-                <span key={a.name} title={a.name} className="inline-flex rounded-full ring-2 ring-background">
-                  <Avatar name={a.name} url={a.avatarUrl} size={24} />
-                </span>
-              ))}
-            </span>
-          )}
+          <Faces people={session.attendees} prefix="Con" on="background" />
         </>
       )}
     </header>

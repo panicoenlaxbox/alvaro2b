@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- full Photos are short-lived signed URLs */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Avatar } from "@/components/avatar";
+import { Faces } from "@/components/owners";
 import { requireMember } from "@/lib/auth";
 import { photoSession } from "@/lib/data/photos";
 import { listPlayers } from "@/lib/data/players";
@@ -53,16 +53,7 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
           {(photo.caption || taggedPlayers.length > 0) && (
             <figcaption className="flex items-center gap-3 px-1 pt-3">
               <span className="min-w-0 flex-1 font-hand text-2xl leading-tight text-ink sm:text-3xl">{photo.caption}</span>
-              {taggedPlayers.length > 0 && (
-                <span className="flex shrink-0 -space-x-2">
-                  <span className="sr-only">Salen: {taggedPlayers.map((p) => p.display_name).join(", ")}</span>
-                  {taggedPlayers.map((p) => (
-                    <span key={p.id} title={p.display_name} className="inline-flex rounded-full ring-2 ring-paper">
-                      <Avatar name={p.display_name} url={p.avatar_url} size={32} />
-                    </span>
-                  ))}
-                </span>
-              )}
+              <Faces people={taggedPlayers.map((p) => ({ id: p.id, name: p.display_name, avatarUrl: p.avatar_url }))} prefix="Salen" on="paper" />
             </figcaption>
           )}
         </figure>
