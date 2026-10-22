@@ -3,19 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "local": "node scripts/local.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "db:types": "node scripts/gen-types.mjs",
-    "bootstrap-admin": "node scripts/bootstrap-admin.mjs",
-    "test:db": "node scripts/supabase-local.mjs test db",
-    "db:reset": "node scripts/db-reset.mjs",
-    "db:catalog": "node scripts/db-catalog.mjs"
+    "test": "vitest"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -28,13 +21,11 @@
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
-    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.1.2",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
-    "pg": "^8.23.1",
     "supabase": "^2.121.0",
     "tailwindcss": "^4",
     "typescript": "^5",
