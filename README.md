@@ -40,6 +40,13 @@ Local data is fictional (`supabase/seed/`). Open http://localhost:3000/dev-login
 - `pnpm db:types`: regenerate `src/lib/supabase/database.types.ts` from the local database
 - `pnpm bootstrap-admin`: add the first Admin (`ADMIN_EMAIL`) to the allowlist of the database at `SUPABASE_DB_URL`
 
+## Our games
+
+Curious about what we play? Brace yourself for some envy: the group's collection, 34 Games and 5 Expansions, lives in [`supabase/seed/catalog.sql`](supabase/seed/catalog.sql).
+
+- **Locally**: `pnpm db:catalog`.
+- **In production**: paste the whole file into the Supabase SQL Editor of the `alvaro2b` project and run it. Games and Expansions that already exist with the same name are left untouched, so it is safe to run again. Owners are added afterwards from the app.
+
 ## Deployment
 
 - **App**: Vercel deploys only `main` to https://alvaro2b.vercel.app (region `dub1`, next to Supabase in `eu-west-1`). There are no previews or staging. Production variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `CRON_SECRET`. Redeploy after adding a variable.
