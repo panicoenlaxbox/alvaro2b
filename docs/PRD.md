@@ -41,6 +41,11 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Puede desactivar a un Member: deja de poder entrar y de aparecer al elegir jugadores, conserva su historial y se puede reactivar.
   - Puede eliminar a un Member sin historial (no ha jugado, asistido ni creado nada), junto con su cuenta.
   - No puede hacerlo consigo mismo ni con otro Admin: antes hay que quitarle el rol.
+  - Consulta el Audit log («Registro de cambios», desde la pantalla Admin):
+    - Cada vez que un Member crea, modifica o elimina un Game, una Expansion, un fichero, una Session, una Play, un Poll, una Photo, un Player o un acceso, queda una entrada con quién, cuándo y sobre qué. También se registran los Ratings y las respuestas a "¿Vienes?"; los votos en Polls no.
+    - Al eliminar algo, lo que desaparece con ello (las Attendees de una Session, las Expansions y los Ratings de un Game…) no deja entrada propia, y tampoco el Participant que se apunta solo a la Session.
+    - Se filtra por tipo de cambio y por Member, de lo más reciente a lo más antiguo. Cada entrada enlaza a lo que cambió mientras exista.
+    - Nadie puede editar ni borrar las entradas, y no se purgan.
 - **Guest**: persona sin cuenta que participa en Sessions y Plays.
   - No vota en los Polls ni da Ratings.
   - Puede convertirse en Member enlazando una cuenta, y conserva su historial.

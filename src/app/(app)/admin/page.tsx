@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { formatLastSeen } from "@/lib/domain/players";
 import { appUrl } from "@/lib/share";
@@ -27,7 +28,12 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl sm:text-4xl">Admin</h1>
+      <div className="flex items-center justify-between gap-2">
+        <h1 className="text-3xl sm:text-4xl">Admin</h1>
+        <Link href="/admin/audit" className="btn-secondary">
+          Registro de cambios
+        </Link>
+      </div>
 
       <section className="card space-y-3">
         <h2>Nuevo miembro</h2>

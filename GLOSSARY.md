@@ -20,6 +20,10 @@ _Evitar_: jugador (como sinónimo de Member)
 Member que gestiona quién forma parte del grupo.
 _Evitar_: moderador, propietario del grupo
 
+**Audit log**:
+Registro, solo visible para el Admin, de los cambios que hacen los Members en los datos del grupo. Cada fila es un *Audit entry*: quién, cuándo, qué acción (crear, modificar o eliminar) y sobre qué. En la interfaz se llama «Registro de cambios».
+_Evitar_: historial (reservado para lo que ha jugado un Player), actividad, log
+
 ## Quedadas y partidas
 
 **Session**:
