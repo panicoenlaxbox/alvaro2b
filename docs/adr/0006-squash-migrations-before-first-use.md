@@ -1,3 +1,5 @@
+> Sustituido por [0007](./0007-squash-migrations-again-before-first-use.md).
+
 # Colapso de las migraciones antes del primer uso
 
 Las 23 migraciones de la construcción inicial se sustituyen por una sola, `20261020000000_baseline.sql`, con el esquema final. Muchas creaban cosas que otras borraban después (el estado de las Sessions, los RSVP, los Vetoes, el Owner único), y había que leerlas todas para entender el esquema. Se hace una única vez, con producción todavía vacía.
