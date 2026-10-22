@@ -1,5 +1,6 @@
--- Baseline: the whole schema in one migration (ADR 0006). It replaces the 23 migrations of the
--- initial build, squashed once before the app had real data; new changes go in new migrations.
+-- Baseline: the whole schema in one migration (ADRs 0006, 0007 and 0008). It replaces the
+-- migrations of the initial build and the first changes after it, squashed before the app had real
+-- data; new changes go in new migrations.
 --
 -- Access model (ADR 0005):
 --   * Only emails listed in public.allowed_emails can sign up; a trigger on auth.users rejects
@@ -607,6 +608,95 @@ $$;
 revoke all on function public.set_game_owners(uuid, uuid[]) from public, anon;
 grant execute on function public.set_game_owners(uuid, uuid[]) to authenticated;
 
+-- Replaces an Expansion's owners in one transaction, so an edit never leaves it half-owned
+-- (the same as set_game_owners for a Game).
+create function public.set_expansion_owners(expansion uuid, owners uuid[])
+returns void
+language sql
+security invoker
+set search_path = ''
+as $$
+  delete from public.expansion_owners where expansion_id = expansion and player_id <> all (owners);
+  insert into public.expansion_owners (expansion_id, player_id)
+  select expansion, unnest(owners)
+  on conflict do nothing;
+$$;
+
+revoke all on function public.set_expansion_owners(uuid, uuid[]) from public, anon;
+grant execute on function public.set_expansion_owners(uuid, uuid[]) to authenticated;
+
+-- One function per form that writes more than one row or table, so a save is all or nothing.
+-- Like save_play: SECURITY INVOKER, so every statement runs under the caller's RLS policies and
+-- column grants. A missing row on update raises P0002, as save_play does.
+
+-- save_game: a Game and its Owners. Without "id" it creates the Game; with it, it edits it.
+create function public.save_game(game jsonb)
+returns uuid
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_id uuid := nullif(game ->> 'id', '')::uuid;
+  g public.games := jsonb_populate_record(null::public.games, game);
+begin
+  if v_id is null then
+    insert into public.games (name, year, min_players, max_players, min_duration, max_duration, complexity,
+                              default_play_mode, lower_score_wins, bgg_id, notes, bgg_image_url)
+    values (g.name, g.year, g.min_players, g.max_players, g.min_duration, g.max_duration, g.complexity,
+            coalesce(g.default_play_mode, 'competitive'), coalesce(g.lower_score_wins, false), g.bgg_id, g.notes,
+            g.bgg_image_url)
+    returning id into v_id;
+  else
+    update public.games set
+      name = g.name, year = g.year, min_players = g.min_players, max_players = g.max_players,
+      min_duration = g.min_duration, max_duration = g.max_duration, complexity = g.complexity,
+      default_play_mode = coalesce(g.default_play_mode, 'competitive'),
+      lower_score_wins = coalesce(g.lower_score_wins, false), bgg_id = g.bgg_id, notes = g.notes
+    where id = v_id;
+    if not found then
+      raise exception 'Game not found' using errcode = 'P0002';
+    end if;
+  end if;
+
+  perform public.set_game_owners(v_id, array(select jsonb_array_elements_text(coalesce(game -> 'owner_ids', '[]'))::uuid));
+  return v_id;
+end;
+$$;
+
+revoke all on function public.save_game(jsonb) from public, anon;
+grant execute on function public.save_game(jsonb) to authenticated;
+
+-- save_expansion: an Expansion and its Owners. Without "id" it creates it under "game_id".
+create function public.save_expansion(expansion jsonb)
+returns uuid
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_id uuid := nullif(expansion ->> 'id', '')::uuid;
+begin
+  if v_id is null then
+    insert into public.expansions (game_id, name, bgg_id)
+    values ((expansion ->> 'game_id')::uuid, expansion ->> 'name', (expansion ->> 'bgg_id')::integer)
+    returning id into v_id;
+  else
+    update public.expansions set name = expansion ->> 'name', bgg_id = (expansion ->> 'bgg_id')::integer
+    where id = v_id;
+    if not found then
+      raise exception 'Expansion not found' using errcode = 'P0002';
+    end if;
+  end if;
+
+  perform public.set_expansion_owners(v_id, array(select jsonb_array_elements_text(coalesce(expansion -> 'owner_ids', '[]'))::uuid));
+  return v_id;
+end;
+$$;
+
+revoke all on function public.save_expansion(jsonb) from public, anon;
+grant execute on function public.save_expansion(jsonb) to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- Sessions and Attendees
 -- ---------------------------------------------------------------------------
@@ -687,6 +777,89 @@ grant update (date, place, notes, name, start_time) on public.sessions to authen
 grant select, delete on public.session_attendees to authenticated;
 grant insert (session_id, player_id, maybe) on public.session_attendees to authenticated;
 grant update (maybe) on public.session_attendees to authenticated;
+
+-- save_session: a Session and its Attendees. Attendees who stay keep their "maybe".
+create function public.save_session(session jsonb)
+returns uuid
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_id uuid := nullif(session ->> 'id', '')::uuid;
+  s public.sessions := jsonb_populate_record(null::public.sessions, session);
+  attendees uuid[] := array(select jsonb_array_elements_text(coalesce(session -> 'attendee_ids', '[]'))::uuid);
+begin
+  if v_id is null then
+    insert into public.sessions (date, start_time, name, place, notes)
+    values (s.date, s.start_time, s.name, s.place, s.notes)
+    returning id into v_id;
+  else
+    update public.sessions set date = s.date, start_time = s.start_time, name = s.name, place = s.place, notes = s.notes
+    where id = v_id;
+    if not found then
+      raise exception 'Session not found' using errcode = 'P0002';
+    end if;
+  end if;
+
+  delete from public.session_attendees where session_id = v_id and player_id <> all (attendees);
+  insert into public.session_attendees (session_id, player_id)
+  select v_id, unnest(attendees)
+  on conflict do nothing;
+  return v_id;
+end;
+$$;
+
+revoke all on function public.save_session(jsonb) from public, anon;
+grant execute on function public.save_session(jsonb) to authenticated;
+
+-- start_today: "Empezar" after the dice. Uses the latest Session on `today` or creates it, and adds
+-- the Player as an Attendee. `today` comes from the app, which knows the group's time zone.
+create function public.start_today(today date, player uuid)
+returns uuid
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_id uuid;
+begin
+  select id into v_id from public.sessions where date = today order by created_at desc limit 1;
+  if v_id is null then
+    insert into public.sessions (date) values (today) returning id into v_id;
+  end if;
+
+  insert into public.session_attendees (session_id, player_id) values (v_id, player)
+  on conflict do nothing;
+  return v_id;
+end;
+$$;
+
+revoke all on function public.start_today(date, uuid) from public, anon;
+grant execute on function public.start_today(date, uuid) to authenticated;
+
+-- answer_rsvp: a "¿Vienes?" answer as one statement. "yes" and "maybe" keep the Player's Attendee
+-- row (inserting or updating it), "no" removes it. Only "maybe" is ever updated, as its grant allows.
+create function public.answer_rsvp(session uuid, player uuid, response text)
+returns void
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  if response = 'no' then
+    delete from public.session_attendees where session_id = session and player_id = player;
+  elsif response in ('yes', 'maybe') then
+    insert into public.session_attendees (session_id, player_id, maybe) values (session, player, response = 'maybe')
+    on conflict (session_id, player_id) do update set maybe = excluded.maybe;
+  else
+    raise exception 'Unknown answer' using errcode = '22023';
+  end if;
+end;
+$$;
+
+revoke all on function public.answer_rsvp(uuid, uuid, text) from public, anon;
+grant execute on function public.answer_rsvp(uuid, uuid, text) to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Plays: Participants, Teams, Expansions used and results by Play mode (ADR 0003)
@@ -1069,6 +1242,36 @@ grant update (session_id, play_id, caption) on public.photos to authenticated;
 grant select, delete on public.photo_tags to authenticated;
 grant insert (photo_id, player_id) on public.photo_tags to authenticated;
 
+-- save_photo: a Photo's caption, Play and tagged Players. Returns the Photo's Session (or null).
+create function public.save_photo(photo jsonb)
+returns uuid
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_id uuid := (photo ->> 'id')::uuid;
+  v_session_id uuid;
+  tags uuid[] := array(select jsonb_array_elements_text(coalesce(photo -> 'tag_ids', '[]'))::uuid);
+begin
+  update public.photos set caption = nullif(photo ->> 'caption', ''), play_id = nullif(photo ->> 'play_id', '')::uuid
+  where id = v_id
+  returning session_id into v_session_id;
+  if not found then
+    raise exception 'Photo not found' using errcode = 'P0002';
+  end if;
+
+  delete from public.photo_tags where photo_id = v_id and player_id <> all (tags);
+  insert into public.photo_tags (photo_id, player_id)
+  select v_id, unnest(tags)
+  on conflict do nothing;
+  return v_session_id;
+end;
+$$;
+
+revoke all on function public.save_photo(jsonb) from public, anon;
+grant execute on function public.save_photo(jsonb) to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- Admin: Members and Guests (PRD 0)
 -- ---------------------------------------------------------------------------
@@ -1207,6 +1410,210 @@ revoke all on function public.set_guest_active(uuid, boolean) from public;
 grant execute on function public.set_member_active(uuid, boolean) to authenticated;
 grant execute on function public.delete_member(uuid) to authenticated;
 grant execute on function public.set_guest_active(uuid, boolean) to authenticated;
+
+-- When each Member last used the app, for the Admin screen. A fresh Google sign-in only moves
+-- auth.users.last_sign_in_at, which stays put for weeks while the session lives on; the session's
+-- token refresh (about hourly while the app is open) is the live signal. Sessions vanish on sign-out,
+-- so the last sign-in is the floor.
+
+create function private.member_last_seen()
+returns table (player_id uuid, last_seen_at timestamptz)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  if not private.is_admin() then
+    raise exception 'Only the Admin sees when Members last connected' using errcode = '42501';
+  end if;
+  return query
+    select p.id,
+           greatest(u.last_sign_in_at, max(s.updated_at), max(s.refreshed_at at time zone 'UTC'))
+    from public.players p
+    join auth.users u on u.id = p.user_id
+    left join auth.sessions s on s.user_id = u.id
+    group by p.id, u.last_sign_in_at;
+end;
+$$;
+
+revoke all on function private.member_last_seen() from public;
+grant execute on function private.member_last_seen() to authenticated;
+
+create function public.member_last_seen()
+returns table (player_id uuid, last_seen_at timestamptz)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select * from private.member_last_seen();
+$$;
+
+revoke all on function public.member_last_seen() from public;
+grant execute on function public.member_last_seen() to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Audit log
+-- ---------------------------------------------------------------------------
+
+-- Audit log (PRD: Admin): one Audit entry per create, update or delete that a Member makes on the
+-- group's main data. Only triggers write it, so no write escapes it and nobody can forge the author;
+-- only the Admin reads it, and nobody edits or deletes it.
+--
+-- Kept deliberately simple:
+--   * Only the main tables have a trigger. Child rows (Participants, Teams, Owners, tags,
+--     Candidates…) count as a change of their parent when the form also saves the parent row.
+--   * Writes caused by another trigger (a Participant joining the Session) are skipped, and so are
+--     rows deleted in cascade, whose parent is already gone: deleting a Session leaves one entry,
+--     not one per Attendee.
+--   * Writes without a signed-in user (sign-up triggers, seeds, the keep-alive cron) are skipped.
+--   * No diff: a label copied at the time keeps the entry readable after the row is gone.
+
+create type public.audit_action as enum ('create', 'update', 'delete');
+
+create type public.audit_kind as enum (
+  'game', 'expansion', 'rating', 'attachment', 'session', 'attendee', 'play', 'poll', 'photo', 'player', 'email'
+);
+
+create table public.audit_entries (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  -- The Player of the signed-in Member who made the change.
+  actor_id uuid references public.players (id) on delete set null,
+  action public.audit_action not null,
+  kind public.audit_kind not null,
+  -- The Game, Session, Play, Poll, Photo or Player whose page shows the change, when there is one.
+  ref_id uuid,
+  label text not null
+);
+
+create index audit_entries_actor_id_idx on public.audit_entries (actor_id);
+
+alter table public.audit_entries enable row level security;
+
+create policy "Admin reads the audit log" on public.audit_entries
+  for select to authenticated using ((select private.is_admin()));
+
+grant select on public.audit_entries to authenticated;
+
+create function private.session_label(session_id uuid)
+returns text
+language sql
+stable
+set search_path = ''
+as $$
+  select coalesce(s.name || ' · ', '') || to_char(s.date, 'DD/MM/YYYY') from public.sessions s where s.id = session_id;
+$$;
+
+create function private.game_name(game_id uuid)
+returns text
+language sql
+stable
+set search_path = ''
+as $$
+  select g.name from public.games g where g.id = game_id;
+$$;
+
+create function private.player_name(player_id uuid)
+returns text
+language sql
+stable
+set search_path = ''
+as $$
+  select p.display_name from public.players p where p.id = player_id;
+$$;
+
+revoke all on function private.session_label(uuid) from public;
+revoke all on function private.game_name(uuid) from public;
+revoke all on function private.player_name(uuid) from public;
+
+create function private.audit()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  r record := case when tg_op = 'DELETE' then old else new end;
+  v_kind public.audit_kind;
+  v_ref uuid;
+  v_label text;
+begin
+  if (select auth.uid()) is null or pg_trigger_depth() > 1 then
+    return null;
+  end if;
+
+  case tg_table_name
+    when 'games' then
+      v_kind := 'game'; v_ref := r.id; v_label := r.name;
+    when 'expansions' then
+      v_kind := 'expansion'; v_ref := r.game_id; v_label := private.game_name(r.game_id) || ': ' || r.name;
+    when 'ratings' then
+      v_kind := 'rating'; v_ref := r.game_id; v_label := private.game_name(r.game_id) || ' (' || r.stars || '★)';
+    when 'game_attachments' then
+      v_kind := 'attachment'; v_ref := r.game_id;
+      v_label := private.game_name(r.game_id) || ': ' || coalesce(r.file_name, r.url);
+    when 'sessions' then
+      v_kind := 'session'; v_ref := r.id; v_label := coalesce(r.name || ' · ', '') || to_char(r.date, 'DD/MM/YYYY');
+    when 'session_attendees' then
+      v_kind := 'attendee'; v_ref := r.session_id;
+      v_label := private.player_name(r.player_id) || ' en ' || private.session_label(r.session_id)
+        || case when tg_op <> 'DELETE' and r.maybe then ' (quizá)' else '' end;
+    when 'plays' then
+      v_kind := 'play'; v_ref := r.id;
+      v_label := private.game_name(r.game_id) || ' en ' || private.session_label(r.session_id);
+    when 'polls' then
+      v_kind := 'poll'; v_ref := r.id; v_label := private.session_label(r.session_id);
+    when 'photos' then
+      v_kind := 'photo'; v_ref := r.id; v_label := coalesce(nullif(btrim(r.caption), ''), 'Foto');
+    when 'players' then
+      v_kind := 'player'; v_ref := r.id; v_label := r.display_name;
+    when 'allowed_emails' then
+      v_kind := 'email'; v_ref := r.player_id; v_label := r.email::text;
+  end case;
+
+  -- A null label means the parent row is already gone: a cascade from a delete that is logged.
+  if v_label is null then
+    return null;
+  end if;
+
+  insert into public.audit_entries (actor_id, action, kind, ref_id, label)
+  values (
+    (select p.id from public.players p where p.user_id = (select auth.uid())),
+    case tg_op when 'INSERT' then 'create' when 'UPDATE' then 'update' else 'delete' end::public.audit_action,
+    v_kind,
+    v_ref,
+    v_label
+  );
+  return null;
+end;
+$$;
+
+revoke all on function private.audit() from public;
+
+create trigger audit after insert or update or delete on public.games
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.expansions
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.ratings
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.game_attachments
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.sessions
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.session_attendees
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.plays
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.polls
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.photos
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.players
+  for each row execute function private.audit();
+create trigger audit after insert or update or delete on public.allowed_emails
+  for each row execute function private.audit();
 
 -- ---------------------------------------------------------------------------
 -- Storage: private buckets for media (covers/ and photos/) and Game attachments (games/)

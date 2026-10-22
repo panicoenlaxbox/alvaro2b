@@ -1,3 +1,5 @@
+> Sustituido por [0008](./0008-squash-migrations-a-third-time-before-first-use.md).
+
 # Segundo colapso de las migraciones antes del primer uso
 
 La migración `20261022090000_drop_play_timer.sql`, que quitaba el cronómetro de las Plays, se integra en `20261020000000_baseline.sql` y vuelve a quedar una sola migración. Sustituye a la [ADR 0006](./0006-squash-migrations-before-first-use.md), que presentaba aquel colapso como la única excepción a la regla de no editar migraciones aplicadas. Se repite por el mismo motivo: la base creaba dos columnas y una restricción que la migración siguiente borraba. Además, producción sigue sin usarse: no tiene Games, Sessions ni Plays, solo el Admin.
