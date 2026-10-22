@@ -1,4 +1,4 @@
--- The group's initial Catalog: 28 Games and 3 Expansions, with the fields the app takes from
+-- The group's initial Catalog: 35 Games and 5 Expansions, with the fields the app takes from
 -- BoardGameGeek when adding a Game (src/lib/bgg/parse.ts, toGameDefaults). Data from BGG, October 2026.
 --
 -- Not fixture data, so it is not listed in supabase/config.toml [db.seed]: run it on demand with
@@ -41,7 +41,13 @@ from (values
   (1513, 'The Republic of Rome', 1990, 1, 6, 300, 300, 4.4, 'competitive', 'https://cf.geekdo-images.com/1hw9kRfQg849_J5mjPHuBQ__original/img/2neiZgMUdbeliPtHUp-lSCfAOt0=/0x0/filters:format(jpeg)/pic487045.jpg'),
   -- (425789, 'The Republic of Rome: Remastered', 2025, 1, 6, 260, 720, null, 'competitive', 'https://cf.geekdo-images.com/B0IKoBpjC2Av7XEJ7uAeXw__original/img/aeSsC7tahJfjwpTcha-dMu7VDuQ=/0x0/filters:format(jpeg)/pic8417482.jpg'),
   (144189, 'Fire in the Lake', 2014, 1, 4, 180, 180, 4.2, 'competitive', 'https://cf.geekdo-images.com/08V8nzzLAr190Miv9GeitA__original/img/7gRe3HqaZPZPLNyKiBaq0EMbhU8=/0x0/filters:format(png)/pic2083738.png'),
-  (349963, 'Age of Comics: The Golden Years', 2023, 1, 4, 50, 120, 2.6, 'competitive', 'https://cf.geekdo-images.com/lhVWWA7ovNofeOVcSSBMsw__original/img/54x7FHuCG9YlMJ4GguZiCkBzTg8=/0x0/filters:format(jpeg)/pic6886727.jpg')
+  (349963, 'Age of Comics: The Golden Years', 2023, 1, 4, 50, 120, 2.6, 'competitive', 'https://cf.geekdo-images.com/lhVWWA7ovNofeOVcSSBMsw__original/img/54x7FHuCG9YlMJ4GguZiCkBzTg8=/0x0/filters:format(jpeg)/pic6886727.jpg'),
+  (228341, 'Pulsar 2849', 2017, 2, 4, 60, 90, 3.3, 'competitive', 'https://cf.geekdo-images.com/6TOzhqw0BXNxbUZCl0k1sg__original/img/tj-4BHcZxjUmiJpMnPCxXF1g0YY=/0x0/filters:format(jpeg)/pic6285702.jpg'),
+  (197376, 'Charterstone', 2017, 1, 6, 45, 75, 2.9, 'competitive', 'https://cf.geekdo-images.com/ToG_L1KA83024V5qHwfLbQ__original/img/h_c-3Fx9tUuuz9FSPZFW8AK22VI=/0x0/filters:format(png)/pic9706762.png'),
+  (422780, 'Mistborn: The Deckbuilding Game', 2024, 1, 4, 30, 60, 2.7, 'cooperative', 'https://cf.geekdo-images.com/Fr_k9-uU3hEUnw_3s-UnZQ__original/img/XhMQVwHzTcQPTS_2cjIn_NdZJwM=/0x0/filters:format(png)/pic8290518.png'),
+  (22827, 'StarCraft: The Board Game', 2007, 2, 6, 180, 240, 3.9, 'team', 'https://cf.geekdo-images.com/tXwlK5uyyxaMzXG65NZ3Xg__original/img/J5-KA7kHSx-6ln75ntNNy9OeBwA=/0x0/filters:format(jpeg)/pic265704.jpg'),
+  (104710, 'Wiz-War (Eighth Edition)', 2012, 2, 4, 30, 60, 2.3, 'competitive', 'https://cf.geekdo-images.com/yXbWhfIuwKFJfPNg5SgPOQ__original/img/C-3SceTz2k75LaIYt3sQWl7g7lU=/0x0/filters:format(jpeg)/pic1222733.jpg'),
+  (331106, 'The Witcher: Old World', 2023, 1, 5, 90, 150, 2.9, 'competitive', 'https://cf.geekdo-images.com/tQVVSXcmYLvAoI28cp-2Tg__original/img/0JwC_ndrsYO3hkawTSLpdf9huKc=/0x0/filters:format(jpeg)/pic5974859.jpg')
 ) as g (bgg_id, name, year, min_p, max_p, min_d, max_d, cx, mode, image)
 on conflict ((lower(btrim(name)))) do nothing;
 
@@ -51,7 +57,9 @@ select games.id, e.bgg_id, e.name, e.year
 from (values
   (342942, 368966, 'Ark Nova: Marine Worlds', 2023),
   (316554, 342031, 'Dune: Imperium – Rise of Ix', 2022),
-  (316554, 367466, 'Dune: Imperium – Immortality', 2022)
+  (316554, 367466, 'Dune: Imperium – Immortality', 2022),
+  (331106, 341023, 'The Witcher: Old World – Monster Trail', 2023),
+  (331106, 340983, 'The Witcher: Old World – Wild Hunt', 2023)
   -- With Dune (283355) instead of Dune: Imperium:
   -- (283355, 296579, 'Dune: Ixians & Tleilaxu', 2020),
   -- (283355, 346083, 'Dune: CHOAM & Richese', 2022)
@@ -60,4 +68,4 @@ join public.games on games.bgg_id = e.game_bgg_id
 on conflict (game_id, (lower(btrim(name)))) do nothing;
 
 -- To remove this Catalog again (local tests only; Expansions go with their Game):
--- delete from public.games where bgg_id in (169786, 37111, 246900, 167355, 381248, 310100, 237182, 220308, 224517, 251247, 187645, 271896, 133848, 103343, 233078, 37904, 366013, 150376, 340466, 36218, 342942, 316554, 436217, 254127, 174430, 1513, 144189, 349963);
+-- delete from public.games where bgg_id in (169786, 37111, 246900, 167355, 381248, 310100, 237182, 220308, 224517, 251247, 187645, 271896, 133848, 103343, 233078, 37904, 366013, 150376, 340466, 36218, 342942, 316554, 436217, 254127, 174430, 1513, 144189, 349963, 228341, 197376, 422780, 22827, 104710, 331106);
