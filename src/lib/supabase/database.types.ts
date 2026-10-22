@@ -486,6 +486,11 @@ isOneToOne: false
             "delete_member":
 { Args: { "target": string }; Returns: undefined
                            },
+"member_last_seen":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "last_seen_at": string,"player_id": string
+            }[]
+                           },
 "save_play":
 { Args: { "play": Json }; Returns: string
                            },
