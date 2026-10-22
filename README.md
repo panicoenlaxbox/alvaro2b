@@ -8,7 +8,6 @@ Live at https://alvaro2b.vercel.app (Members only).
 
 - [Next.js](https://nextjs.org/) (TypeScript), deployed on [Vercel](https://vercel.com/)
 - [Supabase](https://supabase.com/): Postgres, Auth (Google sign-in) and Storage
-- Optional [BoardGameGeek](https://boardgamegeek.com/) XML API integration, enabled by `BGG_TOKEN`
 
 ## Getting started
 
@@ -43,7 +42,7 @@ Local data is fictional (`supabase/seed/`). Open http://localhost:3000/dev-login
 
 ## Deployment
 
-- **App**: Vercel deploys only `main` to https://alvaro2b.vercel.app (region `dub1`, next to Supabase in `eu-west-1`). There are no previews or staging. Production variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `CRON_SECRET` and, optionally, `BGG_TOKEN`. Redeploy after adding a variable.
+- **App**: Vercel deploys only `main` to https://alvaro2b.vercel.app (region `dub1`, next to Supabase in `eu-west-1`). There are no previews or staging. Production variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `CRON_SECRET`. Redeploy after adding a variable.
 - **Database**: Supabase project `alvaro2b`. Migrations in `supabase/migrations/` are applied with `pnpm supabase db push`.
 - **Keep-alive**: a daily Vercel cron calls `/api/keep-alive` so the free Supabase project is not paused.
 

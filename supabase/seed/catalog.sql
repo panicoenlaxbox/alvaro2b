@@ -1,5 +1,5 @@
--- The group's initial Catalog: 34 Games and 5 Expansions, with the fields the app takes from
--- BoardGameGeek when adding a Game (src/lib/bgg/parse.ts, toGameDefaults). Data from BGG, October 2026.
+-- The group's initial Catalog: 34 Games and 5 Expansions, with their BoardGameGeek ids, cover images
+-- and the fields that feed the Catalog filters. Data from BGG, October 2026.
 --
 -- Not fixture data, so it is not listed in supabase/config.toml [db.seed]: run it on demand with
 -- `pnpm db:catalog` (local) or paste it into the SQL editor of the production project.

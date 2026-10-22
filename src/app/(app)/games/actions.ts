@@ -27,14 +27,9 @@ export async function createGame(_prev: ActionState, formData: FormData): Promis
   const parsed = parseGameForm(formValues(formData));
   if (!parsed.ok) return { error: parsed.error };
 
-  const bggImage = String(formData.get("bgg_image_url") ?? "");
   const supabase = await createClient();
   const { data: id, error } = await supabase.rpc("save_game", {
-    game: {
-      ...parsed.value,
-      bgg_image_url: bggImage.startsWith("https://") ? bggImage : null,
-      owner_ids: parseOwnerIds(formData.getAll("owner_id")),
-    },
+    game: { ...parsed.value, owner_ids: parseOwnerIds(formData.getAll("owner_id")) },
   });
   if (error) return { error: error.code === "23505" ? TAKEN_GAME_NAME : errorMessage(error) };
 

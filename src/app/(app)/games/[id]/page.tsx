@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { bggEnabled } from "@/lib/bgg/client";
 import { PoweredByBgg } from "@/components/powered-by-bgg";
-import { BggInfo } from "@/components/bgg-info";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireMember } from "@/lib/auth";
@@ -112,14 +109,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
         <div className="space-y-6">
           {game.notes && <p className="text-lg whitespace-pre-line text-soft">{game.notes}</p>}
 
-          {game.bgg_id !== null &&
-            (bggEnabled() ? (
-              <Suspense fallback={<p className="card text-sm text-muted">Consultando BoardGameGeek…</p>}>
-                <BggInfo bggId={game.bgg_id} />
-              </Suspense>
-            ) : (
-              <PoweredByBgg href={bggPageUrl(game.bgg_id)} label="Ver en BoardGameGeek" />
-            ))}
+          {game.bgg_id !== null && <PoweredByBgg href={bggPageUrl(game.bgg_id)} label="Ver en BoardGameGeek" />}
 
           <section className="card space-y-3">
             <h2>Tu valoración</h2>

@@ -6,7 +6,7 @@ import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { bggPageUrl, GAME_NUMBER_LIMITS, GAME_TEXT_LIMITS, PLAY_MODE_LABELS, PLAY_MODES, type GameInput } from "@/lib/domain/game-form";
 
-export type GameFormDefaults = Partial<GameInput> & { id?: string; bgg_image_url?: string | null; owner_ids?: string[] };
+export type GameFormDefaults = Partial<GameInput> & { id?: string; owner_ids?: string[] };
 
 function NumberField({ name, label, value, step }: { name: Exclude<keyof typeof GAME_NUMBER_LIMITS, "bgg_id">; label: string; value?: number | null; step?: string }) {
   return (
@@ -33,7 +33,6 @@ export function GameForm({
   return (
     <ActionForm action={formAction} className="space-y-4">
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
-      {defaults.bgg_image_url && <input type="hidden" name="bgg_image_url" value={defaults.bgg_image_url} />}
 
       <div>
         <label htmlFor="name" className="label">
