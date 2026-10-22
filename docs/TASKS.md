@@ -12,6 +12,8 @@ Lo que solo puede hacer Sergio. Marca cada casilla al terminarla. El agente aña
   5. Comprueba que en *Juegos → Añadir* aparece "Buscar en BoardGameGeek".
 - [ ] **Invitar a los Members**: *Más → Admin: accesos → Autorizar un email*, y después el botón *WhatsApp* para mandarle el enlace. La aplicación no envía ningún email ([ADR 0005](./adr/0005-google-sign-in-with-allowlist.md)). Si esa persona ya jugaba como invitado, elígelo en "¿Ya jugaba como invitado?" para que conserve su historial.
 
+- [ ] **Cargar el Catalog inicial en producción**, cuando lo hayas probado en local con `pnpm db:catalog`: abre el *SQL Editor* del proyecto `alvaro2b` en Supabase, pega entero [`supabase/seed/catalog.sql`](../supabase/seed/catalog.sql) y ejecútalo. Se puede repetir sin duplicar: los Games y Expansions que ya existan con el mismo nombre no se tocan. Los Owners se añaden después desde la app.
+
 ## Opcionales
 
 - [ ] **Aviso "Leaked Password Protection"** del advisor de Supabase: no aplica, porque no hay login con contraseña. Si quieres silenciarlo, actívalo en *Authentication* si tu plan lo permite.

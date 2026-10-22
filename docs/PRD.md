@@ -35,6 +35,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - El email del primer Admin se configura como variable de entorno, nunca en el repositorio.
 - **Admin**: un Member que gestiona las invitaciones, los Members y los Guests, todo desde la pantalla Admin.
   - Es el único que añade Guests y cambia el nombre de cualquier jugador.
+  - Ve la última conexión de cada Member: la última vez que entró o usó la aplicación ("hoy, 18:42", "ayer, 21:10" o la fecha).
   - Puede desactivar a un Guest: deja de aparecer al elegir jugadores, conserva su historial y se puede reactivar. Solo puede eliminar a un Guest sin historial.
   - Puede revocar una invitación que aún no se ha usado.
   - Puede desactivar a un Member: deja de poder entrar y de aparecer al elegir jugadores, conserva su historial y se puede reactivar.
