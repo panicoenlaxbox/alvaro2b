@@ -1,4 +1,4 @@
--- The group's initial Catalog: 35 Games and 5 Expansions, with the fields the app takes from
+-- The group's initial Catalog: 34 Games and 5 Expansions, with the fields the app takes from
 -- BoardGameGeek when adding a Game (src/lib/bgg/parse.ts, toGameDefaults). Data from BGG, October 2026.
 --
 -- Not fixture data, so it is not listed in supabase/config.toml [db.seed]: run it on demand with
