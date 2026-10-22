@@ -69,6 +69,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"audit_entries": {
+                  Row: {
+                    "action": Database["public"]['Enums']["audit_action"],"actor_id": string | null,"created_at": string,"id": number,"kind": Database["public"]['Enums']["audit_kind"],"label": string,"ref_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": Database["public"]['Enums']["audit_action"],"actor_id"?: string | null,"created_at"?: string,"id"?: never,"kind": Database["public"]['Enums']["audit_kind"],"label": string,"ref_id"?: string | null
+                  }
+                  Update: {
+                    "action"?: Database["public"]['Enums']["audit_action"],"actor_id"?: string | null,"created_at"?: string,"id"?: never,"kind"?: Database["public"]['Enums']["audit_kind"],"label"?: string,"ref_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "audit_entries_actor_id_fkey"
+      columns: ["actor_id"]
+isOneToOne: false
+      referencedRelation: "players"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"candidates": {
                   Row: {
                     "added_by": string | null,"chosen": boolean,"created_at": string,"game_id": string,"id": string,"poll_id": string
@@ -500,7 +520,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "attachment_kind": "file"|"link","play_mode": "competitive"|"cooperative"|"team"
+            "attachment_kind": "file"|"link","audit_action": "create"|"update"|"delete","audit_kind": "game"|"expansion"|"rating"|"attachment"|"session"|"attendee"|"play"|"poll"|"photo"|"player"|"email","play_mode": "competitive"|"cooperative"|"team"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -620,7 +640,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "attachment_kind": ["file", "link"],"play_mode": ["competitive", "cooperative", "team"]
+            "attachment_kind": ["file", "link"],"audit_action": ["create", "update", "delete"],"audit_kind": ["game", "expansion", "rating", "attachment", "session", "attendee", "play", "poll", "photo", "player", "email"],"play_mode": ["competitive", "cooperative", "team"]
           }
         }
 } as const
