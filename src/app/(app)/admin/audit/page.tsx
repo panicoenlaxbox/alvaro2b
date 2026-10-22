@@ -30,12 +30,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <Link href="/admin" className="text-sm text-muted">
-          ← Admin
-        </Link>
-        <h1 className="text-3xl sm:text-4xl">Registro de cambios</h1>
-      </div>
+      <h1 className="text-3xl sm:text-4xl">Registro de cambios</h1>
 
       <AutoSubmitForm key={JSON.stringify(params)} action="/admin/audit" className="card grid grid-cols-2 gap-3" aria-label="Filtros">
         <label>
