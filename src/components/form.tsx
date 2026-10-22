@@ -44,6 +44,20 @@ export function SubmitButton({
 type RowAction = (prev: ActionState, formData: FormData) => Promise<ActionState>;
 
 /**
+ * For an ActionForm that adds something: `useActionState` plus a key that changes after each
+ * success. Given to the form as its `key`, it empties the form then, while an error keeps what was typed.
+ */
+export function useAddAction(action: RowAction) {
+  const [added, setAdded] = useState(0);
+  const [state, dispatch] = useActionState(async (prev: ActionState, formData: FormData) => {
+    const result = await action(prev, formData);
+    if (result.ok) setAdded((n) => n + 1);
+    return result;
+  }, initialActionState);
+  return [state, dispatch, added] as const;
+}
+
+/**
  * One message for a group of forms (a row's buttons): each form runs through `run(action)`, so the
  * group shows the result of its latest action only and a success clears an earlier error.
  */

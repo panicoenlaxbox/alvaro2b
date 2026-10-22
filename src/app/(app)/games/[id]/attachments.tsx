@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useRef, useState, useTransition } from "react";
-import { ConfirmSubmitButton, FormMessage, SubmitButton } from "@/components/form";
+import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton, useAddAction } from "@/components/form";
 import { FILE, Icon, LINK, PAPERCLIP } from "@/components/icon";
 import { initialActionState } from "@/lib/action-state";
 import { ATTACHMENT_TYPES, attachmentPath, checkAttachmentFile, formatBytes, linkLabel } from "@/lib/domain/attachments";
@@ -14,7 +14,7 @@ export type AttachmentItem =
 
 /** Files and links of a Game: a list to open them, plus forms to add a link or upload a file. */
 export function Attachments({ gameId, items }: { gameId: string; items: AttachmentItem[] }) {
-  const [linkState, linkAction] = useActionState(addAttachmentLink, initialActionState);
+  const [linkState, linkAction, linksAdded] = useAddAction(addAttachmentLink);
 
   return (
     <div className="space-y-3">
@@ -26,14 +26,14 @@ export function Attachments({ gameId, items }: { gameId: string; items: Attachme
         </ul>
       )}
 
-      <form action={linkAction} className="flex flex-col gap-2 sm:flex-row">
+      <ActionForm key={linksAdded} action={linkAction} className="flex flex-col gap-2 sm:flex-row">
         <input type="hidden" name="game_id" value={gameId} />
         <input name="url" type="url" inputMode="url" required placeholder="https://…" aria-label="Enlace" className="input" />
         <SubmitButton className="btn-secondary shrink-0" pendingText="…">
           <Icon d={LINK} className="size-4" />
           Añadir enlace
         </SubmitButton>
-      </form>
+      </ActionForm>
       <FormMessage state={linkState} />
 
       <FileUploader gameId={gameId} />

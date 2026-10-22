@@ -514,6 +514,9 @@ isOneToOne: false
 "save_play":
 { Args: { "play": Json }; Returns: string
                            },
+"set_expansion_owners":
+{ Args: { "expansion": string,"owners": (string)[] }; Returns: undefined
+                           },
 "set_game_owners":
 { Args: { "game": string,"owners": (string)[] }; Returns: undefined
                            },

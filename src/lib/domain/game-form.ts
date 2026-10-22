@@ -52,7 +52,7 @@ function optionalNumber(value: Field, label: string, min: number, max: number, d
 
 const BGG_PAGE = /^(?:https?:\/\/)?(?:www\.)?boardgamegeek\.com\/[a-z]+\/(\d+)(?:[/?#].*)?$/i;
 
-/** The Game's BGG id from the address of its BGG page (a bare id still works). */
+/** The BGG id from the address of a Game's or Expansion's BGG page (a bare id still works). */
 function bggIdFromPage(value: Field): number | null | string {
   const text = (value ?? "").toString().trim();
   if (text === "") return null;
@@ -63,8 +63,21 @@ function bggIdFromPage(value: Field): number | null | string {
   return id;
 }
 
-export function bggPageUrl(id: number): string {
-  return `https://boardgamegeek.com/boardgame/${id}`;
+export function bggPageUrl(id: number, kind: "game" | "expansion" = "game"): string {
+  return `https://boardgamegeek.com/${kind === "expansion" ? "boardgameexpansion" : "boardgame"}/${id}`;
+}
+
+export type ExpansionInput = { name: string; bgg_id: number | null };
+
+/** Validates the Expansion form: a name and, optionally, its BGG page. */
+export function parseExpansionForm(values: Partial<Record<keyof ExpansionInput, Field>>): ParseResult<ExpansionInput> {
+  const name = (values.name ?? "").trim();
+  if (name.length < 1 || name.length > GAME_TEXT_LIMITS.name) {
+    return { ok: false, error: `Escribe el nombre de la expansión (máximo ${GAME_TEXT_LIMITS.name} caracteres).` };
+  }
+  const bgg_id = bggIdFromPage(values.bgg_id);
+  if (typeof bgg_id === "string") return { ok: false, error: bgg_id };
+  return { ok: true, value: { name, bgg_id } };
 }
 
 /** Validates the Game form. Every field except the name is optional (fast logging, PRD). */

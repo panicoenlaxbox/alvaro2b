@@ -71,6 +71,19 @@ describe("sortGames", () => {
   it("sorts by plays", () => expect(ids(sortGames(games, "most-played"))).toEqual(["Catan", "Azul", "Wingspan"]));
   it("puts never played and oldest first", () => expect(ids(sortGames(games, "least-recent"))).toEqual(["Wingspan", "Azul", "Catan"]));
   it("sorts by complexity with unknown last", () => expect(ids(sortGames(games, "complexity"))).toEqual(["Azul", "Catan", "Wingspan"]));
+  it("sorts by complexity descending with unknown still last", () =>
+    expect(ids(sortGames(games, "complexity-desc"))).toEqual(["Catan", "Azul", "Wingspan"]));
+
+  const timed = [
+    game("Catan", { minDuration: 60, maxDuration: 90 }),
+    game("Azul", { minDuration: 30, maxDuration: 45 }),
+    game("Brass", { minDuration: 45, maxDuration: 180 }),
+    game("Wingspan", { minDuration: null, maxDuration: null }),
+  ];
+  it("sorts the shortest first by the lower bound, unknown last", () =>
+    expect(ids(sortGames(timed, "duration"))).toEqual(["Azul", "Brass", "Catan", "Wingspan"]));
+  it("sorts the longest first by the upper bound, unknown still last", () =>
+    expect(ids(sortGames(timed, "duration-desc"))).toEqual(["Brass", "Catan", "Azul", "Wingspan"]));
 });
 
 describe("pickRandom", () => {

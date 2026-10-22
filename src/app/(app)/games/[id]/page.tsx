@@ -33,7 +33,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
   const [{ data: game }, members, { data: attachments }] = await Promise.all([
     supabase
       .from("games")
-      .select("*, game_owners(players(id, display_name, avatar_url)), ratings(player_id, stars), expansions(id, name, retired_at, created_by, expansion_owners(players(id, display_name, avatar_url)))")
+      .select("*, game_owners(players(id, display_name, avatar_url)), ratings(player_id, stars), expansions(id, name, bgg_id, retired_at, created_by, expansion_owners(players(id, display_name, avatar_url)))")
       .eq("id", id)
       .maybeSingle(),
     listMembers(),
@@ -149,6 +149,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
               expansions={game.expansions.map((e) => ({
                 id: e.id,
                 name: e.name,
+                bggId: e.bgg_id,
                 retired: e.retired_at !== null,
                 owners: toOwners(e.expansion_owners),
               }))}

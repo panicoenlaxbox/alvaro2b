@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bggPageUrl, durationText, parseGameForm, parseOwnerIds, playersText } from "./game-form";
+import { bggPageUrl, durationText, parseExpansionForm, parseGameForm, parseOwnerIds, playersText } from "./game-form";
 
 describe("parseGameForm", () => {
   it("only requires a name", () => {
@@ -70,6 +70,27 @@ describe("BGG page", () => {
 
   it("builds the page address back from the id", () => {
     expect(bggPageUrl(174430)).toBe("https://boardgamegeek.com/boardgame/174430");
+    expect(bggPageUrl(368966, "expansion")).toBe("https://boardgamegeek.com/boardgameexpansion/368966");
+  });
+});
+
+describe("parseExpansionForm", () => {
+  it("only requires a name", () =>
+    expect(parseExpansionForm({ name: "  Marine Worlds " })).toEqual({ ok: true, value: { name: "Marine Worlds", bgg_id: null } }));
+
+  it("reads the BGG id from the expansion's page", () => {
+    const result = parseExpansionForm({ name: "Marine Worlds", bgg_id: "https://boardgamegeek.com/boardgameexpansion/368966/ark-nova-marine-worlds" });
+    expect(result.ok && result.value.bgg_id).toBe(368966);
+  });
+
+  it.each([
+    [{ name: " " }, "nombre de la expansión"],
+    [{ name: "X".repeat(121) }, "nombre de la expansión"],
+    [{ name: "X", bgg_id: "https://example.com/boardgameexpansion/368966" }, "Página de BGG"],
+  ])("rejects %o", (values, message) => {
+    const result = parseExpansionForm(values);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toContain(message);
   });
 });
 

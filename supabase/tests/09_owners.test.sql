@@ -1,7 +1,7 @@
 -- Owners: a Game or an Expansion can belong to several Members, and only to Members.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(8);
+select plan(12);
 
 create function pg_temp.act_as(user_id uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', user_id, 'role', 'authenticated')::text, true);
@@ -48,9 +48,30 @@ select lives_ok(
   'an Expansion can have several owners too'
 );
 
+select lives_ok(
+  $$select public.set_expansion_owners('f0000000-0000-4000-8000-000000000001',
+      array(select id from public.players where display_name = 'Carla'))$$,
+  'any Member sets the owners of an Expansion'
+);
+select is(
+  (select array_agg(p.display_name) from public.expansion_owners o join public.players p on p.id = o.player_id
+   where o.expansion_id = 'f0000000-0000-4000-8000-000000000001'),
+  array['Carla'], 'setting the owners of an Expansion replaces them'
+);
+
+select throws_ok(
+  $$select public.set_expansion_owners('f0000000-0000-4000-8000-000000000001',
+      array(select id from public.players where display_name = 'Dani'))$$,
+  '42501', null, 'a Guest cannot own an Expansion'
+);
+
 reset role;
 set local role anon;
 select throws_ok('select count(*) from public.game_owners', '42501', null, 'anon has no access to owners');
+select throws_ok(
+  $$select public.set_expansion_owners('f0000000-0000-4000-8000-000000000001', '{}')$$,
+  '42501', null, 'anon cannot set the owners of an Expansion'
+);
 
 select * from finish();
 rollback;
