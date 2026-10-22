@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth";
+import { formatLastSeen } from "@/lib/domain/players";
 import { appUrl } from "@/lib/share";
 import { createClient } from "@/lib/supabase/server";
 import { AddEmailForm, AddGuestForm, AllowedEmailRow, GuestRow } from "./admin-forms";
@@ -16,7 +17,8 @@ export default async function AdminPage() {
     supabase.from("players").select("id, display_name, deactivated_at").is("user_id", null).order("display_name"),
     supabase.rpc("member_last_seen"),
   ]);
-  const lastSeenByPlayer = new Map((lastSeen ?? []).map((l) => [l.player_id, l.last_seen_at]));
+  // Formatted here, so "hoy" and "ayer" come from the server's clock only.
+  const lastSeenByPlayer = new Map((lastSeen ?? []).filter((l) => l.last_seen_at).map((l) => [l.player_id, formatLastSeen(l.last_seen_at)]));
 
   // A Guest with a pending invitation shows once, as that invitation.
   const linkedGuestIds = new Set((emails ?? []).map((e) => e.player_id));
