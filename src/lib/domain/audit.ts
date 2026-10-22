@@ -30,7 +30,7 @@ export function describeAuditEntry(action: AuditAction, kind: AuditKind): string
     session: "la sesión",
     attendee: "la asistencia de",
     play: "la partida",
-    poll: "la votación",
+    poll: "la votación de",
     photo: "la foto",
     player: "el jugador",
     email: "el acceso de",

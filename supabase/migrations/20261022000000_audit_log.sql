@@ -6,8 +6,8 @@
 --   * Only the main tables have a trigger. Child rows (Participants, Teams, Owners, tags,
 --     Candidates…) count as a change of their parent when the form also saves the parent row.
 --   * Writes caused by another trigger (a Participant joining the Session) are skipped, and so are
---     foreign key cascades, whose parent is already gone: deleting a Session leaves one entry, not
---     one per Attendee.
+--     rows deleted in cascade, whose parent is already gone: deleting a Session leaves one entry,
+--     not one per Attendee.
 --   * Writes without a signed-in user (sign-up triggers, seeds, the keep-alive cron) are skipped.
 --   * No diff: a label copied at the time keeps the entry readable after the row is gone.
 
@@ -29,7 +29,6 @@ create table public.audit_entries (
   label text not null
 );
 
-create index audit_entries_created_at_idx on public.audit_entries (created_at desc);
 create index audit_entries_actor_id_idx on public.audit_entries (actor_id);
 
 alter table public.audit_entries enable row level security;
@@ -106,7 +105,7 @@ begin
       v_kind := 'play'; v_ref := r.id;
       v_label := private.game_name(r.game_id) || ' en ' || private.session_label(r.session_id);
     when 'polls' then
-      v_kind := 'poll'; v_ref := r.id; v_label := 'Votación de ' || private.session_label(r.session_id);
+      v_kind := 'poll'; v_ref := r.id; v_label := private.session_label(r.session_id);
     when 'photos' then
       v_kind := 'photo'; v_ref := r.id; v_label := coalesce(nullif(btrim(r.caption), ''), 'Foto');
     when 'players' then
