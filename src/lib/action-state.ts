@@ -18,6 +18,7 @@ export function errorMessage(error: Pick<PostgrestError, "code" | "message"> | n
     case "42501":
       return "No tienes permiso para hacer esto.";
     case "PGRST116":
+    case "P0002":
       return "No encontrado o sin permiso.";
     default:
       return "Algo ha fallado. Vuelve a intentarlo.";

@@ -15,14 +15,13 @@ import { COVER_MAX_SIDE } from "@/lib/domain/image-size";
 import { compressImage } from "@/lib/image-client";
 import { createClient } from "@/lib/supabase/client";
 import {
-  addExpansion,
   deleteExpansion,
   deleteGame,
   rateGame,
+  saveExpansion,
   setCover,
   setExpansionRetired,
   setGameRetired,
-  updateExpansion,
 } from "../actions";
 
 export function RatingPicker({ gameId, stars }: { gameId: string; stars: number }) {
@@ -161,7 +160,7 @@ function ExpansionForm({
   onDone: () => void;
 }) {
   const [state, action] = useActionState(async (prev: typeof initialActionState, fd: FormData) => {
-    const result = await (expansion ? updateExpansion : addExpansion)(prev, fd);
+    const result = await saveExpansion(prev, fd);
     if (result.ok) onDone();
     return result;
   }, initialActionState);

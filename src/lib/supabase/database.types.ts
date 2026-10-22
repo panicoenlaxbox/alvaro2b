@@ -503,7 +503,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "delete_member":
+            "answer_rsvp":
+{ Args: { "player": string,"response": string,"session": string }; Returns: undefined
+                           },
+"delete_member":
 { Args: { "target": string }; Returns: undefined
                            },
 "member_last_seen":
@@ -511,8 +514,20 @@ isOneToOne: false
               "last_seen_at": string,"player_id": string
             }[]
                            },
+"save_expansion":
+{ Args: { "expansion": Json }; Returns: string
+                           },
+"save_game":
+{ Args: { "game": Json }; Returns: string
+                           },
+"save_photo":
+{ Args: { "photo": Json }; Returns: string
+                           },
 "save_play":
 { Args: { "play": Json }; Returns: string
+                           },
+"save_session":
+{ Args: { "session": Json }; Returns: string
                            },
 "set_expansion_owners":
 { Args: { "expansion": string,"owners": (string)[] }; Returns: undefined
@@ -525,6 +540,9 @@ isOneToOne: false
                            },
 "set_member_active":
 { Args: { "active": boolean,"target": string }; Returns: undefined
+                           },
+"start_today":
+{ Args: { "player": string,"today": string }; Returns: string
                            }
           }
           Enums: {

@@ -29,17 +29,17 @@ export async function createGame(_prev: ActionState, formData: FormData): Promis
 
   const bggImage = String(formData.get("bgg_image_url") ?? "");
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("games")
-    .insert({ ...parsed.value, bgg_image_url: bggImage.startsWith("https://") ? bggImage : null })
-    .select("id")
-    .single();
+  const { data: id, error } = await supabase.rpc("save_game", {
+    game: {
+      ...parsed.value,
+      bgg_image_url: bggImage.startsWith("https://") ? bggImage : null,
+      owner_ids: parseOwnerIds(formData.getAll("owner_id")),
+    },
+  });
   if (error) return { error: error.code === "23505" ? TAKEN_GAME_NAME : errorMessage(error) };
-  const owners = await supabase.rpc("set_game_owners", { game: data.id, owners: parseOwnerIds(formData.getAll("owner_id")) });
-  if (owners.error) return { error: errorMessage(owners.error) };
 
   revalidatePath("/games");
-  redirect(`/games/${data.id}`, RedirectType.replace);
+  redirect(`/games/${id}`, RedirectType.replace);
 }
 
 export async function updateGame(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -49,10 +49,8 @@ export async function updateGame(_prev: ActionState, formData: FormData): Promis
   if (!parsed.ok) return { error: parsed.error };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("games").update(parsed.value).eq("id", id).select("id").single();
+  const { error } = await supabase.rpc("save_game", { game: { id, ...parsed.value, owner_ids: parseOwnerIds(formData.getAll("owner_id")) } });
   if (error) return { error: error.code === "23505" ? TAKEN_GAME_NAME : errorMessage(error) };
-  const owners = await supabase.rpc("set_game_owners", { game: id, owners: parseOwnerIds(formData.getAll("owner_id")) });
-  if (owners.error) return { error: errorMessage(owners.error) };
 
   revalidatePath("/games");
   redirect(`/games/${id}`, RedirectType.replace);
@@ -130,42 +128,23 @@ export async function setCover(gameId: string, path: string | null): Promise<Act
   return { ok: true };
 }
 
-function expansionValues(formData: FormData) {
-  const name = formData.get("name");
-  const bggId = formData.get("bgg_id");
-  return parseExpansionForm({ name: typeof name === "string" ? name : null, bgg_id: typeof bggId === "string" ? bggId : null });
-}
-
 const TAKEN_EXPANSION_NAME = "Este juego ya tiene una expansión con ese nombre.";
 
-export async function addExpansion(_prev: ActionState, formData: FormData): Promise<ActionState> {
+/** Creates an Expansion (no "id" in the form) or edits it, with its owners, in one transaction. */
+export async function saveExpansion(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireMember();
+  const id = formData.get("id");
   const gameId = String(formData.get("game_id"));
-  const parsed = expansionValues(formData);
+  const name = formData.get("name");
+  const bggId = formData.get("bgg_id");
+  const parsed = parseExpansionForm({ name: typeof name === "string" ? name : null, bgg_id: typeof bggId === "string" ? bggId : null });
   if (!parsed.ok) return { error: parsed.error };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.from("expansions").insert({ game_id: gameId, ...parsed.value }).select("id").single();
+  const { error } = await supabase.rpc("save_expansion", {
+    expansion: { id: typeof id === "string" ? id : null, game_id: gameId, ...parsed.value, owner_ids: parseOwnerIds(formData.getAll("owner_id")) },
+  });
   if (error) return { error: error.code === "23505" ? TAKEN_EXPANSION_NAME : errorMessage(error) };
-  const owners = await supabase.rpc("set_expansion_owners", { expansion: data.id, owners: parseOwnerIds(formData.getAll("owner_id")) });
-  if (owners.error) return { error: errorMessage(owners.error) };
-
-  revalidatePath(`/games/${gameId}`);
-  return { ok: true };
-}
-
-export async function updateExpansion(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireMember();
-  const id = String(formData.get("id"));
-  const gameId = String(formData.get("game_id"));
-  const parsed = expansionValues(formData);
-  if (!parsed.ok) return { error: parsed.error };
-
-  const supabase = await createClient();
-  const { error } = await supabase.from("expansions").update(parsed.value).eq("id", id).select("id").single();
-  if (error) return { error: error.code === "23505" ? TAKEN_EXPANSION_NAME : errorMessage(error) };
-  const owners = await supabase.rpc("set_expansion_owners", { expansion: id, owners: parseOwnerIds(formData.getAll("owner_id")) });
-  if (owners.error) return { error: errorMessage(owners.error) };
 
   revalidatePath(`/games/${gameId}`);
   return { ok: true };

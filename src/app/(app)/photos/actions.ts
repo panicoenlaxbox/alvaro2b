@@ -58,23 +58,14 @@ export async function updatePhoto(_prev: ActionState, formData: FormData): Promi
   const tagged = formData.getAll("tag").map(String);
   if (caption.length > PHOTO_CAPTION_MAX) return { error: "El pie de foto es demasiado largo." };
 
+  // Caption, Play and tags in one transaction; it returns the Photo's Session.
   const supabase = await createClient();
-  const { data: photo, error } = await supabase
-    .from("photos")
-    .update({ caption: caption || null, play_id: playId })
-    .eq("id", id)
-    .select("session_id")
-    .single();
+  const { data: sessionId, error } = await supabase.rpc("save_photo", {
+    photo: { id, caption: caption || null, play_id: playId, tag_ids: [...new Set(tagged)] },
+  });
   if (error) return { error: error.message === "The Play is not in this Session" ? "Esa partida no es de esta sesión." : errorMessage(error) };
 
-  const { error: deleteError } = await supabase.from("photo_tags").delete().eq("photo_id", id);
-  if (deleteError) return { error: errorMessage(deleteError) };
-  if (tagged.length) {
-    const { error: tagError } = await supabase.from("photo_tags").insert(tagged.map((player_id) => ({ photo_id: id, player_id })));
-    if (tagError) return { error: errorMessage(tagError) };
-  }
-
-  revalidatePhotos(photo.session_id, id);
+  revalidatePhotos(sessionId, id);
   return { ok: true };
 }
 
