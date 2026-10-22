@@ -29,7 +29,7 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
 
       <details open>
         <summary className="cursor-pointer">
-          <h2 className="inline">Próximas ({groups.upcoming.length})</h2>
+          <h2 className="inline text-lg">Próximas ({groups.upcoming.length})</h2>
         </summary>
         {groups.upcoming.length > 0 && (
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -42,7 +42,7 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
 
       <details id="past" open={page !== undefined} className="scroll-mt-20">
         <summary className="cursor-pointer">
-          <h2 className="inline">Pasadas ({groups.past.length})</h2>
+          <h2 className="inline text-lg">Pasadas ({groups.past.length})</h2>
         </summary>
         {past.items.length > 0 && (
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">

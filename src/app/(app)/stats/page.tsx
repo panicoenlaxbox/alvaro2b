@@ -237,7 +237,7 @@ function PlayerView({
   const stats = playerStats(id, data.plays, range);
   return (
     <>
-      <h2 className="text-xl">{name}</h2>
+      <h2 className="text-lg">{name}</h2>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         <Stat label="Partidas" value={stats.plays} />
         <Stat label="Victorias" value={stats.wins} />
@@ -273,7 +273,7 @@ function GameView({
   const stats = gameStats(game, data.plays, range);
   return (
     <>
-      <h2 className="text-xl">
+      <h2 className="text-lg">
         <Link href={`/games/${game.id}`} className="underline">
           {game.name}
         </Link>

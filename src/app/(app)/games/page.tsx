@@ -37,7 +37,7 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
     <div className="space-y-6">
       <section className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-2">
-          <h1 className="text-4xl sm:text-5xl">{showRetired ? "Juegos retirados" : "Juegos"}</h1>
+          <h1 className="text-3xl sm:text-4xl">{showRetired ? "Juegos retirados" : "Juegos"}</h1>
         </div>
         <Link href="/games/new" className="btn-primary shrink-0">
           Añadir

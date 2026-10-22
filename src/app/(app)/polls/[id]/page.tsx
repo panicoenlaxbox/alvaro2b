@@ -80,7 +80,7 @@ export default async function PollPage({ params }: PageProps<"/polls/[id]">) {
     <div className="space-y-6">
       {p.sessions && <SessionHeader session={sessionSummary(p.session_id, p.sessions)} />}
       <section className="space-y-1">
-        <h1 className="text-4xl">¿A qué jugamos?</h1>
+        <h1 className="text-3xl sm:text-4xl">¿A qué jugamos?</h1>
         <p className="text-sm text-muted">
           {open
             ? p.closes_at
