@@ -1,4 +1,4 @@
--- The group's initial Catalog: 25 Games and 3 Expansions, with the fields the app takes from
+-- The group's initial Catalog: 28 Games and 3 Expansions, with the fields the app takes from
 -- BoardGameGeek when adding a Game (src/lib/bgg/parse.ts, toGameDefaults). Data from BGG, October 2026.
 --
 -- Not fixture data, so it is not listed in supabase/config.toml [db.seed]: run it on demand with
@@ -37,7 +37,11 @@ from (values
   -- (283355, 'Dune', 2019, 2, 6, 120, 180, 4.0, 'competitive', 'https://cf.geekdo-images.com/2fgPg6Be--w97zoycObUgg__original/img/7PyNxWs85_OKGOm_jYVFvPwAViE=/0x0/filters:format(jpeg)/pic4815198.jpg'),
   (436217, 'The Lord of the Rings: Fate of the Fellowship', 2025, 1, 5, 60, 150, 3.1, 'cooperative', 'https://cf.geekdo-images.com/scw36iBIad7l-rGzxPGcGg__original/img/JZKAg-ETtE7z3YbgSMPd242rCqE=/0x0/filters:format(png)/pic8662670.png'),
   (254127, 'Europa Universalis: The Price of Power', 2023, 1, 4, 90, 300, 4.7, 'competitive', 'https://cf.geekdo-images.com/orNF7D3hCHN3nj7Z3RauWw__original/img/iEYBt0ODVMWeizIyq_TuwqKUPEQ=/0x0/filters:format(jpeg)/pic4973943.jpg'),
-  (174430, 'Gloomhaven', 2017, 1, 4, 60, 120, 3.9, 'cooperative', 'https://cf.geekdo-images.com/sZYp_3BTDGjh2unaZfZmuA__original/img/7d-lj5Gd1e8PFnD97LYFah2c45M=/0x0/filters:format(jpeg)/pic2437871.jpg')
+  (174430, 'Gloomhaven', 2017, 1, 4, 60, 120, 3.9, 'cooperative', 'https://cf.geekdo-images.com/sZYp_3BTDGjh2unaZfZmuA__original/img/7d-lj5Gd1e8PFnD97LYFah2c45M=/0x0/filters:format(jpeg)/pic2437871.jpg'),
+  (1513, 'The Republic of Rome', 1990, 1, 6, 300, 300, 4.4, 'competitive', 'https://cf.geekdo-images.com/1hw9kRfQg849_J5mjPHuBQ__original/img/2neiZgMUdbeliPtHUp-lSCfAOt0=/0x0/filters:format(jpeg)/pic487045.jpg'),
+  -- (425789, 'The Republic of Rome: Remastered', 2025, 1, 6, 260, 720, null, 'competitive', 'https://cf.geekdo-images.com/B0IKoBpjC2Av7XEJ7uAeXw__original/img/aeSsC7tahJfjwpTcha-dMu7VDuQ=/0x0/filters:format(jpeg)/pic8417482.jpg'),
+  (144189, 'Fire in the Lake', 2014, 1, 4, 180, 180, 4.2, 'competitive', 'https://cf.geekdo-images.com/08V8nzzLAr190Miv9GeitA__original/img/7gRe3HqaZPZPLNyKiBaq0EMbhU8=/0x0/filters:format(png)/pic2083738.png'),
+  (349963, 'Age of Comics: The Golden Years', 2023, 1, 4, 50, 120, 2.6, 'competitive', 'https://cf.geekdo-images.com/lhVWWA7ovNofeOVcSSBMsw__original/img/54x7FHuCG9YlMJ4GguZiCkBzTg8=/0x0/filters:format(jpeg)/pic6886727.jpg')
 ) as g (bgg_id, name, year, min_p, max_p, min_d, max_d, cx, mode, image)
 on conflict ((lower(btrim(name)))) do nothing;
 
@@ -56,4 +60,4 @@ join public.games on games.bgg_id = e.game_bgg_id
 on conflict (game_id, (lower(btrim(name)))) do nothing;
 
 -- To remove this Catalog again (local tests only; Expansions go with their Game):
--- delete from public.games where bgg_id in (169786, 37111, 246900, 167355, 381248, 310100, 237182, 220308, 224517, 251247, 187645, 271896, 133848, 103343, 233078, 37904, 366013, 150376, 340466, 36218, 342942, 316554, 436217, 254127, 174430);
+-- delete from public.games where bgg_id in (169786, 37111, 246900, 167355, 381248, 310100, 237182, 220308, 224517, 251247, 187645, 271896, 133848, 103343, 233078, 37904, 366013, 150376, 340466, 36218, 342942, 316554, 436217, 254127, 174430, 1513, 144189, 349963);
