@@ -697,8 +697,6 @@ create table public.plays (
   session_id uuid not null references public.sessions (id) on delete restrict,
   game_id uuid not null references public.games (id) on delete restrict,
   play_mode public.play_mode not null,
-  started_at timestamptz,
-  ended_at timestamptz,
   duration_minutes smallint check (duration_minutes between 1 and 6000),
   notes text check (length(notes) <= 4000),
   -- Cooperative only: did the group win? Null when not recorded.
@@ -706,8 +704,8 @@ create table public.plays (
   created_by uuid references auth.users (id) on delete set null default auth.uid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (ended_at is null or started_at is null or ended_at >= started_at),
-  check (play_mode = 'cooperative' or coop_won is null)
+  -- Named as in production, where it was created next to a check that later went away.
+  constraint plays_check1 check (play_mode = 'cooperative' or coop_won is null)
 );
 
 create index plays_session_id_idx on public.plays (session_id);
@@ -785,10 +783,9 @@ begin
   end if;
 
   if v_play_id is null then
-    insert into public.plays (session_id, game_id, play_mode, started_at, ended_at, duration_minutes, notes, coop_won)
+    insert into public.plays (session_id, game_id, play_mode, duration_minutes, notes, coop_won)
     values (
       (play ->> 'session_id')::uuid, (play ->> 'game_id')::uuid, mode,
-      (play ->> 'started_at')::timestamptz, (play ->> 'ended_at')::timestamptz,
       (play ->> 'duration_minutes')::smallint, nullif(play ->> 'notes', ''),
       case when mode = 'cooperative' then (play ->> 'coop_won')::boolean end
     )
@@ -797,8 +794,6 @@ begin
     update public.plays set
       game_id = (play ->> 'game_id')::uuid,
       play_mode = mode,
-      started_at = (play ->> 'started_at')::timestamptz,
-      ended_at = (play ->> 'ended_at')::timestamptz,
       duration_minutes = (play ->> 'duration_minutes')::smallint,
       notes = nullif(play ->> 'notes', ''),
       coop_won = case when mode = 'cooperative' then (play ->> 'coop_won')::boolean end
@@ -874,8 +869,8 @@ create policy "Members add play expansions" on public.play_expansions for insert
 create policy "Members remove play expansions" on public.play_expansions for delete to authenticated using ((select private.is_member()));
 
 grant select, delete on public.plays to authenticated;
-grant insert (session_id, game_id, play_mode, started_at, ended_at, duration_minutes, notes, coop_won) on public.plays to authenticated;
-grant update (game_id, play_mode, started_at, ended_at, duration_minutes, notes, coop_won) on public.plays to authenticated;
+grant insert (session_id, game_id, play_mode, duration_minutes, notes, coop_won) on public.plays to authenticated;
+grant update (game_id, play_mode, duration_minutes, notes, coop_won) on public.plays to authenticated;
 
 grant select, delete on public.teams to authenticated;
 grant insert (play_id, name, won) on public.teams to authenticated;

@@ -59,24 +59,26 @@ const CONFIRM_ARMED_EVENT = "confirm-submit-armed";
 const CONFIRM_TIMEOUT_MS = 5000;
 
 /**
- * A submit button that asks for a second tap before submitting (no browser dialogs).
+ * A button that asks for a second tap before acting (no browser dialogs).
  * The first tap turns it into the confirmation in place: it keeps its size, so nothing around it
  * moves on a phone. Tapping anywhere else, Escape or a few seconds without a tap disarm it, and
  * arming one collapses the rest.
  */
-export function ConfirmSubmitButton({
+export function ConfirmButton({
   children,
+  onConfirm,
   confirmText = "¿Seguro? Pulsa otra vez",
   className = "btn-danger",
-}: {
-  children: React.ReactNode;
+  pending = false,
+  ...rest
+}: Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick" | "type"> & {
+  onConfirm: (button: HTMLButtonElement) => void;
   confirmText?: string;
-  className?: string;
+  pending?: boolean;
 }) {
   const id = useId();
   const ref = useRef<HTMLButtonElement>(null);
   const [armed, setArmed] = useState(false);
-  const { pending } = useFormStatus();
 
   useEffect(() => {
     // While the action runs the label must stay put, so nothing disarms it.
@@ -105,15 +107,14 @@ export function ConfirmSubmitButton({
 
   return (
     <button
+      {...rest}
       ref={ref}
-      // Never a submit button: React would switch the type before the browser handles the first
-      // tap, and that tap would submit. The second tap submits the form itself.
       type="button"
       disabled={pending}
       aria-live="polite"
       className={`${className} ${armed ? "!bg-danger !text-ink" : ""}`}
       onClick={(event) => {
-        if (armed) return event.currentTarget.form?.requestSubmit();
+        if (armed) return onConfirm(event.currentTarget);
         window.dispatchEvent(new CustomEvent(CONFIRM_ARMED_EVENT, { detail: id }));
         setArmed(true);
       }}
@@ -126,6 +127,27 @@ export function ConfirmSubmitButton({
         </span>
       </span>
     </button>
+  );
+}
+
+/**
+ * A ConfirmButton that submits its form on the second tap. It is never a submit button: React
+ * would switch the type before the browser handles the first tap, and that tap would submit.
+ */
+export function ConfirmSubmitButton({
+  children,
+  confirmText,
+  className,
+}: {
+  children: React.ReactNode;
+  confirmText?: string;
+  className?: string;
+}) {
+  const { pending } = useFormStatus();
+  return (
+    <ConfirmButton confirmText={confirmText} className={className} pending={pending} onConfirm={(button) => button.form?.requestSubmit()}>
+      {children}
+    </ConfirmButton>
   );
 }
 

@@ -118,7 +118,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           <div className="order-3 empty:hidden lg:order-none">
             <section className="card space-y-3">
               <h2>Asistentes ({attendees.length})</h2>
-              {attendees.length > 0 ? (
+              {attendees.length > 0 && (
                 <ul className="space-y-1.5">
                   {attendees.map((p) => (
                     <li key={p.id} className="flex items-center gap-2 text-sm">
@@ -129,8 +129,6 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
                     </li>
                   ))}
                 </ul>
-              ) : (
-                <p className="text-sm text-muted">Aún no se ha apuntado nadie.</p>
               )}
             </section>
           </div>
