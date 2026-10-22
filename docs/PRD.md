@@ -87,7 +87,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 
 - **Búsqueda**, sobria, con "Buscar" y "Limpiar": nombre, Play mode, Rating medio mínimo (con estrellas) y "Por estrenar".
 - **Ordenación** de los resultados, encima de la lista, entre otros criterios por Rating.
-- **"¿A qué jugamos hoy?" en Inicio**: tres preguntas rápidas (cuántos somos, cuánto tiempo tenemos, cooperativo o competitivo) y el botón **"¡Tira el dado!"**, que elige al azar un Game de los que encajan, con unos segundos de suspense en los que van pasando nombres y frases. El resultado sale en la misma Inicio, con **"Empezar"**: sin preguntar, usa la Session de hoy (o la crea), apunta al Member y abre el registro de la Play con ese Game elegido. El Catalog no tiene dado.
+- **"¿A qué jugamos hoy?" en Inicio**: tres preguntas rápidas (cuántos somos, cuánto tiempo tenemos, cooperativo o competitivo) y el botón **"¡Tira el dado!"**, que elige al azar un Game de los que encajan, con unos segundos de suspense en los que van pasando nombres y frases. El resultado sale en la misma Inicio, con **"Empezar"**: sin preguntar, usa la Session de hoy (o la crea), apunta al Member y abre el registro de la Play con ese Game elegido. El Catalog no tiene dado. Si el Catalog está vacío, en lugar de las preguntas y el dado sale un mensaje con el botón **"Añadir juego"**.
 
 ### 4. Sessions
 

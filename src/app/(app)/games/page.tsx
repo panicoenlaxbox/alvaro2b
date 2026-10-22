@@ -106,22 +106,15 @@ export default async function GamesPage({ searchParams }: PageProps<"/games">) {
             </li>
           ))}
         </ul>
-      ) : (
+      ) : showRetired || games.some((g) => !g.retired) ? (
         <div className="space-y-4 rounded-2xl border-[3px] border-dashed border-border p-8 text-center text-lg text-soft">
           {showRetired ? (
             <p>No hay juegos retirados.</p>
-          ) : games.some((g) => !g.retired) ? (
-            <p>Ningún juego encaja con todo eso. Quita algún filtro… o habrá que comprar uno nuevo.</p>
           ) : (
-            <>
-              <p>La estantería está vacía.</p>
-              <Link href="/games/new" className="btn-primary">
-                Añadir
-              </Link>
-            </>
+            <p>Ningún juego encaja con todo eso. Quita algún filtro… o habrá que comprar uno nuevo.</p>
           )}
         </div>
-      )}
+      ) : null}
 
       <div className="flex justify-center">
         <Link href={showRetired ? "/games" : "/games?retired=1"} className="btn-secondary">

@@ -2,10 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { PLAY_MODE_LABELS, PLAY_MODES, type PlayMode } from "@/lib/domain/game-form";
-import { PLAY_LIMITS, type ParticipantInput, type PlayInput, type TeamInput } from "@/lib/domain/play";
+import { computeRanking, ordinal, PLAY_LIMITS, type ParticipantInput, type PlayInput, type TeamInput } from "@/lib/domain/play";
 import type { PlayFormGame } from "@/lib/data/play-form";
-import { RequiredMark } from "@/components/form";
-import { CROSS, Icon } from "@/components/icon";
+import { Avatar } from "@/components/avatar";
+import { ConfirmButton, RequiredMark } from "@/components/form";
+import { HelpTip } from "@/components/help-tip";
+import { Icon, TROPHY } from "@/components/icon";
 import { FACE_OFF, FACE_ON, NAME_OFF, NAME_ON, PlayerFace } from "@/components/player-face";
 import { savePlay } from "./actions";
 import { FirstPlayerDraw } from "./first-player-draw";
@@ -44,6 +46,7 @@ export function PlayForm({
 }) {
   const [gameId, setGameId] = useState(initial.gameId);
   const [mode, setMode] = useState<PlayMode>(initial.mode);
+  const [changingMode, setChangingMode] = useState(false);
   const [expansionIds, setExpansionIds] = useState<string[]>(initial.expansionIds);
   const [rows, setRows] = useState<Row[]>(
     initial.participants.map((p) => ({
@@ -62,14 +65,23 @@ export function PlayForm({
 
   const game = games.find((g) => g.id === gameId);
   const names = useMemo(() => new Map(players.map((p) => [p.id, p.display_name])), [players]);
+  const byId = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
   const selected = new Set(rows.map((r) => r.playerId));
   const allScored = rows.length > 0 && rows.every((r) => r.score.trim() !== "");
+  // With every Score in, the positions shown are the ones the Play will be saved with.
+  const autoRanks = allScored
+    ? computeRanking(
+        rows.map((r) => ({ playerId: r.playerId, score: toScore(r.score), rank: null, teamKey: null })),
+        game?.lowerScoreWins ?? false,
+      )
+    : new Map<string, number | null>();
 
   function chooseGame(id: string) {
     setGameId(id);
     setExpansionIds([]);
     const g = games.find((x) => x.id === id);
     if (g) setMode(g.defaultMode);
+    setChangingMode(false);
   }
 
   function togglePlayer(id: string) {
@@ -88,7 +100,7 @@ export function PlayForm({
     setError(null);
     const participants: ParticipantInput[] = rows.map((r) => ({
       playerId: r.playerId,
-      score: mode === "competitive" && r.score.trim() !== "" ? Number(r.score.replace(",", ".")) : null,
+      score: mode === "competitive" && r.score.trim() !== "" ? toScore(r.score) : null,
       rank: mode === "competitive" && r.rank !== "" ? Number(r.rank) : null,
       teamKey: mode === "team" ? r.teamKey || null : null,
     }));
@@ -155,22 +167,38 @@ export function PlayForm({
         </fieldset>
       )}
 
-      <fieldset>
-        <legend className="label">Modo</legend>
-        <div className="grid grid-cols-3 gap-2">
-          {PLAY_MODES.map((m) => (
-            <button
-              key={m}
-              type="button"
-              aria-pressed={mode === m}
-              onClick={() => setMode(m)}
-              className={mode === m ? "btn-primary px-2" : "btn-secondary px-2"}
-            >
-              {PLAY_MODE_LABELS[m]}
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      {game &&
+        (changingMode ? (
+          <fieldset>
+            <legend className="label">Modo</legend>
+            <div className="grid grid-cols-3 gap-2">
+              {PLAY_MODES.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  aria-pressed={mode === m}
+                  onClick={() => {
+                    setMode(m);
+                    setChangingMode(false);
+                  }}
+                  className={mode === m ? "btn-primary px-2" : "btn-secondary px-2"}
+                >
+                  {PLAY_MODE_LABELS[m]}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        ) : (
+          <div>
+            <p className="label">Modo</p>
+            <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-border py-2 pr-2 pl-4">
+              <p className="font-bold">{PLAY_MODE_LABELS[mode]}</p>
+              <button type="button" className="btn-secondary" onClick={() => setChangingMode(true)}>
+                Cambiar
+              </button>
+            </div>
+          </div>
+        ))}
 
       <fieldset>
         <legend className="label">
@@ -209,14 +237,18 @@ export function PlayForm({
       {rows.length > 0 && mode === "competitive" && (
         <fieldset className="card space-y-3">
           <legend className="sr-only">Resultado</legend>
-          <p className="text-sm hint">
-            {allScored
-              ? `Con puntuación para todos, la clasificación se calcula sola${game?.lowerScoreWins ? " (gana la más baja)" : ""}.`
-              : "Pon la puntuación de todos para calcular la clasificación, o marca las posiciones a mano (se permiten empates)."}
-          </p>
+          <div className="flex items-center gap-2">
+            <span aria-hidden className="label mb-0">
+              Resultado
+            </span>
+            <HelpTip label="Cómo se calcula la clasificación">
+              Con la puntuación de todos, la clasificación se calcula sola{game?.lowerScoreWins ? " (gana la más baja)" : ""}. Si no, marca
+              las posiciones a mano; se permiten empates.
+            </HelpTip>
+          </div>
           {rows.map((r) => (
             <div key={r.playerId} className="flex items-center gap-2">
-              <span className="min-w-0 flex-1 truncate font-medium">{names.get(r.playerId)}</span>
+              <RowFace player={byId.get(r.playerId)} />
               <input
                 aria-label={`Puntuación de ${names.get(r.playerId)}`}
                 inputMode="decimal"
@@ -225,20 +257,26 @@ export function PlayForm({
                 onChange={(e) => updateRow(r.playerId, { score: e.target.value })}
                 className="input w-24"
               />
-              <select
-                aria-label={`Posición de ${names.get(r.playerId)}`}
-                value={allScored ? "" : r.rank}
-                disabled={allScored}
-                onChange={(e) => updateRow(r.playerId, { rank: e.target.value })}
-                className="input w-20"
-              >
-                <option value="">–</option>
-                {rows.map((_, i) => (
-                  <option key={i} value={i + 1}>
-                    {i + 1}.º
-                  </option>
-                ))}
-              </select>
+              {allScored ? (
+                <span className="w-20 text-center font-display text-xl">
+                  <span className="sr-only">Posición de {names.get(r.playerId)}: </span>
+                  {autoRank(autoRanks.get(r.playerId))}
+                </span>
+              ) : (
+                <select
+                  aria-label={`Posición de ${names.get(r.playerId)}`}
+                  value={r.rank}
+                  onChange={(e) => updateRow(r.playerId, { rank: e.target.value })}
+                  className="input w-20"
+                >
+                  <option value="">–</option>
+                  {rows.map((_, i) => (
+                    <option key={i} value={i + 1}>
+                      {ordinal(i + 1)}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           ))}
         </fieldset>
@@ -280,25 +318,25 @@ export function PlayForm({
                   onChange={(e) => setTeams((ts) => ts.map((x) => (x.key === t.key ? { ...x, name: e.target.value } : x)))}
                   className="input"
                 />
-                <label className="flex shrink-0 items-center gap-1 text-sm">
-                  <input
-                    type="radio"
-                    name="winning-team"
-                    checked={t.won}
-                    onChange={() => setTeams((ts) => ts.map((x) => ({ ...x, won: x.key === t.key })))}
-                    className="size-4"
-                  />
+                <button
+                  type="button"
+                  aria-pressed={t.won}
+                  aria-label={`Ganó ${t.name}`}
+                  onClick={() => setTeams((ts) => ts.map((x) => ({ ...x, won: x.key === t.key ? !t.won : false })))}
+                  className="toggle shrink-0"
+                >
+                  <Icon d={TROPHY} className="size-4" />
                   Ganó
-                </label>
+                </button>
                 {teams.length > 2 && (
-                  <button
-                    type="button"
-                    aria-label={`Quitar ${t.name}`}
-                    className="inline-flex size-9 items-center justify-center rounded-full text-muted hover:bg-accent-soft hover:text-foreground"
-                    onClick={() => setTeams((ts) => ts.filter((x) => x.key !== t.key))}
+                  <ConfirmButton
+                    aria-label={`Eliminar ${t.name}`}
+                    confirmText="Sí, eliminar"
+                    className="btn-danger shrink-0"
+                    onConfirm={() => setTeams((ts) => ts.filter((x) => x.key !== t.key))}
                   >
-                    <Icon d={CROSS} className="size-4" />
-                  </button>
+                    Eliminar
+                  </ConfirmButton>
                 )}
               </div>
             ))}
@@ -319,7 +357,7 @@ export function PlayForm({
           </div>
           {rows.map((r) => (
             <div key={r.playerId} className="flex items-center gap-2">
-              <span className="min-w-0 flex-1 truncate font-medium">{names.get(r.playerId)}</span>
+              <RowFace player={byId.get(r.playerId)} />
               <select
                 aria-label={`Equipo de ${names.get(r.playerId)}`}
                 value={r.teamKey}
@@ -371,4 +409,25 @@ export function PlayForm({
       </button>
     </form>
   );
+}
+
+/** A participant's face and name at the start of a result row. */
+function RowFace({ player }: { player: Player | undefined }) {
+  if (!player) return <span className="flex-1" />;
+  return (
+    <span className="flex min-w-0 flex-1 items-center gap-2">
+      <span className="shrink-0">
+        <Avatar name={player.display_name} url={player.avatar_url} size={36} />
+      </span>
+      <span className="truncate font-medium">{player.display_name}</span>
+    </span>
+  );
+}
+
+function toScore(value: string): number {
+  return Number(value.replace(",", "."));
+}
+
+function autoRank(rank: number | null | undefined): string {
+  return rank ? ordinal(rank) : "–";
 }

@@ -41,25 +41,34 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         </Link>
       )}
 
-      <section className="max-w-2xl space-y-3">
+      <section className="space-y-3">
         <p className="font-display text-lg text-soft">¡Hola, {member.displayName.split(" ")[0]}!</p>
         <h1 className="text-[2.75rem] sm:text-6xl">¿A qué jugamos hoy?</h1>
       </section>
 
-      <AutoSubmitForm key={JSON.stringify(params)} action="/" className="card space-y-5 p-4 sm:p-6" aria-label="A qué jugamos">
-        <div className="flex flex-wrap gap-x-10 gap-y-5">
-          <ChoiceGroup legend="¿Cuántos somos?" name="players" current={filters.players?.toString() ?? ""} options={PLAYER_CHOICES} />
-          <ChoiceGroup legend="¿Cuánto tiempo tenemos?" name="minutes" current={filters.maxMinutes?.toString() ?? ""} options={MINUTE_CHOICES} />
-          <ChoiceGroup legend="¿Juntos o a muerte?" name="mode" current={filters.mode ?? ""} options={MODE_CHOICES} />
+      {games.length > 0 ? (
+        <AutoSubmitForm key={JSON.stringify(params)} action="/" className="card space-y-5 p-4 sm:p-6" aria-label="A qué jugamos">
+          <div className="flex flex-wrap gap-x-10 gap-y-5">
+            <ChoiceGroup legend="¿Cuántos somos?" name="players" current={filters.players?.toString() ?? ""} options={PLAYER_CHOICES} />
+            <ChoiceGroup legend="¿Cuánto tiempo tenemos?" name="minutes" current={filters.maxMinutes?.toString() ?? ""} options={MINUTE_CHOICES} />
+            <ChoiceGroup legend="¿Juntos o a muerte?" name="mode" current={filters.mode ?? ""} options={MODE_CHOICES} />
+          </div>
+          <div className="border-t-2 border-dashed border-border pt-4">
+            {fits.length > 0 ? (
+              <SurpriseMe key={fits.map((g) => g.id).join()} games={fits.map((g) => ({ id: g.id, name: g.name }))} />
+            ) : (
+              <p className="text-soft">Ningún juego encaja con todo eso.</p>
+            )}
+          </div>
+        </AutoSubmitForm>
+      ) : (
+        <div className="card space-y-4 p-6 text-center sm:p-8">
+          <p className="text-lg text-soft">La estantería está vacía.</p>
+          <Link href="/games/new" className="btn-primary">
+            Añadir juego
+          </Link>
         </div>
-        <div className="border-t-2 border-dashed border-border pt-4">
-          {fits.length > 0 ? (
-            <SurpriseMe key={fits.map((g) => g.id).join()} games={fits.map((g) => ({ id: g.id, name: g.name }))} />
-          ) : (
-            <p className="text-soft">Ningún juego encaja con todo eso.</p>
-          )}
-        </div>
-      </AutoSubmitForm>
+      )}
 
       {lastPast && (
         <section className="space-y-3">

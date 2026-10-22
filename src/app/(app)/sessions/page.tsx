@@ -31,14 +31,12 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
         <summary className="cursor-pointer">
           <h2 className="inline">Próximas ({groups.upcoming.length})</h2>
         </summary>
-        {groups.upcoming.length ? (
+        {groups.upcoming.length > 0 && (
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {groups.upcoming.map((s) => (
               <SessionCard key={s.id} session={s} />
             ))}
           </div>
-        ) : (
-          <p className="mt-3 text-sm text-muted">No hay ninguna.</p>
         )}
       </details>
 
@@ -46,14 +44,12 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
         <summary className="cursor-pointer">
           <h2 className="inline">Pasadas ({groups.past.length})</h2>
         </summary>
-        {past.items.length ? (
+        {past.items.length > 0 && (
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {past.items.map((s) => (
               <SessionCard key={s.id} session={s} />
             ))}
           </div>
-        ) : (
-          <p className="mt-3 text-sm text-muted">Aún no hay ninguna.</p>
         )}
         {past.pageCount > 1 && (
           <nav aria-label="Páginas de sesiones pasadas" className="mt-3 flex items-center justify-between gap-2 pt-2">
