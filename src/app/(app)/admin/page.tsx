@@ -11,10 +11,12 @@ export default async function AdminPage() {
   const supabase = await createClient();
 
   // Seeded emails share created_at: the email breaks the tie, so a row never jumps after an edit.
-  const [{ data: emails }, { data: guests }] = await Promise.all([
+  const [{ data: emails }, { data: guests }, { data: lastSeen }] = await Promise.all([
     supabase.from("allowed_emails").select("email, is_admin, player_id, players(display_name, avatar_url, user_id, deactivated_at)").order("created_at").order("email"),
     supabase.from("players").select("id, display_name, deactivated_at").is("user_id", null).order("display_name"),
+    supabase.rpc("member_last_seen"),
   ]);
+  const lastSeenByPlayer = new Map((lastSeen ?? []).map((l) => [l.player_id, l.last_seen_at]));
 
   // A Guest with a pending invitation shows once, as that invitation.
   const linkedGuestIds = new Set((emails ?? []).map((e) => e.player_id));
@@ -43,6 +45,7 @@ export default async function AdminPage() {
               avatarUrl={e.players?.avatar_url ?? null}
               signedUp={Boolean(e.players?.user_id)}
               deactivated={Boolean(e.players?.deactivated_at)}
+              lastSeen={(e.player_id && lastSeenByPlayer.get(e.player_id)) || null}
               isSelf={e.email === admin.email}
               appUrl={url}
             />

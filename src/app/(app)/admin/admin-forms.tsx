@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { Avatar } from "@/components/avatar";
 import { ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
 import { initialActionState } from "@/lib/action-state";
-import { PLAYER_NAME_MAX } from "@/lib/domain/players";
+import { formatLastSeen, PLAYER_NAME_MAX } from "@/lib/domain/players";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { addAllowedEmail, addGuest, deleteGuest, deleteMember, removeAllowedEmail, renamePlayer, setAdmin, setGuestActive, setMemberActive } from "./actions";
 
@@ -61,6 +61,7 @@ export function AllowedEmailRow({
   avatarUrl,
   signedUp,
   deactivated,
+  lastSeen,
   isSelf,
   appUrl,
 }: {
@@ -71,6 +72,7 @@ export function AllowedEmailRow({
   avatarUrl: string | null;
   signedUp: boolean;
   deactivated: boolean;
+  lastSeen: string | null;
   isSelf: boolean;
   appUrl: string;
 }) {
@@ -94,6 +96,7 @@ export function AllowedEmailRow({
         <span className={`chip self-center ${STATUS_CHIP[status]}`}>{status}</span>
       </div>
       {playerName && <p className="truncate text-sm text-muted">{email}</p>}
+      {signedUp && lastSeen && <p className="text-sm text-muted">Última conexión: {formatLastSeen(lastSeen)}</p>}
       <div className="actions">
         {!signedUp && (
           <WhatsAppButton text={inviteText(appUrl, email)} label="Enviar el enlace por WhatsApp" className="flex-none" />
