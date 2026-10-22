@@ -46,6 +46,7 @@ Local data is fictional seed data (`supabase/seed/`). Open http://localhost:3000
 - `pnpm typecheck` and `pnpm lint`
 - `pnpm db:reset --seed` (or plain `pnpm db:reset`): recreate the local database from migrations with the Members and sample data
 - `pnpm db:reset --empty`: same, but with only the Members, to try the app from an empty group
+- `pnpm db:catalog`: load the group's initial Catalog (`supabase/seed/catalog.sql`, from BoardGameGeek) into the local database. It can be run again; for production, paste the same file into the Supabase SQL editor
 - `pnpm db:types`: regenerate `src/lib/supabase/database.types.ts` from the local database
 - `pnpm bootstrap-admin`: add the first Admin (`ADMIN_EMAIL`) to the allowlist of the database at `SUPABASE_DB_URL`
 
