@@ -68,7 +68,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
   - Owners (opcional): uno o varios, porque a veces un Game se compra entre varios;
   - notas.
 - **Juegos sin Owner.** Se puede registrar un Game sin Owner, por ejemplo uno prestado o jugado en un bar.
-- **Expansion**. Va vinculada a su Game base y, como el Game, puede tener uno o varios Owners. No cambia los filtros de jugadores ni de duración.
+- **Expansion**. Va vinculada a su Game base y, como el Game, puede tener uno o varios Owners. No cambia los filtros de jugadores ni de duración. Opcionalmente guarda su página de BGG: en la ficha del Game, un icono junto al nombre de la Expansion enlaza a ella. En la ficha, "Añadir expansión" y "Editar" abren el mismo formulario: nombre, página de BGG y Owners.
 - **Retired game**.
   - Un Game que ya no tenemos se retira: desaparece de la exploración y de los Polls, pero conserva su historial.
   - Solo se puede eliminar un Game que no tenga Plays.
@@ -92,7 +92,7 @@ Este documento describe lo que hace la aplicación hoy. Todas sus funcionalidade
 ### 3. Exploración del Catalog
 
 - **Búsqueda**, sobria, con "Buscar" y "Limpiar": nombre, Play mode, Rating medio mínimo (con estrellas) y "Por estrenar".
-- **Ordenación** de los resultados, encima de la lista, entre otros criterios por Rating.
+- **Ordenación** de los resultados, encima de la lista, con un único selector: Nombre, Rating, más jugados, más tiempo sin jugar, menos o más complejos y más cortos o más largos. Cada opción lleva su sentido. Los Games sin Rating, complejidad o duración van siempre al final; "más tiempo sin jugar" empieza por los que nunca se han jugado.
 - **"¿A qué jugamos hoy?" en Inicio**: tres preguntas rápidas (cuántos somos, cuánto tiempo tenemos, cooperativo o competitivo) y el botón **"¡Tira el dado!"**, que elige al azar un Game de los que encajan, con unos segundos de suspense en los que van pasando nombres y frases. El resultado sale en la misma Inicio, con **"Empezar"**: sin preguntar, usa la Session de hoy (o la crea), apunta al Member y abre el registro de la Play con ese Game elegido. El Catalog no tiene dado. Si el Catalog está vacío, en lugar de las preguntas y el dado sale un mensaje con el botón **"Añadir juego"**.
 
 ### 4. Sessions

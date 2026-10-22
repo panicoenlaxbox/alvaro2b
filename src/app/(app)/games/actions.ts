@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, type ActionState } from "@/lib/action-state";
-import { GAME_TEXT_LIMITS, parseGameForm, parseOwnerIds, type GameFormValues } from "@/lib/domain/game-form";
+import { parseExpansionForm, parseGameForm, parseOwnerIds, type GameFormValues } from "@/lib/domain/game-form";
 import { ATTACHMENTS_BUCKET, MEDIA_BUCKET } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 
@@ -130,20 +130,42 @@ export async function setCover(gameId: string, path: string | null): Promise<Act
   return { ok: true };
 }
 
+function expansionValues(formData: FormData) {
+  const name = formData.get("name");
+  const bggId = formData.get("bgg_id");
+  return parseExpansionForm({ name: typeof name === "string" ? name : null, bgg_id: typeof bggId === "string" ? bggId : null });
+}
+
+const TAKEN_EXPANSION_NAME = "Este juego ya tiene una expansión con ese nombre.";
+
 export async function addExpansion(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireMember();
   const gameId = String(formData.get("game_id"));
-  const name = String(formData.get("name") ?? "").trim();
-  const ownerIds = parseOwnerIds(formData.getAll("owner_id"));
-  if (name.length < 1 || name.length > GAME_TEXT_LIMITS.name) return { error: "Escribe el nombre de la expansión." };
+  const parsed = expansionValues(formData);
+  if (!parsed.ok) return { error: parsed.error };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.from("expansions").insert({ game_id: gameId, name }).select("id").single();
-  if (error) return { error: error.code === "23505" ? "Este juego ya tiene una expansión con ese nombre." : errorMessage(error) };
-  if (ownerIds.length) {
-    const owners = await supabase.from("expansion_owners").insert(ownerIds.map((player_id) => ({ expansion_id: data.id, player_id })));
-    if (owners.error) return { error: errorMessage(owners.error) };
-  }
+  const { data, error } = await supabase.from("expansions").insert({ game_id: gameId, ...parsed.value }).select("id").single();
+  if (error) return { error: error.code === "23505" ? TAKEN_EXPANSION_NAME : errorMessage(error) };
+  const owners = await supabase.rpc("set_expansion_owners", { expansion: data.id, owners: parseOwnerIds(formData.getAll("owner_id")) });
+  if (owners.error) return { error: errorMessage(owners.error) };
+
+  revalidatePath(`/games/${gameId}`);
+  return { ok: true };
+}
+
+export async function updateExpansion(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireMember();
+  const id = String(formData.get("id"));
+  const gameId = String(formData.get("game_id"));
+  const parsed = expansionValues(formData);
+  if (!parsed.ok) return { error: parsed.error };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("expansions").update(parsed.value).eq("id", id).select("id").single();
+  if (error) return { error: error.code === "23505" ? TAKEN_EXPANSION_NAME : errorMessage(error) };
+  const owners = await supabase.rpc("set_expansion_owners", { expansion: id, owners: parseOwnerIds(formData.getAll("owner_id")) });
+  if (owners.error) return { error: errorMessage(owners.error) };
 
   revalidatePath(`/games/${gameId}`);
   return { ok: true };

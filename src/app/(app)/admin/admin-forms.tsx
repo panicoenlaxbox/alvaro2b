@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Avatar } from "@/components/avatar";
-import { ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
+import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton, useAddAction, useRowAction } from "@/components/form";
 import { initialActionState } from "@/lib/action-state";
 import { PLAYER_NAME_MAX } from "@/lib/domain/players";
 import { WhatsAppButton } from "@/components/whatsapp-button";
@@ -20,9 +20,9 @@ function inviteText(appUrl: string, email: string) {
 }
 
 export function AddEmailForm({ guests }: { guests: { id: string; display_name: string }[] }) {
-  const [state, action] = useActionState(addAllowedEmail, initialActionState);
+  const [state, action, added] = useAddAction(addAllowedEmail);
   return (
-    <form action={action} className="space-y-3">
+    <ActionForm key={added} action={action} className="space-y-3">
       <div>
         <label htmlFor="email" className="label">
           Email de su cuenta de Google
@@ -49,7 +49,7 @@ export function AddEmailForm({ guests }: { guests: { id: string; display_name: s
       </label>
       <SubmitButton>Añadir</SubmitButton>
       <FormMessage state={state} />
-    </form>
+    </ActionForm>
   );
 }
 
@@ -138,15 +138,15 @@ export function AllowedEmailRow({
 }
 
 export function AddGuestForm() {
-  const [state, action] = useActionState(addGuest, initialActionState);
+  const [state, action, added] = useAddAction(addGuest);
   return (
-    <form action={action} className="space-y-2">
+    <ActionForm key={added} action={action} className="space-y-2">
       <div className="flex gap-2">
         <input name="display_name" required maxLength={PLAYER_NAME_MAX} placeholder="Nombre del invitado" className="input" aria-label="Nombre del invitado" />
         <SubmitButton>Añadir</SubmitButton>
       </div>
       <FormMessage state={state} />
-    </form>
+    </ActionForm>
   );
 }
 
@@ -220,7 +220,7 @@ function PlayerEditor({ id, name }: { id: string; name: string }) {
 
   return (
     // The rest of the row beside the face; the chips wrap under it.
-    <form action={renameAction} className="min-w-0 flex-1 basis-[calc(100%-3rem)] space-y-2">
+    <ActionForm action={renameAction} className="min-w-0 flex-1 basis-[calc(100%-3rem)] space-y-2">
       <input type="hidden" name="id" value={id} />
       <input name="display_name" defaultValue={name} required maxLength={PLAYER_NAME_MAX} className="input" aria-label="Nombre" autoFocus />
       <div className="flex gap-2">
@@ -230,6 +230,6 @@ function PlayerEditor({ id, name }: { id: string; name: string }) {
         </button>
       </div>
       <FormMessage state={renameState} />
-    </form>
+    </ActionForm>
   );
 }

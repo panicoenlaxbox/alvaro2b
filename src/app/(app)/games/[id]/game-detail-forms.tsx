@@ -1,16 +1,16 @@
 "use client";
 
 import { useActionState, useRef, useState, useTransition } from "react";
-import { ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
+import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
 import { useLeavingAction } from "@/components/leave";
 import { Cover } from "@/components/cover";
-import { CROSS, Icon, PENCIL } from "@/components/icon";
+import { CROSS, EXTERNAL_LINK, Icon, PENCIL } from "@/components/icon";
 import { OwnerFaces } from "@/components/owners";
 import { PlayerPicker } from "@/components/player-picker";
 import type { Owner } from "@/lib/data/explore";
 import type { PlayerOption } from "@/lib/data/players";
 import { initialActionState } from "@/lib/action-state";
-import { GAME_TEXT_LIMITS } from "@/lib/domain/game-form";
+import { bggPageUrl, GAME_TEXT_LIMITS } from "@/lib/domain/game-form";
 import { COVER_MAX_SIDE } from "@/lib/domain/image-size";
 import { compressImage } from "@/lib/image-client";
 import { createClient } from "@/lib/supabase/client";
@@ -22,6 +22,7 @@ import {
   setCover,
   setExpansionRetired,
   setGameRetired,
+  updateExpansion,
 } from "../actions";
 
 export function RatingPicker({ gameId, stars }: { gameId: string; stars: number }) {
@@ -145,17 +146,96 @@ export function CoverEditor({ gameId, url, name, hasOwnCover, className }: { gam
 
 const COVER_BUTTON = "absolute inline-flex size-10 items-center justify-center rounded-full border-[3px] border-ink bg-card text-foreground shadow-hard hover:bg-accent-soft disabled:opacity-50";
 
-type ExpansionItem = { id: string; name: string; retired: boolean; owners: Owner[] };
+type ExpansionItem = { id: string; name: string; bggId: number | null; retired: boolean; owners: Owner[] };
 
-function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: ExpansionItem }) {
+/** One form to add an Expansion or edit one (`expansion`): name, optional BGG page and owners. */
+function ExpansionForm({
+  gameId,
+  expansion,
+  members,
+  onDone,
+}: {
+  gameId: string;
+  expansion?: ExpansionItem;
+  members: PlayerOption[];
+  onDone: () => void;
+}) {
+  const [state, action] = useActionState(async (prev: typeof initialActionState, fd: FormData) => {
+    const result = await (expansion ? updateExpansion : addExpansion)(prev, fd);
+    if (result.ok) onDone();
+    return result;
+  }, initialActionState);
+  return (
+    <ActionForm action={action} className="space-y-3">
+      {expansion && <input type="hidden" name="id" value={expansion.id} />}
+      <input type="hidden" name="game_id" value={gameId} />
+      <input
+        name="name"
+        defaultValue={expansion?.name}
+        required
+        maxLength={GAME_TEXT_LIMITS.name}
+        placeholder="Nombre de la expansión"
+        aria-label="Nombre de la expansión"
+        className="input"
+        autoFocus
+      />
+      <input
+        name="bgg_id"
+        defaultValue={expansion?.bggId ? bggPageUrl(expansion.bggId, "expansion") : ""}
+        inputMode="url"
+        placeholder="Página de BGG (opcional)"
+        aria-label="Página de BGG de la expansión"
+        className="input"
+      />
+      <fieldset className="space-y-2">
+        <legend className="text-sm text-muted">De quién es</legend>
+        <PlayerPicker name="owner_id" players={members} selected={expansion?.owners.map((o) => o.id)} />
+      </fieldset>
+      <div className="flex gap-2">
+        <SubmitButton className="btn-primary flex-1 sm:flex-none">{expansion ? "Guardar" : "Añadir"}</SubmitButton>
+        <button type="button" className="btn-secondary flex-1 sm:flex-none" onClick={onDone}>
+          Cancelar
+        </button>
+      </div>
+      <FormMessage state={state} />
+    </ActionForm>
+  );
+}
+
+function ExpansionRow({ gameId, expansion, members }: { gameId: string; expansion: ExpansionItem; members: PlayerOption[] }) {
   const [state, run] = useRowAction();
+  const [editing, setEditing] = useState(false);
+  if (editing) {
+    return (
+      <li className="py-2">
+        <ExpansionForm gameId={gameId} expansion={expansion} members={members} onDone={() => setEditing(false)} />
+      </li>
+    );
+  }
   return (
     <li className="space-y-2 py-2">
       <div className="flex items-center gap-2">
-        <span className={`min-w-0 flex-1 break-words ${expansion.retired ? "text-muted line-through" : ""}`}>{expansion.name}</span>
+        <span className="flex min-w-0 flex-1 items-center">
+          <span className={`min-w-0 break-words ${expansion.retired ? "text-muted line-through" : ""}`}>{expansion.name}</span>
+          {expansion.bggId !== null && (
+            <a
+              href={bggPageUrl(expansion.bggId, "expansion")}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Ver ${expansion.name} en BoardGameGeek`}
+              title="Ver en BoardGameGeek"
+              className="-my-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-accent-soft hover:text-foreground"
+            >
+              <Icon d={EXTERNAL_LINK} className="size-4" />
+            </a>
+          )}
+        </span>
         <OwnerFaces owners={expansion.owners} />
       </div>
       <div className="actions">
+        <button type="button" className="btn-secondary" onClick={() => setEditing(true)}>
+          Editar
+        </button>
         <form action={run(setExpansionRetired)}>
           <input type="hidden" name="id" value={expansion.id} />
           <input type="hidden" name="game_id" value={gameId} />
@@ -184,32 +264,29 @@ function ExpansionRow({ gameId, expansion }: { gameId: string; expansion: Expans
 export function ExpansionList({
   gameId,
   expansions,
-  owners,
+  members,
 }: {
   gameId: string;
   expansions: ExpansionItem[];
-  owners: PlayerOption[];
+  members: PlayerOption[];
 }) {
-  const [state, action] = useActionState(addExpansion, initialActionState);
+  const [adding, setAdding] = useState(false);
   return (
     <div className="space-y-3">
       {expansions.length > 0 && (
         <ul className="divide-y divide-border">
           {expansions.map((e) => (
-            <ExpansionRow key={e.id} gameId={gameId} expansion={e} />
+            <ExpansionRow key={e.id} gameId={gameId} expansion={e} members={members} />
           ))}
         </ul>
       )}
-      <form action={action} className="space-y-3">
-        <input type="hidden" name="game_id" value={gameId} />
-        <input name="name" required maxLength={GAME_TEXT_LIMITS.name} placeholder="Nueva expansión" aria-label="Nombre de la expansión" className="input" />
-        <fieldset className="space-y-2">
-          <legend className="text-sm text-muted">De quién es</legend>
-          <PlayerPicker name="owner_id" players={owners} />
-        </fieldset>
-        <SubmitButton>Añadir</SubmitButton>
-        <FormMessage state={state} />
-      </form>
+      {adding ? (
+        <ExpansionForm gameId={gameId} members={members} onDone={() => setAdding(false)} />
+      ) : (
+        <button type="button" className="btn-secondary" onClick={() => setAdding(true)}>
+          Añadir expansión
+        </button>
+      )}
     </div>
   );
 }

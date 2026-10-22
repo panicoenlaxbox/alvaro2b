@@ -34,7 +34,16 @@ export const FILTER_LIMITS = {
   rating: { min: 1, max: 5 },
 } as const;
 
-export const SORTS = ["name", "rating", "most-played", "least-recent", "complexity", "duration"] as const;
+export const SORTS = [
+  "name",
+  "rating",
+  "most-played",
+  "least-recent",
+  "complexity",
+  "complexity-desc",
+  "duration",
+  "duration-desc",
+] as const;
 export type GameSort = (typeof SORTS)[number];
 
 export const SORT_LABELS: Record<GameSort, string> = {
@@ -42,8 +51,10 @@ export const SORT_LABELS: Record<GameSort, string> = {
   rating: "Valoración",
   "most-played": "Más jugados",
   "least-recent": "Más tiempo sin jugar",
-  complexity: "Complejidad",
-  duration: "Duración",
+  complexity: "Menos complejos",
+  "complexity-desc": "Más complejos",
+  duration: "Más cortos",
+  "duration-desc": "Más largos",
 };
 
 /**
@@ -91,8 +102,13 @@ export function sortGames<T extends ExplorableGame>(games: T[], sort: GameSort):
         return a.lastPlayed.localeCompare(b.lastPlayed) || byName(a, b);
       case "complexity":
         return nullsLast(a.complexity, b.complexity, 1) || byName(a, b);
+      case "complexity-desc":
+        return nullsLast(a.complexity, b.complexity, -1) || byName(a, b);
       case "duration":
         return nullsLast(a.minDuration ?? a.maxDuration, b.minDuration ?? b.maxDuration, 1) || byName(a, b);
+      case "duration-desc":
+        // The longest a Game can take, so a wide range counts by its upper bound.
+        return nullsLast(a.maxDuration ?? a.minDuration, b.maxDuration ?? b.minDuration, -1) || byName(a, b);
       default:
         return byName(a, b);
     }

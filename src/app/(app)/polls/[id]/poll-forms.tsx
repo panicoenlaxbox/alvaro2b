@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
+import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton, useAddAction, useRowAction } from "@/components/form";
 import { initialActionState } from "@/lib/action-state";
 import { closePoll, proposeCandidate, toggleApproval, toggleChosen, withdrawCandidate } from "../actions";
 
@@ -67,9 +67,9 @@ export function CandidateActions({
 }
 
 export function ProposeForm({ pollId, games }: { pollId: string; games: { id: string; name: string }[] }) {
-  const [state, action] = useActionState(proposeCandidate, initialActionState);
+  const [state, action, added] = useAddAction(proposeCandidate);
   return (
-    <form action={action} className="space-y-2">
+    <ActionForm key={added} action={action} className="space-y-2">
       <Hidden pollId={pollId} />
       <div className="flex gap-2">
         <select name="game_id" aria-label="Juego a proponer" className="input" defaultValue="">
@@ -83,7 +83,7 @@ export function ProposeForm({ pollId, games }: { pollId: string; games: { id: st
         <SubmitButton>Añadir</SubmitButton>
       </div>
       <FormMessage state={state} />
-    </form>
+    </ActionForm>
   );
 }
 
