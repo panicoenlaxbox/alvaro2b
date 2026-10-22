@@ -264,11 +264,11 @@ function ExpansionRow({ gameId, expansion, members }: { gameId: string; expansio
 export function ExpansionList({
   gameId,
   expansions,
-  owners,
+  members,
 }: {
   gameId: string;
   expansions: ExpansionItem[];
-  owners: PlayerOption[];
+  members: PlayerOption[];
 }) {
   const [adding, setAdding] = useState(false);
   return (
@@ -276,12 +276,12 @@ export function ExpansionList({
       {expansions.length > 0 && (
         <ul className="divide-y divide-border">
           {expansions.map((e) => (
-            <ExpansionRow key={e.id} gameId={gameId} expansion={e} members={owners} />
+            <ExpansionRow key={e.id} gameId={gameId} expansion={e} members={members} />
           ))}
         </ul>
       )}
       {adding ? (
-        <ExpansionForm gameId={gameId} members={owners} onDone={() => setAdding(false)} />
+        <ExpansionForm gameId={gameId} members={members} onDone={() => setAdding(false)} />
       ) : (
         <button type="button" className="btn-secondary" onClick={() => setAdding(true)}>
           Añadir expansión

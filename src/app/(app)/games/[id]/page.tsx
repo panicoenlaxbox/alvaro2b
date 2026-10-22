@@ -145,7 +145,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
             <h2>Expansiones</h2>
             <ExpansionList
               gameId={game.id}
-              owners={members}
+              members={members}
               expansions={game.expansions.map((e) => ({
                 id: e.id,
                 name: e.name,
