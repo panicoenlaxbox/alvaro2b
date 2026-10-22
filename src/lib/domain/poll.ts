@@ -2,7 +2,7 @@ import { GROUP_TIME_ZONE } from "./session";
 
 export type PollState = { closesAt: string | null; closedAt: string | null };
 
-/** A Poll is open until its creator closes it or its deadline passes (PRD 6). */
+/** A Poll is open until its creator closes it or its deadline passes. */
 export function isPollOpen(poll: PollState, now: Date = new Date()): boolean {
   if (poll.closedAt) return false;
   return poll.closesAt === null || Date.parse(poll.closesAt) > now.getTime();
@@ -19,7 +19,7 @@ export type CandidateTally = {
 export type RankedCandidate = CandidateTally & { position: number; leading: boolean };
 
 /**
- * Orientative ranking (PRD 6): most Approvals first, ties share a position. Every Candidate with the
+ * Orientative ranking: most Approvals first, ties share a position. Every Candidate with the
  * top count is "leading" (there can be several winners, since an evening has room for several Games);
  * any Member breaks ties by marking them chosen.
  */

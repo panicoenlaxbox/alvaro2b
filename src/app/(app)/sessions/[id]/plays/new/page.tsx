@@ -38,7 +38,7 @@ export default async function NewPlayPage({ params, searchParams }: PageProps<"/
           gameId: preselected?.id ?? "",
           mode: preselected?.defaultMode ?? "competitive",
           expansionIds: [],
-          // Participants start as the Session's Attendees (PRD 5).
+          // Participants start as the Session's Attendees.
           participants: session.session_attendees.map((a) => ({ playerId: a.player_id, score: null, rank: null, teamKey: null })),
           teams: [],
           coopWon: null,

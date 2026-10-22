@@ -80,7 +80,7 @@ export function parseExpansionForm(values: Partial<Record<keyof ExpansionInput, 
   return { ok: true, value: { name, bgg_id } };
 }
 
-/** Validates the Game form. Every field except the name is optional (fast logging, PRD). */
+/** Validates the Game form. Every field except the name is optional (fast logging). */
 export function parseGameForm(values: GameFormValues): ParseResult<GameInput> {
   const name = (values.name ?? "").trim();
   if (name.length < 1 || name.length > GAME_TEXT_LIMITS.name) {

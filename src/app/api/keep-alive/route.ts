@@ -3,7 +3,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { supabaseKey, supabaseUrl } from "@/lib/supabase/env";
 
 // Called once a day by Vercel Cron (vercel.json) so the free Supabase project never pauses for
-// inactivity (ADR 0004). Vercel sends "Authorization: Bearer $CRON_SECRET".
+// inactivity. Vercel sends "Authorization: Bearer $CRON_SECRET".
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {

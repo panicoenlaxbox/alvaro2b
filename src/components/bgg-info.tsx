@@ -3,7 +3,7 @@ import { bggPageUrl } from "@/lib/domain/game-form";
 import { PoweredByBgg } from "./powered-by-bgg";
 
 /**
- * "BGG info" (PRD 2): read from BoardGameGeek on the server, cached about a week and shown as is.
+ * "BGG info": read from BoardGameGeek on the server, cached about a week and shown as is.
  * It is never stored as group data.
  */
 export async function BggInfo({ bggId }: { bggId: number }) {

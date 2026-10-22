@@ -108,7 +108,7 @@ export function parseThing(xml: string): BggThing | null {
   };
 }
 
-/** Our own fields from a BGG item (ADR 0002): only what feeds the Catalog filters, all editable. */
+/** Our own fields from a BGG item: only what feeds the Catalog filters, all editable. */
 export function toGameDefaults(thing: BggThing): Partial<GameInput> & { bgg_image_url: string | null } {
   const mechanics = thing.mechanics.map((m) => m.toLowerCase());
   const mode: PlayMode = mechanics.includes("cooperative game")

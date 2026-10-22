@@ -38,7 +38,7 @@ function competitionRanks<T>(items: T[], value: (item: T) => number, better: (a:
 }
 
 /**
- * Ranking of a competitive Play (ADR 0003). With a Score for every Participant it comes from the
+ * Ranking of a competitive Play. With a Score for every Participant it comes from the
  * Scores (lower first when the Game says "lower score wins"); otherwise from the ranks marked by
  * hand, normalized the same way. Ties are allowed. Participants without a manual rank stay unranked.
  */

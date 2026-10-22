@@ -58,7 +58,7 @@ export const SORT_LABELS: Record<GameSort, string> = {
 };
 
 /**
- * Applies the Catalog filters (PRD 3). Retired games never appear. When a filter is active and the
+ * Applies the Catalog filters. Retired games never appear. When a filter is active and the
  * Game lacks that data (for example, no player count), the Game is left out.
  */
 export function filterGames<T extends ExplorableGame>(games: T[], f: GameFilters): T[] {

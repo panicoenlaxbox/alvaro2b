@@ -6,7 +6,7 @@ export function fitWithin(width: number, height: number, maxSide: number): { wid
   return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
 }
 
-// Photo budget from the PRD: long side around 2000 px, about 300–500 KB, plus a gallery thumbnail.
+// Photo budget: long side around 2000 px, about 300–500 KB, plus a gallery thumbnail.
 export const PHOTO_MAX_SIDE = 2000;
 export const PHOTO_TARGET_BYTES = 500 * 1024;
 export const THUMB_MAX_SIDE = 400;

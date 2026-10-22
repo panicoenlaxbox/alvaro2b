@@ -320,7 +320,7 @@ max_frequency = "5s"
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
-# Google is the only sign-in method in production (ADR 0005). The client id and
+# Google is the only sign-in method in production. The client id and
 # secret come from the environment, never from this file.
 [auth.external.google]
 enabled = true

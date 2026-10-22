@@ -1,7 +1,7 @@
 import "server-only";
 import { parseSearch, parseThing, type BggSearchResult, type BggThing } from "./parse";
 
-// BoardGameGeek XML API2 (ADR 0002). Optional: without BGG_TOKEN every function returns nothing
+// BoardGameGeek XML API2. Optional: without BGG_TOKEN every function returns nothing
 // and the app falls back to adding Games by hand. The token must go to the bare domain.
 const BASE = "https://boardgamegeek.com/xmlapi2";
 const WEEK = 7 * 24 * 60 * 60;
