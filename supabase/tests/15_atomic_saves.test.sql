@@ -1,7 +1,7 @@
 -- Saves that write several rows or tables go through one function each: all or nothing.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(27);
+select plan(30);
 
 create function pg_temp.act_as(user_id uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', user_id, 'role', 'authenticated')::text, true);
@@ -45,6 +45,15 @@ select throws_ok($$select public.save_game('{"name": "Catan"}')$$, '23505', null
 select throws_ok(
   $$select public.save_game('{"id": "00000000-0000-4000-8000-000000000000", "name": "nobody"}')$$,
   'P0002', null, 'save_game on a missing Game says so'
+);
+select lives_ok(
+  $$select public.save_game('{"name": "t-cover", "bgg_image_url": "https://example.com/x.png"}')$$,
+  'save_game ignores bgg_image_url'
+);
+select is((select bgg_image_url from public.games where name = 't-cover'), null::text, 'so a Member cannot set a BGG cover');
+select throws_ok(
+  $$update public.games set bgg_image_url = 'https://example.com/x.png' where name = 't-cover'$$,
+  '42501', null, 'nor write the column directly'
 );
 
 -- save_expansion

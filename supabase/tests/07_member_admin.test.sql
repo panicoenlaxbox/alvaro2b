@@ -1,7 +1,7 @@
 -- Admin manages Members: deactivate, reactivate and delete without history.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(11);
+select plan(12);
 
 create function pg_temp.act_as(user_id uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', user_id, 'role', 'authenticated')::text, true);
@@ -17,6 +17,9 @@ create temp table ids on commit drop as select
   (select id from public.players where display_name = 'Ana') as ana,
   (select id from public.players where user_id = '55555555-5555-4555-8555-555555555555') as eva;
 grant select on ids to authenticated;
+-- Adding an attachment is not history: the attachment stays when its creator is deleted.
+insert into public.game_attachments (game_id, kind, url, created_by)
+values ('a0000000-0000-4000-8000-000000000004', 'link', 'https://example.com/eva', '55555555-5555-4555-8555-555555555555');
 
 set local role authenticated;
 
@@ -46,6 +49,7 @@ select lives_ok($$select public.delete_member((select eva from ids))$$, 'the Adm
 reset role;
 select is((select count(*)::int from auth.users where id = '55555555-5555-4555-8555-555555555555'), 0, 'deleting a Member deletes their account');
 select is((select count(*)::int from public.allowed_emails where email = 'eva@example.com'), 0, 'deleting a Member removes their email');
+select is((select created_by is null from public.game_attachments where url = 'https://example.com/eva'), true, 'their attachments stay, without a creator');
 
 select * from finish();
 rollback;

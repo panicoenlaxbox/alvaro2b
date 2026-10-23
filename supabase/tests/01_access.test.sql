@@ -2,7 +2,7 @@
 -- Runs against the seeded local database: pnpm supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(12);
 
 -- Sign-up gate
 select throws_ok(
@@ -58,6 +58,14 @@ select throws_ok(
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated"}', true);
 select results_eq('select email::text from public.allowed_emails', $$values ('bruno@example.com')$$, 'Members only see their own email');
+
+-- Only the Admin manages the allowlist: a Member cannot add emails, promote themselves or remove others.
+select throws_ok($$insert into public.allowed_emails (email) values ('mallory@example.com')$$, '42501', null, 'a Member cannot add emails');
+update public.allowed_emails set is_admin = true where email = 'bruno@example.com';
+delete from public.allowed_emails where email = 'carla@example.com';
+reset role;
+select is((select is_admin from public.allowed_emails where email = 'bruno@example.com'), false, 'a Member cannot make themselves Admin');
+select is((select count(*)::int from public.allowed_emails where email = 'carla@example.com'), 1, 'a Member cannot remove other emails');
 
 reset role;
 delete from public.allowed_emails where email = 'bruno@example.com';
