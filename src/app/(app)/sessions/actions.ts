@@ -3,26 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
-import { errorMessage, type ActionState } from "@/lib/action-state";
-import { parseSessionTime, RSVP_RESPONSES, SESSION_TEXT_LIMITS, todayIso, type RsvpResponse } from "@/lib/domain/session";
+import { errorMessage, NOT_FOUND, type ActionState } from "@/lib/action-state";
+import { parseSessionForm, RSVP_RESPONSES, todayIso, type RsvpResponse, type SessionInput } from "@/lib/domain/session";
 import { createClient } from "@/lib/supabase/server";
 
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
-
-type SessionFields = { date: string; start_time: string | null; name: string | null; place: string | null; notes: string | null };
-
-function sessionFields(formData: FormData): SessionFields | string {
-  const date = String(formData.get("date") ?? "");
-  if (!DATE.test(date) || Number.isNaN(Date.parse(date))) return "Elige una fecha.";
-  const time = parseSessionTime(String(formData.get("start_time") ?? ""));
-  if (time === "invalid") return "La hora va en formato 24 horas, como 20:30.";
-  const name = String(formData.get("name") ?? "").trim();
-  const place = String(formData.get("place") ?? "").trim();
-  const notes = String(formData.get("notes") ?? "").trim();
-  if (name.length > SESSION_TEXT_LIMITS.name) return "El nombre es demasiado largo.";
-  if (place.length > SESSION_TEXT_LIMITS.place) return "El lugar es demasiado largo.";
-  if (notes.length > SESSION_TEXT_LIMITS.notes) return "Las notas son demasiado largas.";
-  return { date, start_time: time, name: name || null, place: place || null, notes: notes || null };
+function formValues(formData: FormData): Partial<Record<keyof SessionInput, string | null>> {
+  const values: Partial<Record<keyof SessionInput, string | null>> = {};
+  for (const key of ["date", "start_time", "name", "place", "notes"] as const) {
+    const v = formData.get(key);
+    values[key] = typeof v === "string" ? v : null;
+  }
+  return values;
 }
 
 /** The Players ticked in the form; save_session makes them the Attendees, and those who stay keep their "maybe". */
@@ -36,27 +27,17 @@ function revalidateSession(id: string) {
   revalidatePath("/");
 }
 
-export async function createSession(_prev: ActionState, formData: FormData): Promise<ActionState> {
+/** Creates a Session (no "id" in the form) or edits it, with its Attendees, in one transaction; then opens it. */
+export async function saveSession(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireMember();
-  const fields = sessionFields(formData);
-  if (typeof fields === "string") return { error: fields };
+  const formId = formData.get("id");
+  const parsed = parseSessionForm(formValues(formData));
+  if (!parsed.ok) return { error: parsed.error };
 
   const supabase = await createClient();
-  const { data: id, error } = await supabase.rpc("save_session", { session: { ...fields, attendee_ids: attendeeIds(formData) } });
-  if (error) return { error: errorMessage(error) };
-
-  revalidateSession(id);
-  redirect(`/sessions/${id}`, RedirectType.replace);
-}
-
-export async function updateSession(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireMember();
-  const id = String(formData.get("id"));
-  const fields = sessionFields(formData);
-  if (typeof fields === "string") return { error: fields };
-
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("save_session", { session: { id, ...fields, attendee_ids: attendeeIds(formData) } });
+  const { data: id, error } = await supabase.rpc("save_session", {
+    session: { id: typeof formId === "string" ? formId : null, ...parsed.value, attendee_ids: attendeeIds(formData) },
+  });
   if (error) return { error: errorMessage(error) };
 
   revalidateSession(id);
@@ -72,7 +53,7 @@ export async function deleteSession(_prev: ActionState, formData: FormData): Pro
   if (error) {
     return { error: error.code === "23503" ? "Tiene partidas o fotos. Elimínalas antes de eliminar la sesión." : errorMessage(error) };
   }
-  if (!count) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
+  if (!count) return { error: NOT_FOUND };
 
   revalidatePath("/sessions");
   revalidatePath("/");

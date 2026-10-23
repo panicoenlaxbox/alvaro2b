@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { useDismiss } from "@/components/use-dismiss";
 
 /**
  * A menu built on <details>. Dropdowns sharing a group close each other (the `name` attribute),
@@ -9,19 +10,9 @@ import { useEffect, useRef, type ReactNode } from "react";
 export function Dropdown({ group, summary, summaryClassName, children }: { group: string; summary: ReactNode; summaryClassName: string; children: ReactNode }) {
   const ref = useRef<HTMLDetailsElement>(null);
 
-  useEffect(() => {
-    const close = (event: Event) => {
-      const details = ref.current;
-      if (!details?.open) return;
-      if (event instanceof KeyboardEvent ? event.key === "Escape" : !details.contains(event.target as Node)) details.open = false;
-    };
-    document.addEventListener("pointerdown", close);
-    document.addEventListener("keydown", close);
-    return () => {
-      document.removeEventListener("pointerdown", close);
-      document.removeEventListener("keydown", close);
-    };
-  }, []);
+  useDismiss(ref, true, () => {
+    if (ref.current?.open) ref.current.open = false;
+  });
 
   return (
     <details

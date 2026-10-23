@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
+import { useDismiss } from "@/components/use-dismiss";
 
 /**
  * A round "?" that opens a short explanation in a bubble. It works on tap (there is no hover on a phone)
@@ -11,18 +12,7 @@ export function HelpTip({ label, children }: { label: string; children: ReactNod
   const ref = useRef<HTMLSpanElement>(null);
   const id = useId();
 
-  useEffect(() => {
-    if (!open) return;
-    const close = (event: Event) => {
-      if (event instanceof KeyboardEvent ? event.key === "Escape" : !ref.current?.contains(event.target as Node)) setOpen(false);
-    };
-    document.addEventListener("pointerdown", close);
-    document.addEventListener("keydown", close);
-    return () => {
-      document.removeEventListener("pointerdown", close);
-      document.removeEventListener("keydown", close);
-    };
-  }, [open]);
+  useDismiss(ref, open, () => setOpen(false));
 
   return (
     <span ref={ref} className="relative inline-flex">

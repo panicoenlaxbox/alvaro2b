@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
-import { errorMessage, type ActionState } from "@/lib/action-state";
+import { errorMessage, NOT_FOUND, type ActionState } from "@/lib/action-state";
 import { parsePlayInput, toSavePlayPayload, validatePlay } from "@/lib/domain/play";
 import type { Json } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
@@ -52,7 +52,7 @@ export async function deletePlay(_prev: ActionState, formData: FormData): Promis
   const { data: play } = await supabase.from("plays").select("session_id").eq("id", id).maybeSingle();
   const { error, count } = await supabase.from("plays").delete({ count: "exact" }).eq("id", id);
   if (error) return { error: errorMessage(error) };
-  if (!count || !play) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
+  if (!count || !play) return { error: NOT_FOUND };
 
   revalidatePlay(play.session_id);
   return { ok: true, leaveTo: `/sessions/${play.session_id}` };

@@ -1,5 +1,10 @@
 export type Rating = { playerId: string; stars: number };
 
+/** A Rating is a whole number of stars from 1 to 5; 0 removes it. */
+export function isValidStars(stars: number): boolean {
+  return Number.isInteger(stars) && stars >= 0 && stars <= 5;
+}
+
 export type RatingSummary = {
   average: number | null;
   count: number;

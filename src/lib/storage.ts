@@ -1,8 +1,8 @@
 import "server-only";
+import { MEDIA_BUCKET } from "@/lib/buckets";
 import { createClient } from "@/lib/supabase/server";
 
-export const MEDIA_BUCKET = "media";
-export const ATTACHMENTS_BUCKET = "attachments";
+export { ATTACHMENTS_BUCKET, MEDIA_BUCKET } from "@/lib/buckets";
 const SIGNED_URL_SECONDS = 60 * 60;
 
 /** Signed URLs for private files, created with the Member's own session (RLS applies). */

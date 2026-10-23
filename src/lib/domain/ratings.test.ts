@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { starsText, summarizeRatings } from "./ratings";
+import { isValidStars, starsText, summarizeRatings } from "./ratings";
 
 const names = new Map([
   ["a", "Ana"],
@@ -32,5 +32,14 @@ describe("starsText", () => {
     expect(starsText(3)).toBe("★★★☆☆");
     expect(starsText(0)).toBe("☆☆☆☆☆");
     expect(starsText(7)).toBe("★★★★★");
+  });
+});
+
+describe("isValidStars", () => {
+  it("accepts whole stars from 0 to 5", () => {
+    for (const stars of [0, 1, 3, 5]) expect(isValidStars(stars)).toBe(true);
+  });
+  it("rejects anything else", () => {
+    for (const stars of [-1, 6, 2.5, NaN]) expect(isValidStars(stars)).toBe(false);
   });
 });

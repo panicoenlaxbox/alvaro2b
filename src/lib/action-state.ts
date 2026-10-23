@@ -1,9 +1,12 @@
 import type { PostgrestError } from "@supabase/supabase-js";
 
 /** `leaveTo`: the action removed the page it ran on; see `useLeavingAction`. */
-export type ActionState = { error?: string; ok?: boolean; message?: string; leaveTo?: string };
+export type ActionState = { error?: string; ok?: boolean; leaveTo?: string };
 
 export const initialActionState: ActionState = {};
+
+/** For an action whose row is gone: deleted meanwhile, or never there. */
+export const NOT_FOUND = "No se ha encontrado; puede que ya se haya eliminado.";
 
 /** Spanish message for the database errors a Member can actually cause. */
 export function errorMessage(error: Pick<PostgrestError, "code" | "message"> | null | undefined): string {

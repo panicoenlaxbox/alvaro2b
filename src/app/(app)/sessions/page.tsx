@@ -4,6 +4,7 @@ import { requireMember } from "@/lib/auth";
 import { listSessions } from "@/lib/data/sessions";
 import { paginate, parsePage } from "@/lib/domain/paginate";
 import { groupSessions, todayIso } from "@/lib/domain/session";
+import { Pager } from "@/components/pager";
 import { SessionCard } from "@/components/session-card";
 
 export const metadata: Metadata = { title: "Sesiones" };
@@ -51,27 +52,14 @@ export default async function SessionsPage({ searchParams }: PageProps<"/session
             ))}
           </div>
         )}
-        {past.pageCount > 1 && (
-          <nav aria-label="Páginas de sesiones pasadas" className="mt-3 flex items-center justify-between gap-2 pt-2">
-            {past.page > 1 ? (
-              <Link href={pageHref(past.page - 1)} className="btn-secondary">
-                ← Más recientes
-              </Link>
-            ) : (
-              <span />
-            )}
-            <span className="text-sm text-muted">
-              Página {past.page} de {past.pageCount}
-            </span>
-            {past.page < past.pageCount ? (
-              <Link href={pageHref(past.page + 1)} className="btn-secondary">
-                Más antiguas →
-              </Link>
-            ) : (
-              <span />
-            )}
-          </nav>
-        )}
+        <Pager
+          page={past.page}
+          pageCount={past.pageCount}
+          href={pageHref}
+          label="Páginas de sesiones pasadas"
+          older="Más antiguas"
+          className="mt-3 pt-2"
+        />
       </details>
 
     </div>

@@ -11,7 +11,7 @@ import { OwnerFaces } from "@/components/owners";
 import { SortSelect } from "@/components/sort-select";
 import { StarFilter } from "@/components/star-filter";
 import { CHIP } from "@/components/game-choices";
-import type { Owner } from "@/lib/data/explore";
+import type { Owner } from "@/lib/data/people";
 import { tint } from "@/components/tint";
 
 export const metadata: Metadata = { title: "Juegos" };

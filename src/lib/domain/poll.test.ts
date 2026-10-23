@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isPollOpen, latestDeadline, localDateTimeToIso, needsTieBreak, rankCandidates, type CandidateTally } from "./poll";
+import { isPollOpen, latestDeadline, localDateTimeToIso, needsTieBreak, parseDeadline, rankCandidates, type CandidateTally } from "./poll";
 
 const c = (name: string, approvals: string[], chosen = false): CandidateTally => ({ id: name, gameId: name, name, approvals, chosen });
 
@@ -42,4 +42,27 @@ describe("localDateTimeToIso", () => {
 describe("latestDeadline", () => {
   it("is the Session's start time", () => expect(latestDeadline("2026-10-24", "20:30")).toBe("2026-10-24T20:30"));
   it("is the end of the Session's day when it has no time", () => expect(latestDeadline("2026-10-24", null)).toBe("2026-10-24T23:59"));
+});
+
+describe("parseDeadline", () => {
+  const now = new Date("2026-10-20T12:00:00Z");
+  it("allows no deadline", () => expect(parseDeadline("", "2026-10-24T20:30", now)).toEqual({ ok: true, value: null }));
+  it("returns the ISO instant", () => {
+    expect(parseDeadline("2026-10-24T20:00", "2026-10-24T20:30", now)).toEqual({ ok: true, value: "2026-10-24T18:00:00.000Z" });
+  });
+  it("rejects a malformed value", () => {
+    expect(parseDeadline("24/10/2026", null, now)).toEqual({ ok: false, error: "Fecha límite no válida." });
+  });
+  it("must be in the future", () => {
+    expect(parseDeadline("2026-10-20T14:00", null, now)).toEqual({ ok: false, error: "La fecha límite tiene que ser futura." });
+    expect(parseDeadline("2026-10-20T14:01", null, now).ok).toBe(true);
+  });
+  it("cannot be after the latest deadline", () => {
+    expect(parseDeadline("2026-10-24T20:31", "2026-10-24T20:30", now)).toEqual({
+      ok: false,
+      error: "La fecha límite no puede ser posterior a la sesión.",
+    });
+    expect(parseDeadline("2026-10-24T20:30", "2026-10-24T20:30", now).ok).toBe(true);
+  });
+  it("skips the latest check without one", () => expect(parseDeadline("2027-01-01T10:00", null, now).ok).toBe(true));
 });

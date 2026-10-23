@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Faces } from "@/components/owners";
 import { requireMember } from "@/lib/auth";
-import { sessionSummary } from "@/lib/data/photos";
+import { SESSION_SUMMARY_SELECT, sessionSummary } from "@/lib/data/sessions";
 import { listPlayers } from "@/lib/data/players";
 import { SessionHeader } from "@/components/session-header";
 import { MEDIA_BUCKET } from "@/lib/storage";
@@ -20,7 +20,7 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
   const [{ data: photo }, players] = await Promise.all([
     supabase
       .from("photos")
-      .select("id, session_id, play_id, path, caption, width, height, uploaded_by, sessions(date, name, place, plays(id, created_at, games(id, name)), session_attendees(players(display_name, avatar_url))), photo_tags(player_id)")
+      .select(`id, session_id, play_id, path, caption, width, height, uploaded_by, sessions(${SESSION_SUMMARY_SELECT}), photo_tags(player_id)`)
       .eq("id", id)
       .maybeSingle(),
     listPlayers(),

@@ -1,4 +1,5 @@
 import { formatDuration, ordinal, winnersOf } from "@/lib/domain/play";
+import { byName } from "@/lib/data/people";
 import type { PlayDetail } from "@/lib/data/plays";
 import { Avatar } from "./avatar";
 import { Faces } from "./owners";
@@ -7,8 +8,7 @@ import { Icon, TROPHY } from "./icon";
 /** Compact result of a Play, for lists and the Play page. */
 export function PlayResult({ play, compact = false }: { play: PlayDetail; compact?: boolean }) {
   const winners = new Set(winnersOf(play));
-  const faces = (people: PlayDetail["participants"]) =>
-    [...people].map((p) => ({ id: p.playerId, name: p.name, avatarUrl: p.avatarUrl })).sort((a, b) => a.name.localeCompare(b.name, "es"));
+  const faces = (people: PlayDetail["participants"]) => byName(people.map((p) => ({ id: p.playerId, name: p.name, avatarUrl: p.avatarUrl })));
 
   if (play.mode === "cooperative") {
     const label = play.coopWon === null ? "Sin resultado" : play.coopWon ? "¡Ganamos!" : "Perdimos";

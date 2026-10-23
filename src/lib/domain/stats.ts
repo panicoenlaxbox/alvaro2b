@@ -55,7 +55,13 @@ export type RankedEntry = { id: string; count: number; items: { id: string; date
 
 function rankBy<T extends { id: string; date: string }>(items: T[], keys: (item: T) => string[], limit = Infinity): RankedEntry[] {
   const groups = new Map<string, { id: string; date: string }[]>();
-  for (const item of items) for (const key of keys(item)) groups.set(key, [...(groups.get(key) ?? []), { id: item.id, date: item.date }]);
+  for (const item of items) {
+    for (const key of keys(item)) {
+      let list = groups.get(key);
+      if (!list) groups.set(key, (list = []));
+      list.push({ id: item.id, date: item.date });
+    }
+  }
   return [...groups.entries()]
     .map(([id, list]) => ({ id, count: list.length, items: list.sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)) }))
     .sort((a, b) => b.count - a.count || a.id.localeCompare(b.id))

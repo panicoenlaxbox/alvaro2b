@@ -1,4 +1,5 @@
-import type { PlayMode } from "./game-form";
+import { isPlayMode, type PlayMode } from "./game-form";
+import { competitionRanks } from "./ranking";
 
 export type ParticipantInput = {
   playerId: string;
@@ -22,20 +23,6 @@ export type PlayInput = {
   durationMinutes: number | null;
   notes: string | null;
 };
-
-/**
- * Standard competition ranking ("1224"): tied values share a position and the next position
- * skips accordingly. `better(a, b)` is negative when a ranks above b.
- */
-function competitionRanks<T>(items: T[], value: (item: T) => number, better: (a: number, b: number) => number): Map<T, number> {
-  const sorted = [...items].sort((a, b) => better(value(a), value(b)));
-  const ranks = new Map<T, number>();
-  sorted.forEach((item, i) => {
-    const prev = sorted[i - 1];
-    ranks.set(item, prev !== undefined && value(prev) === value(item) ? ranks.get(prev)! : i + 1);
-  });
-  return ranks;
-}
 
 /**
  * Ranking of a competitive Play. With a Score for every Participant it comes from the
@@ -158,7 +145,7 @@ export function parsePlayInput(raw: unknown): PlayInput | null {
   if (typeof raw !== "object" || raw === null) return null;
   const r = raw as Record<string, unknown>;
   const mode = r.mode;
-  if (mode !== "competitive" && mode !== "cooperative" && mode !== "team") return null;
+  if (!isPlayMode(mode)) return null;
   const list = (v: unknown) => (Array.isArray(v) ? v : []);
 
   return {

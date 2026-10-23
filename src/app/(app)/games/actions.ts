@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
-import { errorMessage, type ActionState } from "@/lib/action-state";
+import { errorMessage, NOT_FOUND, type ActionState } from "@/lib/action-state";
 import { parseExpansionForm, parseGameForm, parseOwnerIds, type GameFormValues } from "@/lib/domain/game-form";
+import { isValidStars } from "@/lib/domain/ratings";
 import { ATTACHMENTS_BUCKET, MEDIA_BUCKET } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 
@@ -22,29 +23,17 @@ function formValues(formData: FormData): GameFormValues {
 
 const TAKEN_GAME_NAME = "Ya hay un juego con ese nombre. Si está retirado, recupéralo.";
 
-export async function createGame(_prev: ActionState, formData: FormData): Promise<ActionState> {
+/** Creates a Game (no "id" in the form) or edits it, with its owners, in one transaction; then opens it. */
+export async function saveGame(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireMember();
+  const formId = formData.get("id");
   const parsed = parseGameForm(formValues(formData));
   if (!parsed.ok) return { error: parsed.error };
 
   const supabase = await createClient();
   const { data: id, error } = await supabase.rpc("save_game", {
-    game: { ...parsed.value, owner_ids: parseOwnerIds(formData.getAll("owner_id")) },
+    game: { id: typeof formId === "string" ? formId : null, ...parsed.value, owner_ids: parseOwnerIds(formData.getAll("owner_id")) },
   });
-  if (error) return { error: error.code === "23505" ? TAKEN_GAME_NAME : errorMessage(error) };
-
-  revalidatePath("/games");
-  redirect(`/games/${id}`, RedirectType.replace);
-}
-
-export async function updateGame(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireMember();
-  const id = String(formData.get("id"));
-  const parsed = parseGameForm(formValues(formData));
-  if (!parsed.ok) return { error: parsed.error };
-
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("save_game", { game: { id, ...parsed.value, owner_ids: parseOwnerIds(formData.getAll("owner_id")) } });
   if (error) return { error: error.code === "23505" ? TAKEN_GAME_NAME : errorMessage(error) };
 
   revalidatePath("/games");
@@ -80,7 +69,7 @@ export async function deleteGame(_prev: ActionState, formData: FormData): Promis
   if (error) {
     return { error: error.code === "23503" ? "No se puede eliminar un juego con partidas. Retíralo en su lugar." : errorMessage(error) };
   }
-  if (!count) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
+  if (!count) return { error: NOT_FOUND };
   if (game?.cover_path) await supabase.storage.from(MEDIA_BUCKET).remove([game.cover_path]);
   const files = (game?.game_attachments ?? []).flatMap((a) => (a.path ? [a.path] : []));
   if (files.length) await supabase.storage.from(ATTACHMENTS_BUCKET).remove(files);
@@ -93,14 +82,13 @@ export async function rateGame(_prev: ActionState, formData: FormData): Promise<
   const member = await requireMember();
   const gameId = String(formData.get("game_id"));
   const stars = Number(formData.get("stars"));
+  if (!isValidStars(stars)) return { error: "Algún dato no es válido." };
 
   const supabase = await createClient();
   const { error } =
     stars === 0
       ? await supabase.from("ratings").delete().eq("game_id", gameId).eq("player_id", member.playerId)
-      : Number.isInteger(stars) && stars >= 1 && stars <= 5
-        ? await supabase.from("ratings").upsert({ game_id: gameId, player_id: member.playerId, stars })
-        : { error: { code: "23514", message: "" } };
+      : await supabase.from("ratings").upsert({ game_id: gameId, player_id: member.playerId, stars });
   if (error) return { error: errorMessage(error) };
 
   revalidatePath(`/games/${gameId}`);
@@ -172,7 +160,7 @@ export async function deleteExpansion(_prev: ActionState, formData: FormData): P
   const supabase = await createClient();
   const { error, count } = await supabase.from("expansions").delete({ count: "exact" }).eq("id", id);
   if (error) return { error: error.code === "23503" ? "Se usó en alguna partida. Retírala en su lugar." : errorMessage(error) };
-  if (!count) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
+  if (!count) return { error: NOT_FOUND };
 
   revalidatePath(`/games/${gameId}`);
   return { ok: true };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatSessionDate, formatSessionTime, formatShortDate, groupSessions, isUpcoming, parseSessionTime, todayIso } from "./session";
+import { formatSessionDate, formatSessionTime, formatShortDate, groupSessions, isUpcoming, parseSessionForm, parseSessionTime, SESSION_TEXT_LIMITS, todayIso } from "./session";
 
 describe("todayIso", () => {
   it("uses the group's time zone, not UTC", () => {
@@ -64,4 +64,42 @@ describe("formatSessionDate", () => {
 
 describe("formatShortDate", () => {
   it("formats compactly in Spanish", () => expect(formatShortDate("2026-10-10")).toBe("10 oct 2026"));
+});
+
+describe("parseSessionForm", () => {
+  it("trims the fields and turns blanks into null", () => {
+    expect(parseSessionForm({ date: "2026-10-24", start_time: "2030", name: "  Noche  ", place: " ", notes: "" })).toEqual({
+      ok: true,
+      value: { date: "2026-10-24", start_time: "20:30", name: "Noche", place: null, notes: null },
+    });
+  });
+
+  it("only needs a date", () => {
+    expect(parseSessionForm({ date: "2026-10-24" })).toEqual({
+      ok: true,
+      value: { date: "2026-10-24", start_time: null, name: null, place: null, notes: null },
+    });
+  });
+
+  it("requires a valid date", () => {
+    for (const date of [undefined, null, "", "24/10/2026", "2026-13-45"]) {
+      expect(parseSessionForm({ date })).toEqual({ ok: false, error: "Elige una fecha." });
+    }
+  });
+
+  it("rejects a bad time", () => {
+    expect(parseSessionForm({ date: "2026-10-24", start_time: "25:00" })).toEqual({
+      ok: false,
+      error: "La hora va en formato 24 horas, como 20:30.",
+    });
+  });
+
+  it("limits the text fields", () => {
+    const date = "2026-10-24";
+    const long = (n: number) => "x".repeat(n + 1);
+    expect(parseSessionForm({ date, name: long(SESSION_TEXT_LIMITS.name) })).toEqual({ ok: false, error: "El nombre es demasiado largo." });
+    expect(parseSessionForm({ date, place: long(SESSION_TEXT_LIMITS.place) })).toEqual({ ok: false, error: "El lugar es demasiado largo." });
+    expect(parseSessionForm({ date, notes: long(SESSION_TEXT_LIMITS.notes) })).toEqual({ ok: false, error: "Las notas son demasiado largas." });
+    expect(parseSessionForm({ date, name: "x".repeat(SESSION_TEXT_LIMITS.name) }).ok).toBe(true);
+  });
 });

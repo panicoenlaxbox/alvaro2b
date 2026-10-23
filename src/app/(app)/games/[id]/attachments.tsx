@@ -4,6 +4,7 @@ import { useActionState, useRef, useState, useTransition } from "react";
 import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton, useAddAction } from "@/components/form";
 import { FILE, Icon, LINK, PAPERCLIP } from "@/components/icon";
 import { initialActionState } from "@/lib/action-state";
+import { ATTACHMENTS_BUCKET } from "@/lib/buckets";
 import { ATTACHMENT_TYPES, attachmentPath, checkAttachmentFile, formatBytes, linkLabel } from "@/lib/domain/attachments";
 import { createClient } from "@/lib/supabase/client";
 import { addAttachmentLink, deleteAttachment, recordAttachmentFile } from "./attachment-actions";
@@ -78,7 +79,7 @@ function FileUploader({ gameId }: { gameId: string }) {
     setError(null);
     startTransition(async () => {
       const path = attachmentPath(gameId, file.name, crypto.randomUUID());
-      const { error: uploadError } = await createClient().storage.from("attachments").upload(path, file, { contentType: file.type });
+      const { error: uploadError } = await createClient().storage.from(ATTACHMENTS_BUCKET).upload(path, file, { contentType: file.type });
       if (uploadError) return setError("No se ha podido subir el fichero. Vuelve a intentarlo.");
       const result = await recordAttachmentFile(gameId, { path, fileName: file.name, sizeBytes: file.size });
       if (result.error) setError(result.error);

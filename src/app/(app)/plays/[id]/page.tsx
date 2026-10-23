@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { getPlay } from "@/lib/data/plays";
 import { PLAY_MODE_LABELS } from "@/lib/domain/game-form";
-import { sessionSummary } from "@/lib/data/photos";
+import { SESSION_SUMMARY_SELECT, sessionSummary } from "@/lib/data/sessions";
 import { createClient } from "@/lib/supabase/server";
 import { FlavorText } from "@/components/flavor-text";
 import { SessionHeader } from "@/components/session-header";
@@ -22,7 +22,7 @@ export default async function PlayPage({ params }: PageProps<"/plays/[id]">) {
   if (!play) notFound();
   const { data: session } = await (await createClient())
     .from("sessions")
-    .select("date, name, place, plays(created_at, games(id, name)), session_attendees(players(display_name, avatar_url))")
+    .select(SESSION_SUMMARY_SELECT)
     .eq("id", play.sessionId)
     .maybeSingle();
 

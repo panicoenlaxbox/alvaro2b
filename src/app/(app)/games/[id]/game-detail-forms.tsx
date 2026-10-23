@@ -2,17 +2,18 @@
 
 import { useActionState, useRef, useState, useTransition } from "react";
 import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton, useRowAction } from "@/components/form";
-import { useLeavingAction } from "@/components/leave";
+import { DeleteButton } from "@/components/leave";
 import { Cover } from "@/components/cover";
 import { CROSS, EXTERNAL_LINK, Icon, PENCIL } from "@/components/icon";
 import { OwnerFaces } from "@/components/owners";
 import { PlayerPicker } from "@/components/player-picker";
-import type { Owner } from "@/lib/data/explore";
+import type { Owner } from "@/lib/data/people";
 import type { PlayerOption } from "@/lib/data/players";
 import { initialActionState } from "@/lib/action-state";
 import { bggPageUrl, GAME_TEXT_LIMITS } from "@/lib/domain/game-form";
 import { COVER_MAX_SIDE } from "@/lib/domain/image-size";
 import { compressImage } from "@/lib/image-client";
+import { MEDIA_BUCKET } from "@/lib/buckets";
 import { createClient } from "@/lib/supabase/client";
 import {
   deleteExpansion,
@@ -68,14 +69,7 @@ export function RetireGameButton({ gameId, retired }: { gameId: string; retired:
 }
 
 export function DeleteGameButton({ gameId }: { gameId: string }) {
-  const [state, action] = useLeavingAction(deleteGame);
-  return (
-    <form action={action} className="space-y-1">
-      <input type="hidden" name="id" value={gameId} />
-      <ConfirmSubmitButton confirmText="Sí, eliminar">Eliminar</ConfirmSubmitButton>
-      <FormMessage state={state} />
-    </form>
-  );
+  return <DeleteButton action={deleteGame} id={gameId} />;
 }
 
 /** The Game's cover with a pencil to upload its own (camera or gallery on phones) and, with one, a cross to drop it. */
@@ -90,7 +84,7 @@ export function CoverEditor({ gameId, url, name, hasOwnCover, className }: { gam
       try {
         const image = await compressImage(file, COVER_MAX_SIDE, 300 * 1024);
         const path = `covers/${gameId}/${crypto.randomUUID()}.${image.extension}`;
-        const { error: uploadError } = await createClient().storage.from("media").upload(path, image.blob, { contentType: image.type });
+        const { error: uploadError } = await createClient().storage.from(MEDIA_BUCKET).upload(path, image.blob, { contentType: image.type });
         if (uploadError) throw uploadError;
         const result = await setCover(gameId, path);
         if (result.error) setError(result.error);
@@ -129,7 +123,13 @@ export function CoverEditor({ gameId, url, name, hasOwnCover, className }: { gam
           <button
             type="button"
             disabled={pending}
-            onClick={() => startTransition(async () => void (await setCover(gameId, null)))}
+            onClick={() => {
+              setError(null);
+              startTransition(async () => {
+                const result = await setCover(gameId, null);
+                if (result.error) setError(result.error);
+              });
+            }}
             aria-label="Quitar carátula propia"
             title="Quitar carátula propia"
             className={`${COVER_BUTTON} -top-2 -right-2`}

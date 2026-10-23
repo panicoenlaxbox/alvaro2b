@@ -1,6 +1,12 @@
 "use client";
 
-import { startTransition, useActionState, useEffect, useId, useRef, useState } from "react";
+import { createContext, use, useActionState, useEffect, useId, useRef, useState, useTransition } from "react";
+import { useFormStatus } from "react-dom";
+import { useDismiss } from "@/components/use-dismiss";
+import { initialActionState, type ActionState } from "@/lib/action-state";
+
+/** An ActionForm's pending flag: it submits by hand, so `useFormStatus` never sees it. */
+const ActionFormPending = createContext(false);
 
 /**
  * A form for long inputs: unlike `<form action>`, React does not reset its fields after
@@ -11,6 +17,8 @@ export function ActionForm({
   children,
   ...rest
 }: Omit<React.FormHTMLAttributes<HTMLFormElement>, "action" | "onSubmit"> & { action: (formData: FormData) => void }) {
+  // The action's transition is entangled with this one, so `pending` lasts until the action answers.
+  const [pending, startTransition] = useTransition();
   return (
     <form
       {...rest}
@@ -20,12 +28,10 @@ export function ActionForm({
         startTransition(() => action(formData));
       }}
     >
-      {children}
+      <ActionFormPending value={pending}>{children}</ActionFormPending>
     </form>
   );
 }
-import { useFormStatus } from "react-dom";
-import { initialActionState, type ActionState } from "@/lib/action-state";
 
 export function SubmitButton({
   children,
@@ -33,7 +39,7 @@ export function SubmitButton({
   className = "btn-primary",
   ...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { pendingText?: string }) {
-  const { pending } = useFormStatus();
+  const pending = useFormStatus().pending || use(ActionFormPending);
   return (
     <button type="submit" disabled={pending} className={className} {...rest}>
       {pending ? (pendingText ?? "Guardando…") : children}
@@ -49,12 +55,12 @@ type RowAction = (prev: ActionState, formData: FormData) => Promise<ActionState>
  */
 export function useAddAction(action: RowAction) {
   const [added, setAdded] = useState(0);
-  const [state, dispatch] = useActionState(async (prev: ActionState, formData: FormData) => {
+  const [state, dispatch, pending] = useActionState(async (prev: ActionState, formData: FormData) => {
     const result = await action(prev, formData);
     if (result.ok) setAdded((n) => n + 1);
     return result;
   }, initialActionState);
-  return [state, dispatch, added] as const;
+  return [state, dispatch, added, pending] as const;
 }
 
 /**
@@ -94,30 +100,22 @@ export function ConfirmButton({
   const ref = useRef<HTMLButtonElement>(null);
   const [armed, setArmed] = useState(false);
 
+  // While the action runs the label must stay put, so nothing disarms it.
+  const listening = armed && !pending;
+  useDismiss(ref, listening, () => setArmed(false));
   useEffect(() => {
-    // While the action runs the label must stay put, so nothing disarms it.
-    if (!armed || pending) return;
+    if (!listening) return;
     const disarm = () => setArmed(false);
     const onArmed = (e: Event) => {
       if ((e as CustomEvent<string>).detail !== id) disarm();
     };
-    const onPointerDown = (e: PointerEvent) => {
-      if (!ref.current?.contains(e.target as Node)) disarm();
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") disarm();
-    };
     const timer = window.setTimeout(disarm, CONFIRM_TIMEOUT_MS);
     window.addEventListener(CONFIRM_ARMED_EVENT, onArmed);
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
     return () => {
       window.clearTimeout(timer);
       window.removeEventListener(CONFIRM_ARMED_EVENT, onArmed);
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
     };
-  }, [armed, pending, id]);
+  }, [listening, id]);
 
   return (
     <button
@@ -157,7 +155,7 @@ export function ConfirmSubmitButton({
   confirmText?: string;
   className?: string;
 }) {
-  const { pending } = useFormStatus();
+  const pending = useFormStatus().pending || use(ActionFormPending);
   return (
     <ConfirmButton confirmText={confirmText} className={className} pending={pending} onConfirm={(button) => button.form?.requestSubmit()}>
       {children}
@@ -173,7 +171,6 @@ export function FormMessage({ state }: { state: ActionState }) {
       </p>
     );
   }
-  if (state.message) return <p className="text-sm text-muted">{state.message}</p>;
   return null;
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bggPageUrl, durationText, parseExpansionForm, parseGameForm, parseOwnerIds, playersText } from "./game-form";
+import { bggPageUrl, durationText, isPlayMode, parseExpansionForm, parseGameForm, parseOwnerIds, playersText } from "./game-form";
 
 describe("parseGameForm", () => {
   it("only requires a name", () => {
@@ -109,4 +109,13 @@ describe("parseOwnerIds", () => {
   it("keeps distinct, non-empty ids", () => expect(parseOwnerIds(["p1", " p2 ", "", "p1"])).toEqual(["p1", "p2"]));
   it("ignores files and other values", () => expect(parseOwnerIds([new Blob(), "p1"])).toEqual(["p1"]));
   it("allows no owner", () => expect(parseOwnerIds([])).toEqual([]));
+});
+
+describe("isPlayMode", () => {
+  it("accepts the three modes", () => {
+    for (const mode of ["competitive", "cooperative", "team"]) expect(isPlayMode(mode)).toBe(true);
+  });
+  it("rejects anything else", () => {
+    for (const mode of ["solo", "", null, undefined, 1]) expect(isPlayMode(mode)).toBe(false);
+  });
 });

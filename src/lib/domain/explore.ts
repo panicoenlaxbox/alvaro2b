@@ -1,4 +1,4 @@
-import type { PlayMode } from "./game-form";
+import { isPlayMode, type PlayMode } from "./game-form";
 
 export type ExplorableGame = {
   id: string;
@@ -143,7 +143,7 @@ export function parseFilters(params: Record<string, string | string[] | undefine
       query: one("q")?.slice(0, FILTER_LIMITS.query) || undefined,
       players: positive(one("players"), FILTER_LIMITS.players.max),
       maxMinutes: positive(one("minutes"), FILTER_LIMITS.minutes.max),
-      mode: mode === "competitive" || mode === "cooperative" || mode === "team" ? mode : undefined,
+      mode: isPlayMode(mode) ? mode : undefined,
       neverPlayed: one("never") === "1" || undefined,
       minRating: positive(one("rating"), FILTER_LIMITS.rating.max, true),
     },

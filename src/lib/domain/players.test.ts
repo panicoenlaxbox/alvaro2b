@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatLastSeen } from "./players";
+import { formatLastSeen, isValidEmail, parsePlayerName, PLAYER_NAME_MAX } from "./players";
 
 describe("formatLastSeen", () => {
   const now = new Date("2026-10-22T10:00:00Z"); // 12:00 in Madrid
@@ -21,5 +21,26 @@ describe("formatLastSeen", () => {
 
   it("shows only the date for older connections", () => {
     expect(formatLastSeen("2026-10-10T12:00:00Z", now)).toBe("10 oct 2026");
+  });
+});
+
+describe("parsePlayerName", () => {
+  it("trims the name", () => expect(parsePlayerName("  Ana  ")).toEqual({ ok: true, value: "Ana" }));
+
+  it("rejects blank and too long names", () => {
+    const error = { ok: false, error: "Escribe un nombre (máximo 60 caracteres)." };
+    expect(parsePlayerName(null)).toEqual(error);
+    expect(parsePlayerName("   ")).toEqual(error);
+    expect(parsePlayerName("x".repeat(PLAYER_NAME_MAX + 1))).toEqual(error);
+    expect(parsePlayerName("x".repeat(PLAYER_NAME_MAX)).ok).toBe(true);
+  });
+});
+
+describe("isValidEmail", () => {
+  it("accepts a plain address", () => expect(isValidEmail("ana@example.com")).toBe(true));
+  it("rejects malformed ones", () => {
+    for (const email of ["", "ana", "ana@example", "ana @example.com", "@example.com", "ana@@example.com"]) {
+      expect(isValidEmail(email)).toBe(false);
+    }
   });
 });

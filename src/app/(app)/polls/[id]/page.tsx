@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireMember } from "@/lib/auth";
-import { listCatalogGames } from "@/lib/data/explore";
+import { listGameNames } from "@/lib/data/explore";
 import { listPlayers } from "@/lib/data/players";
 import { formatDeadline, isPollOpen, needsTieBreak, rankCandidates } from "@/lib/domain/poll";
 import { formatSessionDate } from "@/lib/domain/session";
@@ -12,7 +12,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Faces } from "@/components/owners";
 import { CHECK, Icon } from "@/components/icon";
 import { SessionHeader } from "@/components/session-header";
-import { sessionSummary } from "@/lib/data/photos";
+import { byName } from "@/lib/data/people";
+import { SESSION_SUMMARY_SELECT, sessionSummary } from "@/lib/data/sessions";
 import { CandidateActions, ClosePollButton, ProposeForm } from "./poll-forms";
 
 export const metadata: Metadata = { title: "Votación" };
@@ -22,40 +23,20 @@ export default async function PollPage({ params }: PageProps<"/polls/[id]">) {
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: poll }, players, games] = await Promise.all([
+  const [{ data: p }, players, games] = await Promise.all([
     supabase
       .from("polls")
-      .select(
-        "id, session_id, closes_at, closed_at, created_by, sessions(date, name, place, plays(created_at, games(id, name)), session_attendees(player_id, players(display_name, avatar_url))), " +
-          "candidates(id, game_id, added_by, chosen, approvals(player_id))",
-      )
+      .select(`id, session_id, closes_at, closed_at, sessions(${SESSION_SUMMARY_SELECT}), candidates(id, game_id, added_by, chosen, approvals(player_id))`)
       .eq("id", id)
       .maybeSingle(),
     listPlayers(),
-    listCatalogGames(),
+    listGameNames(),
   ]);
-  if (!poll) notFound();
-
-  type PollRow = {
-    id: string;
-    session_id: string;
-    closes_at: string | null;
-    closed_at: string | null;
-    created_by: string | null;
-    sessions: {
-      date: string;
-      name: string | null;
-      place: string | null;
-      plays: { created_at: string; games: { id: string; name: string } | null }[];
-      session_attendees: { player_id: string; players: { display_name: string; avatar_url: string | null } | null }[];
-    } | null;
-    candidates: { id: string; game_id: string; added_by: string | null; chosen: boolean; approvals: { player_id: string }[] }[];
-  };
-  const p = poll as unknown as PollRow;
+  if (!p) notFound();
 
   const byId = new Map(players.map((pl) => [pl.id, { id: pl.id, name: pl.display_name, avatarUrl: pl.avatar_url }]));
   /** The faces of these Players, by name. */
-  const faces = (ids: string[]) => ids.flatMap((id) => byId.get(id) ?? []).sort((a, b) => a.name.localeCompare(b.name, "es"));
+  const faces = (ids: string[]) => byName(ids.flatMap((id) => byId.get(id) ?? []));
   const gameNames = new Map(games.map((g) => [g.id, g.name]));
   const open = isPollOpen({ closesAt: p.closes_at, closedAt: p.closed_at });
 

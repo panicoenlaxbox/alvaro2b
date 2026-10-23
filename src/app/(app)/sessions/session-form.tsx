@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { ActionForm, FormMessage, RequiredMark } from "@/components/form";
+import { ActionForm, FormMessage, RequiredMark, SubmitButton } from "@/components/form";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { PlayerPicker } from "@/components/player-picker";
 import { formatSessionTime, SESSION_TEXT_LIMITS, SESSION_TIME_PATTERN } from "@/lib/domain/session";
@@ -17,7 +17,7 @@ export function SessionForm({
   players: { id: string; display_name: string; is_member: boolean }[];
   today: string;
 }) {
-  const [state, formAction, pending] = useActionState(action, initialActionState);
+  const [state, formAction] = useActionState(action, initialActionState);
 
   return (
     <ActionForm action={formAction} className="space-y-4">
@@ -70,9 +70,7 @@ export function SessionForm({
         <textarea id="notes" name="notes" rows={3} maxLength={SESSION_TEXT_LIMITS.notes} defaultValue={defaults?.notes ?? ""} className="input" />
       </div>
       <FormMessage state={state} />
-      <button type="submit" disabled={pending} className="btn-primary w-full">
-        {pending ? "Guardando…" : "Guardar"}
-      </button>
+      <SubmitButton className="btn-primary w-full">Guardar</SubmitButton>
     </ActionForm>
   );
 }

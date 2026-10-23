@@ -11,14 +11,20 @@ export type CurrentMember = {
   isAdmin: boolean;
 };
 
+/** The request's Supabase client and the signed-in user's claims (null when signed out). Cached per request. */
+const getAuth = cache(async () => {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  return { supabase, claims: data?.claims ?? null };
+});
+
 /**
  * The signed-in Member, or null when signed out or no longer on the allowlist.
  * Cached per request.
  */
 export const getCurrentMember = cache(async (): Promise<CurrentMember | null> => {
-  const supabase = await createClient();
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims.sub;
+  const { supabase, claims } = await getAuth();
+  const userId = claims?.sub;
   if (!userId) return null;
 
   const { data } = await supabase
@@ -44,9 +50,8 @@ export const getCurrentMember = cache(async (): Promise<CurrentMember | null> =>
 export async function requireMember(): Promise<CurrentMember> {
   const member = await getCurrentMember();
   if (member) return member;
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  redirect(data?.claims ? "/not-allowed" : "/login");
+  const { claims } = await getAuth();
+  redirect(claims ? "/not-allowed" : "/login");
 }
 
 export async function requireAdmin(): Promise<CurrentMember> {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Faces } from "@/components/owners";
-import type { SessionSummary } from "@/lib/data/photos";
+import type { SessionSummary } from "@/lib/data/sessions";
 import { formatSessionDate } from "@/lib/domain/session";
 
 /** Heads what belongs to a Session (its Photos, a Play, a Poll): its date, name, place, Games and Attendees. No Session means the Album. */

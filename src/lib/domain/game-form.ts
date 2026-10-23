@@ -1,6 +1,10 @@
 export const PLAY_MODES = ["competitive", "cooperative", "team"] as const;
 export type PlayMode = (typeof PLAY_MODES)[number];
 
+export function isPlayMode(value: unknown): value is PlayMode {
+  return PLAY_MODES.includes(value as PlayMode);
+}
+
 export const PLAY_MODE_LABELS: Record<PlayMode, string> = {
   competitive: "Competitivo",
   cooperative: "Cooperativo",
@@ -107,8 +111,8 @@ export function parseGameForm(values: GameFormValues): ParseResult<GameInput> {
     return { ok: false, error: "La duración máxima no puede ser menor que la mínima." };
   }
 
-  const mode = (values.default_play_mode ?? "competitive") as PlayMode;
-  if (!PLAY_MODES.includes(mode)) return { ok: false, error: "Modo de juego no válido." };
+  const mode = values.default_play_mode ?? "competitive";
+  if (!isPlayMode(mode)) return { ok: false, error: "Modo de juego no válido." };
 
   const notes = (values.notes ?? "").trim();
   if (notes.length > GAME_TEXT_LIMITS.notes) return { ok: false, error: "Las notas son demasiado largas." };

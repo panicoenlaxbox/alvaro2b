@@ -26,7 +26,7 @@ export function CandidateActions({
   candidateId: string;
   /** Whether the Member approves it now; absent when they cannot vote. */
   approve?: boolean;
-  /** Whether it is chosen; absent unless the creator can choose. */
+  /** Whether it is chosen; absent while the Poll is open (once closed, any Member can choose). */
   choose?: boolean;
   withdraw: boolean;
 }) {

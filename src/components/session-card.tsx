@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { formatSessionDate } from "@/lib/domain/session";
-import type { Owner } from "@/lib/data/explore";
+import type { Person } from "@/lib/data/people";
 import { DateTile } from "./date-tile";
 import { Faces } from "./owners";
 
 export function SessionCard({
   session,
 }: {
-  session: { id: string; date: string; time: string | null; name: string | null; place: string | null; attendees: (Owner & { maybe: boolean })[] };
+  session: { id: string; date: string; time: string | null; name: string | null; place: string | null; attendees: (Person & { maybe: boolean })[] };
 }) {
   // When, where and who: the date is on the tile, the time and place beside it, the Attendees below.
   const details = [session.time, session.place].filter(Boolean);

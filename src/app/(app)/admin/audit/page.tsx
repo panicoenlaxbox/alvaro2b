@@ -6,6 +6,7 @@ import { listMembers } from "@/lib/data/players";
 import { AUDIT_KINDS, AUDIT_KIND_LABELS, describeAuditEntry, formatAuditTime, parseAuditKind } from "@/lib/domain/audit";
 import { parsePage } from "@/lib/domain/paginate";
 import { AutoSubmitForm } from "@/components/auto-submit-form";
+import { Pager } from "@/components/pager";
 
 export const metadata: Metadata = { title: "Registro de cambios" };
 
@@ -79,27 +80,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
         <p className="text-soft">No hay cambios registrados.</p>
       )}
 
-      {pageCount > 1 && (
-        <nav aria-label="Páginas del registro" className="flex items-center justify-between gap-2">
-          {page > 1 ? (
-            <Link href={pageHref(page - 1)} className="btn-secondary">
-              ← Más recientes
-            </Link>
-          ) : (
-            <span />
-          )}
-          <span className="text-sm text-muted">
-            Página {page} de {pageCount}
-          </span>
-          {page < pageCount ? (
-            <Link href={pageHref(page + 1)} className="btn-secondary">
-              Más antiguos →
-            </Link>
-          ) : (
-            <span />
-          )}
-        </nav>
-      )}
+      <Pager page={page} pageCount={pageCount} href={pageHref} label="Páginas del registro" older="Más antiguos" />
     </div>
   );
 }

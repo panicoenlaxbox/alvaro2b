@@ -1,3 +1,5 @@
+import type { ParseResult } from "./game-form";
+
 export const RSVP_RESPONSES = ["yes", "maybe", "no"] as const;
 export type RsvpResponse = (typeof RSVP_RESPONSES)[number];
 
@@ -42,6 +44,25 @@ export function parseSessionTime(text: string): string | null | "invalid" {
   const minutes = Number(match[2] ?? "0");
   if (hours > 23 || minutes > 59) return "invalid";
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+export type SessionInput = { date: string; start_time: string | null; name: string | null; place: string | null; notes: string | null };
+
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Validates the Session form: a date, and optionally a start time, name, place and notes. */
+export function parseSessionForm(values: Partial<Record<keyof SessionInput, string | null | undefined>>): ParseResult<SessionInput> {
+  const date = values.date ?? "";
+  if (!DATE.test(date) || Number.isNaN(Date.parse(date))) return { ok: false, error: "Elige una fecha." };
+  const time = parseSessionTime(values.start_time ?? "");
+  if (time === "invalid") return { ok: false, error: "La hora va en formato 24 horas, como 20:30." };
+  const name = (values.name ?? "").trim();
+  const place = (values.place ?? "").trim();
+  const notes = (values.notes ?? "").trim();
+  if (name.length > SESSION_TEXT_LIMITS.name) return { ok: false, error: "El nombre es demasiado largo." };
+  if (place.length > SESSION_TEXT_LIMITS.place) return { ok: false, error: "El lugar es demasiado largo." };
+  if (notes.length > SESSION_TEXT_LIMITS.notes) return { ok: false, error: "Las notas son demasiado largas." };
+  return { ok: true, value: { date, start_time: time, name: name || null, place: place || null, notes: notes || null } };
 }
 
 /** "20:30" from the database's "20:30:00". */

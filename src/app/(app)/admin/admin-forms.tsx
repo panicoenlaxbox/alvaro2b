@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Avatar } from "@/components/avatar";
 import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton, useAddAction, useRowAction } from "@/components/form";
+import { Icon, PENCIL } from "@/components/icon";
 import { initialActionState } from "@/lib/action-state";
 import { PLAYER_NAME_MAX } from "@/lib/domain/players";
 import { WhatsAppButton } from "@/components/whatsapp-button";
@@ -186,14 +187,6 @@ function FaceSlot({ children }: { children: React.ReactNode }) {
   return <span className="flex h-[3.125rem] shrink-0 items-center">{children}</span>;
 }
 
-function PencilIcon() {
-  return (
-    <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-    </svg>
-  );
-}
-
 function PlayerEditor({ id, name }: { id: string; name: string }) {
   const [editing, setEditing] = useState(false);
   const [renameState, renameAction] = useActionState(async (prev: typeof initialActionState, fd: FormData) => {
@@ -212,7 +205,7 @@ function PlayerEditor({ id, name }: { id: string; name: string }) {
           aria-label={`Cambiar el nombre de ${name}`}
           onClick={() => setEditing(true)}
         >
-          <PencilIcon />
+          <Icon d={PENCIL} className="size-4" />
         </button>
       </div>
     );

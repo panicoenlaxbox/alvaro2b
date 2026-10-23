@@ -1,12 +1,7 @@
-import type { Owner } from "@/lib/data/explore";
+import type { Owner } from "@/lib/data/people";
 import { Avatar } from "./avatar";
 
 const list = new Intl.ListFormat("es", { type: "conjunction" });
-
-/** "Ana, Bruno y Carla" */
-export function ownerNames(owners: { name: string }[]): string {
-  return list.format(owners.map((o) => o.name));
-}
 
 /** `maybe`: an Attendee who might come, shown faded (a "?" would hide under the next face). */
 type Face = { id?: string; name: string; avatarUrl: string | null; maybe?: boolean };

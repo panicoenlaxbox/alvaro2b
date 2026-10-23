@@ -2,18 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
-import { errorMessage, type ActionState } from "@/lib/action-state";
-import { PLAYER_NAME_MAX } from "@/lib/domain/players";
+import { errorMessage, NOT_FOUND, type ActionState } from "@/lib/action-state";
+import { isValidEmail, parsePlayerName } from "@/lib/domain/players";
 import { createClient } from "@/lib/supabase/server";
-
-const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 export async function addAllowedEmail(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireAdmin();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const guestId = String(formData.get("guest_id") ?? "") || null;
   const isAdmin = formData.get("is_admin") === "on";
-  if (!EMAIL.test(email)) return { error: "Escribe un email válido." };
+  if (!isValidEmail(email)) return { error: "Escribe un email válido." };
 
   const supabase = await createClient();
   const { error } = await supabase.from("allowed_emails").insert({ email, player_id: guestId, is_admin: isAdmin });
@@ -75,18 +73,13 @@ export async function deleteMember(_prev: ActionState, formData: FormData): Prom
 
 const TAKEN_GUEST_NAME = "Ya hay un invitado con ese nombre.";
 
-function nameFrom(formData: FormData): string | null {
-  const name = String(formData.get("display_name") ?? "").trim();
-  return name.length >= 1 && name.length <= PLAYER_NAME_MAX ? name : null;
-}
-
 export async function addGuest(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireAdmin();
-  const name = nameFrom(formData);
-  if (!name) return { error: "Escribe un nombre (máximo 60 caracteres)." };
+  const name = parsePlayerName(String(formData.get("display_name") ?? ""));
+  if (!name.ok) return { error: name.error };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("players").insert({ display_name: name });
+  const { error } = await supabase.from("players").insert({ display_name: name.value });
   if (error) return { error: error.code === "23505" ? TAKEN_GUEST_NAME : errorMessage(error) };
 
   revalidatePath("/admin");
@@ -96,11 +89,11 @@ export async function addGuest(_prev: ActionState, formData: FormData): Promise<
 export async function renamePlayer(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireAdmin();
   const id = String(formData.get("id"));
-  const name = nameFrom(formData);
-  if (!name) return { error: "Escribe un nombre (máximo 60 caracteres)." };
+  const name = parsePlayerName(String(formData.get("display_name") ?? ""));
+  if (!name.ok) return { error: name.error };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("players").update({ display_name: name }).eq("id", id).select("id").single();
+  const { error } = await supabase.from("players").update({ display_name: name.value }).eq("id", id).select("id").single();
   if (error) return { error: error.code === "23505" ? TAKEN_GUEST_NAME : errorMessage(error) };
 
   revalidatePath("/admin");
@@ -112,8 +105,9 @@ export async function deleteGuest(_prev: ActionState, formData: FormData): Promi
   const id = String(formData.get("id"));
 
   const supabase = await createClient();
-  const { error } = await supabase.from("players").delete().eq("id", id).is("user_id", null);
+  const { error, count } = await supabase.from("players").delete({ count: "exact" }).eq("id", id).is("user_id", null);
   if (error) return { error: error.code === "23503" ? "Tiene historial, así que no se puede eliminar. Desactívalo." : errorMessage(error) };
+  if (!count) return { error: NOT_FOUND };
 
   revalidatePath("/admin");
   return { ok: true };

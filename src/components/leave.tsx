@@ -1,36 +1,35 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState } from "react";
+import { ConfirmSubmitButton, FormMessage } from "@/components/form";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 
-// Page changes since the app loaded: with none, "back" would leave the app (a link opened from WhatsApp).
-let lastPathname: string | null = null;
-let moves = 0;
-
-/** Counts the page changes within the app; mounted once in the app layout. */
-export function NavigationTracker() {
-  const pathname = usePathname();
-  useEffect(() => {
-    if (lastPathname !== null && lastPathname !== pathname) moves++;
-    lastPathname = pathname;
-  }, [pathname]);
-  return null;
-}
-
 /**
- * For actions that remove the page they run on (Eliminar): when the action returns `leaveTo`, goes
- * back to where the Member came from, or to `leaveTo` when there is no page to go back to. It leaves
- * as soon as the action answers, before the refreshed (now missing) page renders.
+ * For actions that remove the page they run on (Eliminar): when the action returns `leaveTo`, replaces
+ * the page with it. Not "back": create and edit redirect with replace, so the previous entry can be
+ * the page just deleted. It leaves as soon as the action answers, before the refreshed (now missing)
+ * page renders.
  */
-export function useLeavingAction(action: (prev: ActionState, formData: FormData) => Promise<ActionState>) {
+type LeavingAction = (prev: ActionState, formData: FormData) => Promise<ActionState>;
+
+export function useLeavingAction(action: LeavingAction) {
   const router = useRouter();
   return useActionState(async (prev: ActionState, formData: FormData) => {
     const result = await action(prev, formData);
-    if (result.leaveTo) {
-      if (moves > 0) router.back();
-      else router.replace(result.leaveTo);
-    }
+    if (result.leaveTo) router.replace(result.leaveTo);
     return result;
   }, initialActionState);
+}
+
+/** The Eliminar button of a detail page: it sends `id` to `action` and leaves the page when it is gone. */
+export function DeleteButton({ action, id }: { action: LeavingAction; id: string }) {
+  const [state, formAction] = useLeavingAction(action);
+  return (
+    <form action={formAction} className="space-y-1">
+      <input type="hidden" name="id" value={id} />
+      <ConfirmSubmitButton confirmText="Sí, eliminar">Eliminar</ConfirmSubmitButton>
+      <FormMessage state={state} />
+    </form>
+  );
 }

@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { recordPhotos, type UploadedPhoto } from "@/app/(app)/photos/actions";
 import { PHOTO_MAX_SIDE, PHOTO_TARGET_BYTES, THUMB_MAX_SIDE } from "@/lib/domain/image-size";
 import { compressImage } from "@/lib/image-client";
+import { MEDIA_BUCKET } from "@/lib/buckets";
 import { createClient } from "@/lib/supabase/client";
 
 /** Compresses Photos in the browser (no originals are kept) and uploads them with a thumbnail. */
@@ -30,8 +31,8 @@ export function PhotoUploader({ sessionId }: { sessionId: string | null }) {
           const thumbPath = `photos/thumbs/${id}.${thumb.extension}`;
           setStatus(`Subiendo ${i + 1} de ${files.length}…`);
           const results = await Promise.all([
-            supabase.storage.from("media").upload(path, full.blob, { contentType: full.type }),
-            supabase.storage.from("media").upload(thumbPath, thumb.blob, { contentType: thumb.type }),
+            supabase.storage.from(MEDIA_BUCKET).upload(path, full.blob, { contentType: full.type }),
+            supabase.storage.from(MEDIA_BUCKET).upload(thumbPath, thumb.blob, { contentType: thumb.type }),
           ]);
           if (results.some((r) => r.error)) throw new Error("Upload failed");
           uploaded.push({ path, thumbPath, width: full.width, height: full.height, sizeBytes: full.blob.size });

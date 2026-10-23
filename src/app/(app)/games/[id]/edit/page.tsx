@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { listMembers } from "@/lib/data/players";
 import { createClient } from "@/lib/supabase/server";
-import { updateGame } from "../../actions";
+import { saveGame } from "../../actions";
 import { GameForm } from "../../game-form";
 
 export const metadata: Metadata = { title: "Editar juego" };
@@ -19,7 +19,7 @@ export default async function EditGamePage({ params }: PageProps<"/games/[id]/ed
     <div className="space-y-4">
       <h1 className="text-3xl sm:text-4xl">Editar {game.name}</h1>
       <GameForm
-        action={updateGame}
+        action={saveGame}
         owners={owners}
         defaults={{ ...game, complexity: game.complexity === null ? null : Number(game.complexity), owner_ids: game.game_owners.map((o) => o.player_id) }}
       />

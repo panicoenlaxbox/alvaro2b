@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/avatar";
 import { CHART, Icon } from "@/components/icon";
 import { OwnerFaces } from "@/components/owners";
-import { toOwners } from "@/lib/data/explore";
+import { toPeople } from "@/lib/data/people";
 import { CoverEditor, DeleteGameButton, ExpansionList, RatingPicker, RetireGameButton } from "./game-detail-forms";
 import { Attachments, type AttachmentItem } from "./attachments";
 
@@ -30,11 +30,11 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
   const [{ data: game }, members, { data: attachments }] = await Promise.all([
     supabase
       .from("games")
-      .select("*, game_owners(players(id, display_name, avatar_url)), ratings(player_id, stars), expansions(id, name, bgg_id, retired_at, created_by, expansion_owners(players(id, display_name, avatar_url)))")
+      .select("*, game_owners(players(id, display_name, avatar_url)), ratings(player_id, stars), expansions(id, name, bgg_id, retired_at, expansion_owners(players(id, display_name, avatar_url)))")
       .eq("id", id)
       .maybeSingle(),
     listMembers(),
-    supabase.from("game_attachments").select("id, kind, url, path, file_name, size_bytes, created_by").eq("game_id", id).order("created_at"),
+    supabase.from("game_attachments").select("id, kind, url, path, file_name, size_bytes").eq("game_id", id).order("created_at"),
   ]);
   if (!game) notFound();
 
@@ -51,7 +51,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
   const avatars = new Map(members.map((m) => [m.id, m.avatar_url]));
   const ratings = summarizeRatings(game.ratings.map((r) => ({ playerId: r.player_id, stars: r.stars })), names);
   const myStars = game.ratings.find((r) => r.player_id === member.playerId)?.stars ?? 0;
-  const owners = toOwners(game.game_owners);
+  const owners = toPeople(game.game_owners);
 
   const stats = [
     { label: "Jugadores", value: playersText(game.min_players, game.max_players)?.replace(" jugadores", "") },
@@ -109,7 +109,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
         <div className="space-y-6">
           {game.notes && <p className="text-lg whitespace-pre-line text-soft">{game.notes}</p>}
 
-          {game.bgg_id !== null && <PoweredByBgg href={bggPageUrl(game.bgg_id)} label="Ver en BoardGameGeek" />}
+          {game.bgg_id !== null && <PoweredByBgg href={bggPageUrl(game.bgg_id)} />}
 
           <section className="card space-y-3">
             <h2>Tu valoración</h2>
@@ -141,7 +141,7 @@ export default async function GamePage({ params }: PageProps<"/games/[id]">) {
                 name: e.name,
                 bggId: e.bgg_id,
                 retired: e.retired_at !== null,
-                owners: toOwners(e.expansion_owners),
+                owners: toPeople(e.expansion_owners),
               }))}
             />
           </section>

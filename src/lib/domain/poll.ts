@@ -1,3 +1,5 @@
+import type { ParseResult } from "./game-form";
+import { competitionRanks } from "./ranking";
 import { GROUP_TIME_ZONE } from "./session";
 
 export type PollState = { closesAt: string | null; closedAt: string | null };
@@ -26,13 +28,8 @@ export type RankedCandidate = CandidateTally & { position: number; leading: bool
 export function rankCandidates(candidates: CandidateTally[]): RankedCandidate[] {
   const sorted = [...candidates].sort((a, b) => b.approvals.length - a.approvals.length || a.name.localeCompare(b.name, "es"));
   const top = Math.max(0, ...sorted.map((c) => c.approvals.length));
-  const ranked: RankedCandidate[] = [];
-  sorted.forEach((c, i) => {
-    const prev = ranked[i - 1];
-    const position = prev && prev.approvals.length === c.approvals.length ? prev.position : i + 1;
-    ranked.push({ ...c, position, leading: top > 0 && c.approvals.length === top });
-  });
-  return ranked;
+  const positions = competitionRanks(sorted, (c) => c.approvals.length, (a, b) => b - a);
+  return sorted.map((c) => ({ ...c, position: positions.get(c)!, leading: top > 0 && c.approvals.length === top }));
 }
 
 /** Whether someone still has to break a tie among the leaders. */
@@ -75,6 +72,20 @@ export function localDateTimeToIso(value: string): string | null {
  */
 export function latestDeadline(sessionDate: string, startTime: string | null): string {
   return `${sessionDate}T${startTime ?? "23:59"}`;
+}
+
+/**
+ * Validates a Poll's optional deadline, the `datetime-local` value typed in the group's time zone, and
+ * returns it as an ISO instant (null without one). It must be in the future and not after `latest`
+ * (see latestDeadline; null skips that check).
+ */
+export function parseDeadline(deadline: string, latest: string | null, now: Date = new Date()): ParseResult<string | null> {
+  if (!deadline) return { ok: true, value: null };
+  const closesAt = localDateTimeToIso(deadline);
+  if (!closesAt) return { ok: false, error: "Fecha límite no válida." };
+  if (Date.parse(closesAt) <= now.getTime()) return { ok: false, error: "La fecha límite tiene que ser futura." };
+  if (latest !== null && deadline > latest) return { ok: false, error: "La fecha límite no puede ser posterior a la sesión." };
+  return { ok: true, value: closesAt };
 }
 
 /** "viernes 23 oct, 20:00" in the group's time zone. */

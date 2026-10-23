@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { ActionForm, ConfirmSubmitButton, FormMessage } from "@/components/form";
-import { useLeavingAction } from "@/components/leave";
+import { ActionForm, FormMessage, SubmitButton } from "@/components/form";
+import { DeleteButton } from "@/components/leave";
 import { PlayerPicker } from "@/components/player-picker";
 import { initialActionState } from "@/lib/action-state";
 import { PHOTO_CAPTION_MAX } from "@/lib/domain/photos";
@@ -23,7 +23,7 @@ export function PhotoEditor({
   plays: { id: string; name: string }[];
   playId: string | null;
 }) {
-  const [state, action, pending] = useActionState(updatePhoto, initialActionState);
+  const [state, action] = useActionState(updatePhoto, initialActionState);
   return (
     <ActionForm action={action} className="space-y-3">
       <input type="hidden" name="id" value={photoId} />
@@ -52,21 +52,12 @@ export function PhotoEditor({
           </select>
         </div>
       )}
-      <button type="submit" disabled={pending} className="btn-primary">
-        {pending ? "Guardando…" : "Guardar"}
-      </button>
+      <SubmitButton>Guardar</SubmitButton>
       <FormMessage state={state} />
     </ActionForm>
   );
 }
 
 export function DeletePhotoButton({ photoId }: { photoId: string }) {
-  const [state, action] = useLeavingAction(deletePhoto);
-  return (
-    <form action={action} className="space-y-1">
-      <input type="hidden" name="id" value={photoId} />
-      <ConfirmSubmitButton confirmText="Sí, eliminar">Eliminar</ConfirmSubmitButton>
-      <FormMessage state={state} />
-    </form>
-  );
+  return <DeleteButton action={deletePhoto} id={photoId} />;
 }

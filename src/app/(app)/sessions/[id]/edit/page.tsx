@@ -4,7 +4,7 @@ import { requireMember } from "@/lib/auth";
 import { listPlayers } from "@/lib/data/players";
 import { todayIso } from "@/lib/domain/session";
 import { createClient } from "@/lib/supabase/server";
-import { updateSession } from "../../actions";
+import { saveSession } from "../../actions";
 import { SessionForm } from "../../session-form";
 
 export const metadata: Metadata = { title: "Editar sesión" };
@@ -28,7 +28,7 @@ export default async function EditSessionPage({ params }: PageProps<"/sessions/[
   return (
     <div className="space-y-4">
       <h1 className="text-3xl sm:text-4xl">Editar sesión</h1>
-      <SessionForm action={updateSession} defaults={defaults} players={players} today={todayIso()} />
+      <SessionForm action={saveSession} defaults={defaults} players={players} today={todayIso()} />
     </div>
   );
 }

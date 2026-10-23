@@ -1,4 +1,6 @@
 import "server-only";
+import { cache } from "react";
+import type { QueryData } from "@supabase/supabase-js";
 import type { PlayMode } from "@/lib/domain/game-form";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,26 +19,14 @@ export type PlayDetail = {
   participants: { playerId: string; name: string; avatarUrl: string | null; score: number | null; rank: number | null; teamId: string | null }[];
 };
 
-const PLAY_SELECT =
-  "id, session_id, play_mode, duration_minutes, notes, coop_won, created_by, created_at, " +
-  "sessions(date), games(id, name, lower_score_wins), play_expansions(expansions(id, name)), teams(id, name, won), " +
-  "participants(player_id, score, rank, team_id, players(display_name, avatar_url))";
+const PLAY_SELECT = `
+  id, session_id, play_mode, duration_minutes, notes, coop_won, created_by, created_at,
+  sessions(date), games(id, name, lower_score_wins), play_expansions(expansions(id, name)), teams(id, name, won),
+  participants(player_id, score, rank, team_id, players(display_name, avatar_url))
+` as const;
 
-type PlayRow = {
-  id: string;
-  session_id: string;
-  play_mode: PlayMode;
-  duration_minutes: number | null;
-  notes: string | null;
-  coop_won: boolean | null;
-  created_by: string | null;
-  created_at: string;
-  sessions: { date: string } | null;
-  games: { id: string; name: string; lower_score_wins: boolean } | null;
-  play_expansions: { expansions: { id: string; name: string } | null }[];
-  teams: { id: string; name: string; won: boolean }[];
-  participants: { player_id: string; score: number | null; rank: number | null; team_id: string | null; players: { display_name: string; avatar_url: string | null } | null }[];
-};
+const selectPlays = (supabase: Awaited<ReturnType<typeof createClient>>) => supabase.from("plays").select(PLAY_SELECT);
+type PlayRow = QueryData<ReturnType<typeof selectPlays>>[number];
 
 function toDetail(row: PlayRow): PlayDetail {
   return {
@@ -64,14 +54,13 @@ function toDetail(row: PlayRow): PlayDetail {
   };
 }
 
-export async function getPlay(id: string): Promise<PlayDetail | null> {
-  const supabase = await createClient();
-  const { data } = await supabase.from("plays").select(PLAY_SELECT).eq("id", id).maybeSingle();
-  return data ? toDetail(data as unknown as PlayRow) : null;
-}
+/** Cached per request: the Play page reads it in both generateMetadata and the page. */
+export const getPlay = cache(async (id: string): Promise<PlayDetail | null> => {
+  const { data } = await selectPlays(await createClient()).eq("id", id).maybeSingle();
+  return data ? toDetail(data) : null;
+});
 
 export async function listSessionPlays(sessionId: string): Promise<PlayDetail[]> {
-  const supabase = await createClient();
-  const { data } = await supabase.from("plays").select(PLAY_SELECT).eq("session_id", sessionId).order("created_at");
-  return ((data ?? []) as unknown as PlayRow[]).map(toDetail);
+  const { data } = await selectPlays(await createClient()).eq("session_id", sessionId).order("created_at");
+  return (data ?? []).map(toDetail);
 }

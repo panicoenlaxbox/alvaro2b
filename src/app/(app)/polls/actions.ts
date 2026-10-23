@@ -1,10 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
-import { errorMessage, type ActionState } from "@/lib/action-state";
-import { latestDeadline, localDateTimeToIso } from "@/lib/domain/poll";
+import { errorMessage, NOT_FOUND, type ActionState } from "@/lib/action-state";
+import { latestDeadline, parseDeadline } from "@/lib/domain/poll";
 import { formatSessionTime } from "@/lib/domain/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,20 +17,17 @@ export async function openPoll(_prev: ActionState, formData: FormData): Promise<
   await requireMember();
   const sessionId = String(formData.get("session_id"));
   const deadline = String(formData.get("closes_at") ?? "");
-  const closesAt = deadline ? localDateTimeToIso(deadline) : null;
-  if (deadline && !closesAt) return { error: "Fecha límite no válida." };
-  if (closesAt && Date.parse(closesAt) <= Date.now()) return { error: "La fecha límite tiene que ser futura." };
 
   const supabase = await createClient();
-  if (deadline) {
-    const { data: session } = await supabase.from("sessions").select("date, start_time").eq("id", sessionId).maybeSingle();
-    if (session && deadline > latestDeadline(session.date, formatSessionTime(session.start_time))) {
-      return { error: "La fecha límite no puede ser posterior a la sesión." };
-    }
-  }
+  const { data: session } = deadline
+    ? await supabase.from("sessions").select("date, start_time").eq("id", sessionId).maybeSingle()
+    : { data: null };
+  const closesAt = parseDeadline(deadline, session ? latestDeadline(session.date, formatSessionTime(session.start_time)) : null);
+  if (!closesAt.ok) return { error: closesAt.error };
+
   const { data, error } = await supabase
     .from("polls")
-    .insert({ session_id: sessionId, closes_at: closesAt })
+    .insert({ session_id: sessionId, closes_at: closesAt.value })
     .select("id")
     .single();
   if (error) {
@@ -40,7 +37,7 @@ export async function openPoll(_prev: ActionState, formData: FormData): Promise<
   }
 
   revalidatePoll(data.id, sessionId);
-  redirect(`/polls/${data.id}`);
+  redirect(`/polls/${data.id}`, RedirectType.replace);
 }
 
 export async function proposeCandidate(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -103,7 +100,7 @@ export async function closePoll(_prev: ActionState, formData: FormData): Promise
     .select("session_id")
     .maybeSingle();
   if (error) return { error: errorMessage(error) };
-  if (!data) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
+  if (!data) return { error: NOT_FOUND };
 
   revalidatePoll(pollId, data.session_id);
   return { ok: true };
@@ -118,7 +115,7 @@ export async function toggleChosen(_prev: ActionState, formData: FormData): Prom
   const supabase = await createClient();
   const { data, error } = await supabase.from("candidates").update({ chosen }).eq("id", candidateId).select("id").maybeSingle();
   if (error) return { error: errorMessage(error) };
-  if (!data) return { error: "No se ha encontrado; puede que ya se haya eliminado." };
+  if (!data) return { error: NOT_FOUND };
 
   revalidatePoll(pollId);
   return { ok: true };

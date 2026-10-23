@@ -1,5 +1,4 @@
 import "server-only";
-import type { PlayMode } from "@/lib/domain/game-form";
 import type { StatsGame, StatsPlay, StatsSession } from "@/lib/domain/stats";
 import { createClient } from "@/lib/supabase/server";
 
@@ -28,7 +27,7 @@ export async function loadStatsData(): Promise<StatsData> {
       sessionId: p.session_id,
       date: p.sessions?.date ?? "",
       gameId: p.game_id,
-      mode: p.play_mode as PlayMode,
+      mode: p.play_mode,
       durationMinutes: p.duration_minutes,
       coopWon: p.coop_won,
       participants: p.participants.map((x) => ({ playerId: x.player_id, rank: x.rank, teamId: x.team_id })),
