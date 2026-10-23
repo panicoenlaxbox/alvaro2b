@@ -9,7 +9,7 @@ Everything committed to this repository is written in English, except the text u
 3. Schema changes go in a new migration, tested locally with `pnpm supabase db reset`, then regenerate the types with `pnpm supabase gen types typescript --local > src/lib/supabase/database.types.ts`. Never edit an applied migration. Every new table needs Row Level Security with explicit policies and a `grant` to `authenticated`: the project does not expose new tables to the API on its own.
 4. Check the change in Chrome against `http://localhost:3000` with the fictional seed data.
 5. Commit, push or open a PR only when the user asks for it. CI must be green.
-6. Before merging, apply new migrations with `pnpm supabase db push -p $env:PROD_DB_PASSWORD`, run the Supabase security advisors and fix every new warning. The production password is never named `SUPABASE_DB_PASSWORD`: the CLI would use it for local commands too.
+6. Before merging, apply new migrations with `pnpm supabase db push`, run the Supabase security advisors and fix every new warning.
 7. Merge, then smoke-test `https://alvaro2b.vercel.app` without leaving data behind.
 
 ## Skills
