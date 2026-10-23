@@ -34,9 +34,9 @@ Then copy `.env.example` to `.env.local` and fill it in with two values that `pn
 pnpm dev
 ```
 
-Supabase Studio, to browse the local database, is at http://localhost:54323. Stop the stack with `pnpm supabase stop`.
+Supabase Studio, to browse the local database, is at http://localhost:54323.
 
-> Stop it with `pnpm supabase stop` before quitting Docker: its containers restart with Docker unless they were stopped.
+> Stop the stack with `pnpm supabase stop` before quitting Docker: its containers restart with Docker unless they were stopped.
 
 ## Our games
 
