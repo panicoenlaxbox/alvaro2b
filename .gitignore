@@ -25,3 +25,5 @@ npm-debug.log*
 # Supabase local state
 /supabase/.temp/
 /supabase/.branches/
+# SQL Editor queries saved by the local Supabase Studio
+/supabase/snippets/

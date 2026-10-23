@@ -43,8 +43,13 @@ jobs:
           version: 2.121.0
       - name: Start Supabase
         # Auth and Storage stay on: they create the auth and storage tables that migrations use.
-        run: supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+        run: supabase start -x imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
         env:
           GOOGLE_CLIENT_ID: ci-placeholder
           GOOGLE_CLIENT_SECRET: ci-placeholder
       - run: supabase test db
+      - name: Check the database types are up to date
+        # Fails when a migration changed the schema and src/lib/supabase/database.types.ts was not regenerated.
+        run: |
+          supabase gen types typescript --local > "$RUNNER_TEMP/database.types.ts"
+          diff -u src/lib/supabase/database.types.ts "$RUNNER_TEMP/database.types.ts"
