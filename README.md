@@ -36,6 +36,8 @@ pnpm dev
 
 Supabase Studio, to browse the local database, is at http://localhost:54323. Stop the stack with `pnpm supabase stop`.
 
+> Stop it before quitting Docker: its containers restart with Docker unless they were stopped.
+
 ## Our games
 
 Curious about what we play? Brace yourself for some envy: the group's collection, 34 Games and 5 Expansions, lives in [`supabase/seed/catalog.sql`](supabase/seed/catalog.sql).
