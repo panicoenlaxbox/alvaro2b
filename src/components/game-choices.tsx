@@ -3,12 +3,12 @@ import { PLAY_MODE_LABELS, PLAY_MODES } from "@/lib/domain/game-form";
 /** Chip look for the radio and checkbox filters, on a `peer sr-only` input. */
 export const CHIP = "toggle peer-checked:border-accent peer-checked:bg-accent peer-checked:text-ink peer-focus-visible:outline-3 peer-focus-visible:outline-accent";
 
-export const PLAYER_CHOICES = [{ value: "", label: "Todos" }, ...[2, 3, 4, 5, 6, 7, 8].map((n) => ({ value: String(n), label: String(n) }))];
+export const PLAYER_CHOICES = [{ value: "", label: "Todos" }, ...[2, 3, 4, 5, 6].map((n) => ({ value: String(n), label: String(n) }))];
 export const MINUTE_CHOICES = [
   { value: "", label: "Me da igual" },
-  { value: "30", label: "Media hora" },
   { value: "60", label: "1 h" },
   { value: "120", label: "2 h" },
+  { value: "240", label: "4 h" },
 ];
 export const MODE_CHOICES = [{ value: "", label: "Me da igual" }, ...PLAY_MODES.map((m) => ({ value: m, label: PLAY_MODE_LABELS[m] }))];
 

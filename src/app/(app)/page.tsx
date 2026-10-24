@@ -53,7 +53,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
             <ChoiceGroup legend="¿Cuánto tiempo tenemos?" name="minutes" current={filters.maxMinutes?.toString() ?? ""} options={MINUTE_CHOICES} />
             <ChoiceGroup legend="¿Juntos o a muerte?" name="mode" current={filters.mode ?? ""} options={MODE_CHOICES} />
           </div>
-          <div className="border-t-2 border-dashed border-border pt-4">
+          <div className="pt-2">
             {fits.length > 0 ? (
               <SurpriseMe key={fits.map((g) => g.id).join()} games={fits.map((g) => ({ id: g.id, name: g.name }))} />
             ) : (

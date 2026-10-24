@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { Avatar } from "@/components/avatar";
 import { ActionForm, ConfirmSubmitButton, FormMessage, SubmitButton, useAddAction, useRowAction } from "@/components/form";
-import { Icon, PENCIL } from "@/components/icon";
+import { CLOCK, Icon, PENCIL } from "@/components/icon";
 import { initialActionState } from "@/lib/action-state";
 import { PLAYER_NAME_MAX } from "@/lib/domain/players";
 import { WhatsAppButton } from "@/components/whatsapp-button";
@@ -96,8 +96,18 @@ export function AllowedEmailRow({
         {isAdmin && <span className="chip self-center border-accent text-accent">Admin</span>}
         <span className={`chip self-center ${STATUS_CHIP[status]}`}>{status}</span>
       </div>
-      {playerName && <p className="truncate text-sm text-muted">{email}</p>}
-      {signedUp && lastSeen && <p className="text-sm text-muted">Última conexión: {lastSeen}</p>}
+      {(playerName || (signedUp && lastSeen)) && (
+        <div className="flex items-center gap-3 text-sm text-muted">
+          <span className="min-w-0 flex-1 truncate">{playerName && email}</span>
+          {signedUp && lastSeen && (
+            <span className="inline-flex shrink-0 items-center gap-1 text-xs" title="Última conexión">
+              <Icon d={CLOCK} className="size-3.5" />
+              <span className="sr-only">Última conexión:</span>
+              {lastSeen}
+            </span>
+          )}
+        </div>
+      )}
       <div className="actions">
         {!signedUp && (
           <WhatsAppButton text={inviteText(appUrl, email)} label="Enviar el enlace por WhatsApp" className="flex-none" />

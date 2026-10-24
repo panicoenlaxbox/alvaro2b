@@ -13,7 +13,8 @@ import { formatSessionDate, formatSessionTime, isUpcoming, todayIso } from "@/li
 import { appUrl } from "@/lib/share";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { createClient } from "@/lib/supabase/server";
-import { isPollOpen, latestDeadline } from "@/lib/domain/poll";
+import { isPollOpen, rankCandidates } from "@/lib/domain/poll";
+import { PollRanking } from "@/components/poll-ranking";
 import { Avatar } from "@/components/avatar";
 import { FlavorText } from "@/components/flavor-text";
 import { DeleteSessionButton, OpenPollForm, RsvpButtons } from "./session-detail-forms";
@@ -33,7 +34,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
   const [{ data: session }, players, plays, photos] = await Promise.all([
     supabase
       .from("sessions")
-      .select("*, session_attendees(player_id, maybe), polls(id, closes_at, closed_at, candidates(count))")
+      .select("*, session_attendees(player_id, maybe), polls(id, closes_at, closed_at, candidates(id, game_id, chosen, games(name), approvals(player_id)))")
       .eq("id", id)
       .maybeSingle(),
     listPlayers(),
@@ -56,7 +57,18 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
   const when = `el ${formatSessionDate(session.date)}${time ? ` a las ${time}` : ""}${session.place ? ` en ${session.place}` : ""}`;
   // Under the title: the date when a name took its place, and the time.
   const subtitle = [session.name ? formatSessionDate(session.date) : null, time].filter(Boolean).join(", ");
-  const shareText = `${session.name ? `«${session.name}», ${when}` : `Sesión de juegos ${when}`}. ¿Te vienes? ${url}`;
+  const ranked = session.polls
+    ? rankCandidates(
+        session.polls.candidates.map((c) => ({
+          id: c.id,
+          gameId: c.game_id,
+          name: c.games?.name ?? "?",
+          approvals: c.approvals.map((a) => a.player_id),
+          chosen: c.chosen,
+        })),
+      )
+    : [];
+  const shareText =`${session.name ? `«${session.name}», ${when}` : `Sesión de juegos ${when}`}. ¿Te vienes? ${url}`;
 
   return (
     <div className="space-y-6">
@@ -134,19 +146,21 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           </div>
           <div className="order-4 empty:hidden lg:order-none">
             {session.polls ? (
-              <Link href={`/polls/${session.polls.id}`} className="card flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                <span className="font-semibold">Votación: ¿a qué jugamos?</span>
-                <span className="text-sm text-muted">
-                  {session.polls.candidates[0]?.count ?? 0} candidatos ·{" "}
-                  {isPollOpen({ closesAt: session.polls.closes_at, closedAt: session.polls.closed_at }) ? "abierta" : "cerrada"}
-                </span>
+              <Link href={`/polls/${session.polls.id}`} className="card block space-y-3">
+                <h2>Votación</h2>
+                <p className="text-sm text-muted">
+                  ¿A qué jugamos? · {isPollOpen({ closesAt: session.polls.closes_at, closedAt: session.polls.closed_at }) ? "abierta" : "cerrada"}
+                </p>
+                {ranked.length > 0 ? <PollRanking ranked={ranked} /> : <p className="text-sm text-muted">Aún no hay candidatos.</p>}
               </Link>
             ) : (
               upcoming && (
                 <details className="card">
-                  <summary className="cursor-pointer font-semibold">Abrir votación</summary>
+                  <summary className="cursor-pointer">
+                    <h2 className="inline">Votación</h2>
+                  </summary>
                   <div className="mt-3">
-                    <OpenPollForm sessionId={session.id} latest={latestDeadline(session.date, time)} />
+                    <OpenPollForm sessionId={session.id} sessionDate={session.date} today={todayIso()} />
                   </div>
                 </details>
               )
