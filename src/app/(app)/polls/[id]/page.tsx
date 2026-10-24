@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Faces } from "@/components/owners";
 import { CHECK, Icon } from "@/components/icon";
 import { SessionHeader } from "@/components/session-header";
+import { PollRanking } from "@/components/poll-ranking";
 import { byName } from "@/lib/data/people";
 import { SESSION_SUMMARY_SELECT, sessionSummary } from "@/lib/data/sessions";
 import { CandidateActions, ClosePollButton, ProposeForm } from "./poll-forms";
@@ -79,18 +80,7 @@ export default async function PollPage({ params }: PageProps<"/polls/[id]">) {
         {ranked.length > 0 && (
           <aside className="card space-y-2 lg:sticky lg:top-20 lg:order-last">
             <h2>Clasificación</h2>
-            <ol className="space-y-1 text-sm">
-              {ranked.map((c) => (
-                <li key={c.id} className="flex items-baseline gap-2">
-                  <span className="w-8 shrink-0 font-display text-muted">{c.position}.º</span>
-                  <span className={`min-w-0 flex-1 truncate ${c.leading || c.chosen ? "font-bold text-accent" : ""}`}>
-                    {c.chosen && <Icon d={CHECK} className="mr-1 inline size-4 -translate-y-px stroke-[3] text-accent" />}
-                    {c.name}
-                  </span>
-                  <span className="shrink-0">{`${c.approvals.length} ${c.approvals.length === 1 ? "voto" : "votos"}`}</span>
-                </li>
-              ))}
-            </ol>
+            <PollRanking ranked={ranked} />
           </aside>
         )}
         <div className="space-y-6">

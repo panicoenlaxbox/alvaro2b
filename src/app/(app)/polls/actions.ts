@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { RedirectType, redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
 import { errorMessage, NOT_FOUND, type ActionState } from "@/lib/action-state";
-import { latestDeadline, parseDeadline } from "@/lib/domain/poll";
+import { joinDeadline, latestDeadline, parseDeadline } from "@/lib/domain/poll";
 import { formatSessionTime } from "@/lib/domain/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -16,13 +16,16 @@ function revalidatePoll(pollId: string, sessionId?: string) {
 export async function openPoll(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireMember();
   const sessionId = String(formData.get("session_id"));
-  const deadline = String(formData.get("closes_at") ?? "");
+  const date = String(formData.get("closes_date") ?? "");
+  const time = String(formData.get("closes_time") ?? "");
 
   const supabase = await createClient();
-  const { data: session } = deadline
-    ? await supabase.from("sessions").select("date, start_time").eq("id", sessionId).maybeSingle()
-    : { data: null };
-  const closesAt = parseDeadline(deadline, session ? latestDeadline(session.date, formatSessionTime(session.start_time)) : null);
+  const { data: session } =
+    date || time ? await supabase.from("sessions").select("date, start_time").eq("id", sessionId).maybeSingle() : { data: null };
+  const startTime = session ? formatSessionTime(session.start_time) : null;
+  const deadline = session ? joinDeadline(date, time, session.date, startTime) : { ok: true as const, value: "" };
+  if (!deadline.ok) return { error: deadline.error };
+  const closesAt = parseDeadline(deadline.value, session ? latestDeadline(session.date, startTime) : null);
   if (!closesAt.ok) return { error: closesAt.error };
 
   const { data, error } = await supabase

@@ -1,6 +1,6 @@
 import type { ParseResult } from "./game-form";
 import { competitionRanks } from "./ranking";
-import { GROUP_TIME_ZONE } from "./session";
+import { GROUP_TIME_ZONE, parseSessionTime } from "./session";
 
 export type PollState = { closesAt: string | null; closedAt: string | null };
 
@@ -72,6 +72,20 @@ export function localDateTimeToIso(value: string): string | null {
  */
 export function latestDeadline(sessionDate: string, startTime: string | null): string {
   return `${sessionDate}T${startTime ?? "23:59"}`;
+}
+
+/**
+ * Joins the deadline's date and time inputs into a local "YYYY-MM-DDTHH:MM" ("" when both are empty).
+ * A time alone falls on the Session's day; a date alone closes at the end of that day, or when the
+ * Session starts if it is the Session's day.
+ */
+export function joinDeadline(date: string, time: string, sessionDate: string, startTime: string | null): ParseResult<string> {
+  const hhmm = parseSessionTime(time);
+  if (hhmm === "invalid") return { ok: false, error: "La hora va en formato 24 horas, como 20:30." };
+  if (!date && !hhmm) return { ok: true, value: "" };
+  const day = date || sessionDate;
+  if (hhmm) return { ok: true, value: `${day}T${hhmm}` };
+  return { ok: true, value: day === sessionDate ? latestDeadline(sessionDate, startTime) : `${day}T23:59` };
 }
 
 /**

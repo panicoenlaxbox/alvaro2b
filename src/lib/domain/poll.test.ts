@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isPollOpen, latestDeadline, localDateTimeToIso, needsTieBreak, parseDeadline, rankCandidates, type CandidateTally } from "./poll";
+import { isPollOpen, joinDeadline, latestDeadline, localDateTimeToIso, needsTieBreak, parseDeadline, rankCandidates, type CandidateTally } from "./poll";
 
 const c = (name: string, approvals: string[], chosen = false): CandidateTally => ({ id: name, gameId: name, name, approvals, chosen });
 
@@ -42,6 +42,20 @@ describe("localDateTimeToIso", () => {
 describe("latestDeadline", () => {
   it("is the Session's start time", () => expect(latestDeadline("2026-10-24", "20:30")).toBe("2026-10-24T20:30"));
   it("is the end of the Session's day when it has no time", () => expect(latestDeadline("2026-10-24", null)).toBe("2026-10-24T23:59"));
+});
+
+describe("joinDeadline", () => {
+  it("is empty without date or time", () => expect(joinDeadline("", "", "2026-10-24", "20:30")).toEqual({ ok: true, value: "" }));
+  it("joins date and time", () => expect(joinDeadline("2026-10-23", "18.00", "2026-10-24", "20:30")).toEqual({ ok: true, value: "2026-10-23T18:00" }));
+  it("puts a time alone on the Session's day", () => expect(joinDeadline("", "18", "2026-10-24", "20:30")).toEqual({ ok: true, value: "2026-10-24T18:00" }));
+  it("closes a date alone at the end of that day", () => expect(joinDeadline("2026-10-23", "", "2026-10-24", "20:30")).toEqual({ ok: true, value: "2026-10-23T23:59" }));
+  it("closes the Session's day alone when the Session starts", () => {
+    expect(joinDeadline("2026-10-24", "", "2026-10-24", "20:30")).toEqual({ ok: true, value: "2026-10-24T20:30" });
+    expect(joinDeadline("2026-10-24", "", "2026-10-24", null)).toEqual({ ok: true, value: "2026-10-24T23:59" });
+  });
+  it("rejects a malformed time", () => {
+    expect(joinDeadline("2026-10-23", "25:00", "2026-10-24", null)).toEqual({ ok: false, error: "La hora va en formato 24 horas, como 20:30." });
+  });
 });
 
 describe("parseDeadline", () => {

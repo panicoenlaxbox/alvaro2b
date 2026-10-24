@@ -32,10 +32,10 @@ export function SurpriseMe({ games }: { games: { id: string; name: string }[] })
       )}
       {phase !== "idle" && (
         <section aria-live="polite" className="flex flex-wrap items-center gap-4 rounded-2xl border-[3px] border-ink bg-accent p-4 text-ink shadow-hard-lg sm:p-6">
-          <DiceIcon className={`size-16 shrink-0 ${phase === "drawing" ? "animate-spin [animation-duration:700ms]" : ""}`} />
+          <DiceIcon className={`size-12 shrink-0 sm:size-16 ${phase === "drawing" ? "animate-spin [animation-duration:700ms]" : ""}`} />
           <div className="min-w-0 flex-1 space-y-1">
             <p className="text-sm font-bold tracking-wider uppercase">{phase === "drawing" ? phrase : "El dado ha hablado"}</p>
-            <p className={`font-display text-3xl leading-tight sm:text-4xl ${phase === "drawing" ? "opacity-60" : ""}`}>
+            <p className={`font-display overflow-hidden text-2xl leading-tight text-ellipsis sm:text-4xl ${phase === "drawing" ? "opacity-60" : ""}`}>
               {phase === "drawing" ? (shown?.name ?? "…") : `Hoy toca ${shown?.name}`}
             </p>
           </div>
