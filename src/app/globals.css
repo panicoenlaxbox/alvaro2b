@@ -59,6 +59,10 @@ body {
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+  /* Fieldsets default to min-content width, so long names would push them past the screen instead of truncating. */
+  fieldset {
+    min-width: 0;
+  }
   /* Bungee has a single weight: never let the browser fake a bold one. */
   h1,
   h2,
@@ -153,6 +157,47 @@ body {
 /* Help text that explains how something works: italic and dimmer than plain muted text. Size is set where used. */
 @utility hint {
   @apply text-muted/80 italic;
+}
+
+/*
+ * A link inside text. Phones have no hand cursor, so it is marked as with a highlighter pen: a yellow stroke with
+ * wobbly edges, chisel-tip ends (wide enough to stay round on a short word) and a second, overlapping pass, behind
+ * the letters only. It is one text line tall and centred, so a link padded into a bigger tap target still marks just
+ * its text; each wrapped line gets its own.
+ * Pressed, the stroke turns full yellow, as a button sinks. SVG images cannot read CSS variables, hence the colours
+ * spelt out (--accent #f4b940, --ink #0f0d18).
+ */
+@utility link {
+  --link-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 29' preserveAspectRatio='none'%3E%3Cg fill='%23f4b940' fill-opacity='.35'%3E%3Cpath d='M16 4.5Q70 2.5 120 4T192 3.5C197 3.5 199 7 197.5 13C196 19 193 25 186 25.5Q130 27 80 25.5T10 25.5C4 25.5 1 22 2.5 16C4 10 8 4.5 16 4.5Z'/%3E%3Cpath d='M22 10Q90 8 150 10T188 9.5L186 18Q120 20 60 18.5T16 19Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: var(--link-mark);
+  background-position: 0 50%;
+  background-repeat: no-repeat;
+  background-size: 100% 1.45em;
+  box-decoration-break: clone;
+  /*
+   * A hand overshoots the word, a bit more where it starts: widen the box without moving the text. The block
+   * padding lets the stroke stand above and below a link inside running text (it moves no line there); a link
+   * padded into a tap target keeps its own.
+   */
+  margin-inline: -0.3em -0.2em;
+  padding-inline: 0.3em 0.2em;
+  padding-block: 0.15em;
+  transition: color 100ms;
+  /* `:hover:active` outweighs a `hover:text-*` on the same link, which would leave light text on the yellow. */
+  &:active,
+  &:hover:active {
+    --link-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 29' preserveAspectRatio='none'%3E%3Cpath fill='%23f4b940' d='M16 4.5Q70 2.5 120 4T192 3.5C197 3.5 199 7 197.5 13C196 19 193 25 186 25.5Q130 27 80 25.5T10 25.5C4 25.5 1 22 2.5 16C4 10 8 4.5 16 4.5Z'/%3E%3C/svg%3E");
+    color: var(--ink);
+  }
+  /* On a yellow banner a yellow stroke would not show: the same, in ink. */
+  .bg-accent & {
+    --link-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 29' preserveAspectRatio='none'%3E%3Cg fill='%230f0d18' fill-opacity='.25'%3E%3Cpath d='M16 4.5Q70 2.5 120 4T192 3.5C197 3.5 199 7 197.5 13C196 19 193 25 186 25.5Q130 27 80 25.5T10 25.5C4 25.5 1 22 2.5 16C4 10 8 4.5 16 4.5Z'/%3E%3Cpath d='M22 10Q90 8 150 10T188 9.5L186 18Q120 20 60 18.5T16 19Z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  .bg-accent &:active,
+  .bg-accent &:hover:active {
+    --link-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 29' preserveAspectRatio='none'%3E%3Cpath fill='%230f0d18' d='M16 4.5Q70 2.5 120 4T192 3.5C197 3.5 199 7 197.5 13C196 19 193 25 186 25.5Q130 27 80 25.5T10 25.5C4 25.5 1 22 2.5 16C4 10 8 4.5 16 4.5Z'/%3E%3C/svg%3E");
+    color: var(--accent);
+  }
 }
 
 /* A selectable pill: plain text on the card, yellow when on (aria-pressed, aria-current, or a checked peer before it). */

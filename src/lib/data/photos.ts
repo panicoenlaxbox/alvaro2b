@@ -14,12 +14,13 @@ export type PhotoThumb = {
   tagged: Person[];
 };
 
-/** Photos of a Session, of the general Album (sessionId null) or all of them (undefined). */
-export async function listPhotos(sessionId?: string | null, limit = 300): Promise<PhotoThumb[]> {
+/** Photos of a Session, of the general Album (sessionId null), of a Play, or all of them (no filter). */
+export async function listPhotos({ sessionId, playId }: { sessionId?: string | null; playId?: string } = {}, limit = 300): Promise<PhotoThumb[]> {
   const supabase = await createClient();
   let query = supabase.from("photos").select(`id, thumb_path, caption, session_id, sessions(${SESSION_SUMMARY_SELECT}), photo_tags(players(id, display_name, avatar_url))`).order("created_at", { ascending: false }).limit(limit);
   if (sessionId === null) query = query.is("session_id", null);
   else if (sessionId) query = query.eq("session_id", sessionId);
+  if (playId) query = query.eq("play_id", playId);
   const { data } = await query;
   const urls = await signedUrls((data ?? []).map((p) => p.thumb_path));
   return (data ?? []).map((p) => ({

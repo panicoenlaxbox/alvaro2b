@@ -49,7 +49,7 @@ function AttachmentRow({ item }: { item: AttachmentItem }) {
       <div className="flex items-center gap-2">
         <Icon d={item.kind === "link" ? LINK : FILE} className="size-4 shrink-0 text-muted" />
         {item.url ? (
-          <a href={item.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate underline">
+          <a href={item.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate link">
             {item.kind === "link" ? linkLabel(item.url) : item.fileName}
           </a>
         ) : (

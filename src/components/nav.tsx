@@ -34,7 +34,8 @@ export function BottomNav() {
                 aria-current={active ? "page" : undefined}
               >
                 <Icon d={item.icon} className="size-6" />
-                {item.label}
+                {/* With a big text zoom a label ends in "…" instead of spilling out of its fifth of the bar. */}
+                <span className="max-w-full truncate px-1">{item.label}</span>
               </Link>
             </li>
           );

@@ -12,7 +12,7 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-2xl space-y-6 px-4 py-10 leading-relaxed">
       <header className="space-y-1">
         <p className="text-sm text-muted">
-          <Link href="/" className="underline">alvaro2b</Link>
+          <Link href="/" className="link">alvaro2b</Link>
         </p>
         <h1 className="text-3xl sm:text-4xl">Política de privacidad</h1>
         <p className="text-sm text-muted">Última actualización: 20 de octubre de 2026</p>
@@ -65,10 +65,10 @@ export default function PrivacyPage() {
       <section className="space-y-2">
         <h2 className="text-xl">Dónde se guardan</h2>
         <p>
-          Los datos se alojan en <a className="underline" href="https://supabase.com/privacy">Supabase</a> (base de
+          Los datos se alojan en <a className="link" href="https://supabase.com/privacy">Supabase</a> (base de
           datos, autenticación y almacenamiento de fotos) y la aplicación se sirve desde{" "}
-          <a className="underline" href="https://vercel.com/legal/privacy-policy">Vercel</a>. Algunas portadas de juegos se cargan desde{" "}
-          <a className="underline" href="https://boardgamegeek.com">BoardGameGeek</a> sin enviarle ningún dato tuyo.
+          <a className="link" href="https://vercel.com/legal/privacy-policy">Vercel</a>. Algunas portadas de juegos se cargan desde{" "}
+          <a className="link" href="https://boardgamegeek.com">BoardGameGeek</a> sin enviarle ningún dato tuyo.
         </p>
       </section>
 
