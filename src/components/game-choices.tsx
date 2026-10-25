@@ -16,7 +16,7 @@ export const MODE_CHOICES = [{ value: "", label: "Me da igual" }, ...PLAY_MODES.
 export function ChoiceGroup({ legend, name, current, options }: { legend: string; name: string; current: string; options: { value: string; label: string }[] }) {
   const shown = options.some((o) => o.value === current) ? options : [...options, { value: current, label: name === "minutes" ? `${current} min` : current }];
   return (
-    <fieldset className="min-w-0 space-y-2 max-sm:w-full">
+    <fieldset className="space-y-2 max-sm:w-full">
       <legend className="label">{legend}</legend>
       <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pt-0.5 pb-1.5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
         {shown.map((o) => (

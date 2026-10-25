@@ -96,7 +96,7 @@ export default async function PollPage({ params }: PageProps<"/polls/[id]">) {
               return (
                 <div key={c.id} className={`card space-y-2 p-3 ${c.leading || c.chosen ? "border-accent" : ""}`}>
                   <div className="flex items-center gap-2">
-                    <Link href={`/games/${c.gameId}`} className="flex-1 font-semibold">
+                    <Link href={`/games/${c.gameId}`} className="link flex-1 font-semibold">
                       {c.chosen && <Icon d={CHECK} className="mr-1 inline size-4 -translate-y-px stroke-[3] text-accent" />}
                       {c.name}
                     </Link>

@@ -65,7 +65,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
               <p>
                 <span className="font-semibold">{e.actorName ?? "Alguien"}</span> {describeAuditEntry(e.action, e.kind)}{" "}
                 {e.href ? (
-                  <Link href={e.href} className="underline">
+                  <Link href={e.href} className="link">
                     {e.label}
                   </Link>
                 ) : (

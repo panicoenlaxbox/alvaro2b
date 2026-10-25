@@ -23,13 +23,13 @@ export function RankingRow({ position, name, count, items }: { position: number;
         {items.length === 0 ? (
           <span className="tabular-nums text-muted">{count}</span>
         ) : only ? (
-          <Link href={only.href} className="inline-flex min-h-10 items-center tabular-nums text-muted underline hover:text-foreground">
+          <Link href={only.href} className="inline-flex min-h-10 items-center tabular-nums text-muted link hover:text-foreground">
             {count}
           </Link>
         ) : (
           <button
             type="button"
-            className="inline-flex min-h-10 items-center tabular-nums text-muted underline hover:text-foreground"
+            className="inline-flex min-h-10 items-center tabular-nums text-muted hover:text-foreground"
             aria-expanded={open}
             onClick={() => setOpen(!open)}
           >
@@ -41,7 +41,7 @@ export function RankingRow({ position, name, count, items }: { position: number;
         <ul className="flex flex-wrap justify-end gap-x-4 pb-2 pl-6 text-sm">
           {items.map((item) => (
             <li key={item.href}>
-              <Link href={item.href} className="inline-flex min-h-9 items-center text-muted underline hover:text-foreground">
+              <Link href={item.href} className="inline-flex min-h-9 items-center text-muted link hover:text-foreground">
                 {item.label}
               </Link>
             </li>

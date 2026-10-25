@@ -9,7 +9,7 @@ export function SessionHeader({ session }: { session: SessionSummary | null }) {
     <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b-2 border-dashed border-border pb-2">
       <h2 className="text-lg">
         {session ? (
-          <Link href={`/sessions/${session.id}`} className="underline">
+          <Link href={`/sessions/${session.id}`} className="link">
             {formatSessionDate(session.date)}
           </Link>
         ) : (
@@ -25,7 +25,7 @@ export function SessionHeader({ session }: { session: SessionSummary | null }) {
             {session.games.map((game, i) => (
               <span key={game.id}>
                 {i > 0 && ", "}
-                <Link href={`/games/${game.id}`} className="underline hover:text-foreground">
+                <Link href={`/games/${game.id}`} className="link hover:text-foreground">
                   {game.name}
                 </Link>
               </span>

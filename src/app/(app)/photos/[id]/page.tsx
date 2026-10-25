@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- full Photos are short-lived signed URLs */
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Faces } from "@/components/owners";
 import { requireMember } from "@/lib/auth";
@@ -35,7 +36,7 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
   const tagged = photo.photo_tags.map((t) => t.player_id);
   const taggedPlayers = tagged.flatMap((t) => byId.get(t) ?? []).sort((a, b) => a.display_name.localeCompare(b.display_name, "es"));
   const plays = photo.sessions?.plays.map((p) => ({ id: p.id, name: p.games?.name ?? "?" })) ?? [];
-  const playName = plays.find((p) => p.id === photo.play_id)?.name;
+  const play = plays.find((p) => p.id === photo.play_id);
 
   return (
     <div className="space-y-4">
@@ -60,7 +61,13 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
       )}
 
       {!view?.signedUrl && photo.caption && <p>{photo.caption}</p>}
-      {playName && <p className="text-sm text-muted">Partida de {playName}</p>}
+      {play && (
+        <p className="text-sm text-muted">
+          <Link href={`/plays/${play.id}`} className="link hover:text-foreground">
+            Partida de {play.name}
+          </Link>
+        </p>
+      )}
 
       <details className="card">
         <summary className="cursor-pointer font-semibold">Editar pie, etiquetas y partida</summary>

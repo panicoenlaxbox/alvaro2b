@@ -35,13 +35,13 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       <GoogleSignInButton next={nextPath} />
 
       {isLocalDevelopment() && (
-        <Link href="/dev-login" className="text-center text-sm text-muted underline">
+        <Link href="/dev-login" className="text-center text-sm text-muted link">
           Entrar como miembro ficticio (solo en local)
         </Link>
       )}
 
       <p className="text-center text-xs text-muted">
-        Solo para miembros invitados. <Link href="/privacy" className="underline">Privacidad</Link>
+        Solo para miembros invitados. <Link href="/privacy" className="link">Privacidad</Link>
       </p>
     </main>
   );

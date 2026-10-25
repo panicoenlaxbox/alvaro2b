@@ -39,7 +39,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
       .maybeSingle(),
     listPlayers(),
     listSessionPlays(id),
-    listPhotos(id),
+    listPhotos({ sessionId: id }),
   ]);
   if (!session) notFound();
 
@@ -100,13 +100,17 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
                 Añadir
               </Link>
               {plays.map((play) => (
-                <Link key={play.id} href={`/plays/${play.id}`} className="card block space-y-2 p-3">
+                // The whole card opens the Play; the Game's name above it opens the Game.
+                <article key={play.id} className="card relative space-y-2 p-3">
+                  <Link href={`/plays/${play.id}`} aria-label={`Partida de ${play.game.name}`} className="absolute inset-0 rounded-[inherit]" />
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-semibold">{play.game.name}</p>
+                    <Link href={`/games/${play.game.id}`} className="link relative font-semibold">
+                      {play.game.name}
+                    </Link>
                     <span className="text-xs text-muted">{playSummary(play)}</span>
                   </div>
                   <PlayResult play={play} compact />
-                </Link>
+                </article>
               ))}
             </section>
           </div>
@@ -146,13 +150,18 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           </div>
           <div className="order-4 empty:hidden lg:order-none">
             {session.polls ? (
-              <Link href={`/polls/${session.polls.id}`} className="card block space-y-3">
-                <h2>Votación</h2>
+              // The whole card opens the Poll; the Games' names in the ranking open each Game.
+              <section className="card relative space-y-3">
+                <h2>
+                  <Link href={`/polls/${session.polls.id}`} className="after:absolute after:inset-0 after:rounded-[inherit]">
+                    Votación
+                  </Link>
+                </h2>
                 <p className="text-sm text-muted">
                   ¿A qué jugamos? · {isPollOpen({ closesAt: session.polls.closes_at, closedAt: session.polls.closed_at }) ? "abierta" : "cerrada"}
                 </p>
                 {ranked.length > 0 ? <PollRanking ranked={ranked} /> : <p className="text-sm text-muted">Aún no hay candidatos.</p>}
-              </Link>
+              </section>
             ) : (
               upcoming && (
                 <details className="card">

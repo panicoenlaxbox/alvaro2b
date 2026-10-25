@@ -38,7 +38,7 @@ function Ranking({ title, rows, unit }: { title: string; rows: RankingEntry[]; u
               items={r.items ?? []}
               name={
                 r.href ? (
-                  <Link href={r.href} className="block min-w-0 truncate py-2.5 leading-5 underline">
+                  <Link href={r.href} className="block min-w-0 truncate py-2.5 leading-5 link">
                     {r.name}
                   </Link>
                 ) : (
@@ -207,7 +207,7 @@ function GroupView({
           <ul className="text-[0.9375rem]">
             {stats.neverPlayed.map((id) => (
               <li key={id}>
-                <Link href={`/games/${id}`} className="inline-flex min-h-10 items-center underline">
+                <Link href={`/games/${id}`} className="inline-flex min-h-10 items-center link">
                   {gameName.get(id)}
                 </Link>
               </li>
@@ -248,7 +248,16 @@ function PlayerView({
       <section className="card space-y-1 text-sm">
         <p>
           <span className="text-muted">Juego favorito: </span>
-          {stats.favoriteGame ? `${gameName.get(stats.favoriteGame.id)} (${stats.favoriteGame.count})` : "–"}
+          {stats.favoriteGame ? (
+            <>
+              <Link href={`/games/${stats.favoriteGame.id}`} className="link">
+                {gameName.get(stats.favoriteGame.id)}
+              </Link>{" "}
+              ({stats.favoriteGame.count})
+            </>
+          ) : (
+            "–"
+          )}
         </p>
         <p>
           <span className="text-muted">Némesis: </span>
@@ -274,7 +283,7 @@ function GameView({
   return (
     <>
       <h2 className="text-lg">
-        <Link href={`/games/${game.id}`} className="underline">
+        <Link href={`/games/${game.id}`} className="link">
           {game.name}
         </Link>
       </h2>
