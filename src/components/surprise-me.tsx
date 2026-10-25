@@ -36,8 +36,11 @@ export function SurpriseMe({ games }: { games: { id: string; name: string }[] })
           <DiceIcon className={`size-12 shrink-0 sm:size-16 ${phase === "drawing" ? "animate-spin [animation-duration:700ms]" : ""}`} />
           <div className="min-w-0 flex-1 space-y-1">
             <p className="text-sm font-bold tracking-wider uppercase">{phase === "drawing" ? phrase : "El dado ha hablado"}</p>
-            {/* The side padding, cancelled by the margin, leaves the clip room for the Game link's highlighter stroke. */}
-            <p className={`font-display -mx-[0.3em] overflow-hidden px-[0.3em] text-2xl leading-tight text-ellipsis sm:text-4xl ${phase === "drawing" ? "opacity-60" : ""}`}>
+            {/*
+             * The padding, cancelled by the margin, leaves the clip room for what the Game link draws beyond its
+             * line: the highlighter stroke's overshoot on every side and, on the last line, the underline.
+             */}
+            <p className={`font-display -m-[0.3em] overflow-hidden p-[0.3em] text-2xl leading-tight text-ellipsis sm:text-4xl ${phase === "drawing" ? "opacity-60" : ""}`}>
               {phase === "drawing" || !shown ? (
                 (shown?.name ?? "…")
               ) : (
