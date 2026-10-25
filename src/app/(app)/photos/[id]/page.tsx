@@ -63,7 +63,7 @@ export default async function PhotoPage({ params }: PageProps<"/photos/[id]">) {
       {!view?.signedUrl && photo.caption && <p>{photo.caption}</p>}
       {play && (
         <p className="text-sm text-muted">
-          <Link href={`/plays/${play.id}`} className="link hover:text-foreground">
+          <Link href={`/plays/${play.id}`} className="link">
             Partida de {play.name}
           </Link>
         </p>

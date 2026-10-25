@@ -25,7 +25,7 @@ export function SessionHeader({ session }: { session: SessionSummary | null }) {
             {session.games.map((game, i) => (
               <span key={game.id}>
                 {i > 0 && ", "}
-                <Link href={`/games/${game.id}`} className="link hover:text-foreground">
+                <Link href={`/games/${game.id}`} className="link">
                   {game.name}
                 </Link>
               </span>
