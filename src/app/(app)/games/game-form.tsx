@@ -77,7 +77,7 @@ export function GameForm({
       <div>
         <label htmlFor="bgg_id" className="label">
           Página en{" "}
-          <a href="https://boardgamegeek.com" target="_blank" rel="noreferrer" className="link hover:text-accent">
+          <a href="https://boardgamegeek.com" target="_blank" rel="noreferrer" className="link">
             BoardGameGeek
           </a>
         </label>
